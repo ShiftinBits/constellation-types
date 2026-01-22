@@ -1,8 +1,8 @@
 # Dependencies
 node_modules/
 
-# Build output
-dist/
+# Build output - dist/ intentionally NOT ignored
+# Committed so GitHub installs include built files
 
 # IDE
 .idea/
