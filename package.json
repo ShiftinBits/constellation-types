@@ -42,12 +42,13 @@
 		"zod": "^3.24.1"
 	},
 	"devDependencies": {
-		"@types/node": "^22.10.5",
+		"@types/node": "^24",
 		"husky": "^9.1.7",
-		"tsup": "^8.3.5",
-		"typescript": "^5.7.3"
+		"tsup": "^8.5.1",
+		"typescript": "~5.9.3"
 	},
 	"engines": {
-		"node": ">=22.0.0"
+		"node": ">=24.0.0",
+		"npm": ">=11.0.0"
 	}
 }
