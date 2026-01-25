@@ -15,7 +15,7 @@
 	"files": ["dist"],
 	"scripts": {
 		"build": "tsup",
-		"postbuild": "node -e \"if(!process.env.CI) try { require('child_process').execFileSync('npm', ['link'], {stdio: 'inherit'}) } catch(e) { console.error('Failed to create local NPM link for @constellationdev/types') }\"",
+		"postbuild": "node -e \"if(!process.env.CI) try { require('child_process').execSync('npm link', {stdio:'inherit'}) } catch(e) { console.error('Failed to create local NPM link for @constellationdev/types', e.message) }\"",
 		"type-check": "tsc --noEmit",
 		"clean": "rm -rf dist",
 		"prepare": "husky"
