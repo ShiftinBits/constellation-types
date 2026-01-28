@@ -3,7 +3,7 @@
  *
  * This file exports ONLY the types relevant to MCP API consumers (AI assistants).
  * It excludes CLI-to-Core indexing types (SerializedAST, ImportResolution, etc.)
- * that are not used by the MCP query_code tool.
+ * that are not used by the MCP query_code_graph tool.
  *
  * This file is used to generate the MCP Resource served at constellation://types/api
  *
