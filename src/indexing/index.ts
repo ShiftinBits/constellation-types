@@ -29,4 +29,6 @@ export {
 	type IndexingResponse,
 } from './indexing-response.schema';
 
+export * from './tree-sitter';
+
 export { projectStateSchema, type ProjectState } from './project-state.schema';
