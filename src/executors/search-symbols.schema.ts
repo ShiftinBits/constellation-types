@@ -28,8 +28,8 @@ export const searchSymbolsParamsSchema = z.object({
 	/** Only return exported symbols */
 	isExported: z.boolean().optional(),
 
-	/** Limit to file paths matching this pattern */
-	filePattern: z.string().optional(),
+	/** Filter results to file paths matching this pattern (supports glob and regex) */
+	filterByFile: z.string().optional(),
 
 	/** Maximum number of results (default: 50, max: 100) */
 	limit: z.number().int().positive().max(100).default(50),

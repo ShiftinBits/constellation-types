@@ -216,8 +216,8 @@ var searchSymbolsParamsSchema = zod.z.object({
   filterByVisibility: zod.z.array(zod.z.string()).optional(),
   /** Only return exported symbols */
   isExported: zod.z.boolean().optional(),
-  /** Limit to file paths matching this pattern */
-  filePattern: zod.z.string().optional(),
+  /** Filter results to file paths matching this pattern (supports glob and regex) */
+  filterByFile: zod.z.string().optional(),
   /** Maximum number of results (default: 50, max: 100) */
   limit: zod.z.number().int().positive().max(100).default(50),
   /** Offset for pagination (default: 0) */

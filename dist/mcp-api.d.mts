@@ -560,8 +560,8 @@ declare const searchSymbolsParamsSchema: z.ZodObject<{
     filterByVisibility: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
     /** Only return exported symbols */
     isExported: z.ZodOptional<z.ZodBoolean>;
-    /** Limit to file paths matching this pattern */
-    filePattern: z.ZodOptional<z.ZodString>;
+    /** Filter results to file paths matching this pattern (supports glob and regex) */
+    filterByFile: z.ZodOptional<z.ZodString>;
     /** Maximum number of results (default: 50, max: 100) */
     limit: z.ZodDefault<z.ZodNumber>;
     /** Offset for pagination (default: 0) */
@@ -577,7 +577,7 @@ declare const searchSymbolsParamsSchema: z.ZodObject<{
     filterByKind?: string[] | undefined;
     filterByVisibility?: string[] | undefined;
     isExported?: boolean | undefined;
-    filePattern?: string | undefined;
+    filterByFile?: string | undefined;
     includeUsageCount?: boolean | undefined;
     includeDocumentation?: boolean | undefined;
 }, {
@@ -585,7 +585,7 @@ declare const searchSymbolsParamsSchema: z.ZodObject<{
     filterByKind?: string[] | undefined;
     filterByVisibility?: string[] | undefined;
     isExported?: boolean | undefined;
-    filePattern?: string | undefined;
+    filterByFile?: string | undefined;
     limit?: number | undefined;
     offset?: number | undefined;
     includeUsageCount?: boolean | undefined;
@@ -3337,16 +3337,16 @@ declare const findOrphanedCodeParamsSchema: z.ZodObject<{
     offset: number;
     excludeTests: boolean;
     filterByKind?: string[] | undefined;
-    filePattern?: string | undefined;
     includeConfidence?: boolean | undefined;
+    filePattern?: string | undefined;
     exportedOnly?: boolean | undefined;
 }, {
     filterByKind?: string[] | undefined;
-    filePattern?: string | undefined;
     limit?: number | undefined;
     offset?: number | undefined;
     includeConfidence?: boolean | undefined;
     excludeTests?: boolean | undefined;
+    filePattern?: string | undefined;
     exportedOnly?: boolean | undefined;
 }>;
 type FindOrphanedCodeParams = z.infer<typeof findOrphanedCodeParamsSchema>;
