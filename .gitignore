@@ -1,6 +1,9 @@
 # Dependencies
 node_modules/
 
+# Claude
+.claude/settings.local.json
+
 # Build output - dist/ intentionally NOT ignored
 # Committed so GitHub installs include built files
 
