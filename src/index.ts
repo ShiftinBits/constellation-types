@@ -51,6 +51,7 @@ export {
 	// Constants
 	TEST_PATTERNS,
 	ENTRY_POINT_PATTERNS,
+	PYTHON_STDLIB_MODULES,
 } from './common.schema';
 
 // API Response
