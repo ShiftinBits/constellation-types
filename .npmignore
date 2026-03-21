@@ -1,0 +1,19 @@
+# Source files (only dist is published)
+src/
+tsconfig.json
+tsup.config.ts
+
+# Development files
+.gitignore
+.github/
+.vscode/
+.idea/
+
+# Tests
+*.spec.ts
+*.test.ts
+__tests__/
+coverage/
+
+# Documentation (unless you want it)
+# README.md is kept for npm page
