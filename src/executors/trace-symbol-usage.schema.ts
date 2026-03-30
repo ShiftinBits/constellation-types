@@ -6,6 +6,7 @@
  */
 
 import { z } from 'zod';
+import { complexityMetricsSchema } from '../common.schema';
 
 /**
  * Input parameters schema for tracing symbol usage
@@ -64,6 +65,9 @@ export const tracedSymbolSchema = z.object({
 
 	/** File where symbol is defined */
 	filePath: z.string(),
+
+	/** Cyclomatic complexity metrics (present on function/method symbols) */
+	complexity: complexityMetricsSchema.optional(),
 });
 
 export type TracedSymbol = z.infer<typeof tracedSymbolSchema>;

@@ -181,6 +181,30 @@ type SymbolKindCategory = z.infer<typeof symbolKindCategorySchema>;
 declare const riskLevelSchema: z.ZodEnum<["low", "medium", "high", "critical"]>;
 type RiskLevel = z.infer<typeof riskLevelSchema>;
 /**
+ * Cyclomatic complexity risk level for function/method symbols.
+ * Distinct from riskLevelSchema — different values ('moderate' vs 'medium')
+ * and different concept (code complexity vs impact risk).
+ */
+declare const complexityRiskSchema: z.ZodEnum<["low", "moderate", "high", "very_high"]>;
+type ComplexityRisk = z.infer<typeof complexityRiskSchema>;
+/**
+ * Cyclomatic complexity metrics for a function/method symbol.
+ * Always included on function/method symbols when available.
+ */
+declare const complexityMetricsSchema: z.ZodObject<{
+    /** McCabe cyclomatic complexity score (1 = simplest) */
+    cyclomaticComplexity: z.ZodNumber;
+    /** Risk category: 1-10 low, 11-20 moderate, 21-50 high, 51+ very_high */
+    complexityRisk: z.ZodEnum<["low", "moderate", "high", "very_high"]>;
+}, "strip", z.ZodTypeAny, {
+    cyclomaticComplexity: number;
+    complexityRisk: "low" | "high" | "moderate" | "very_high";
+}, {
+    cyclomaticComplexity: number;
+    complexityRisk: "low" | "high" | "moderate" | "very_high";
+}>;
+type ComplexityMetrics = z.infer<typeof complexityMetricsSchema>;
+/**
  * File location reference (language-agnostic)
  */
 declare const fileLocationSchema: z.ZodObject<{
@@ -627,6 +651,17 @@ declare const symbolInfoSchema: z.ZodObject<{
     isExported: z.ZodBoolean;
     /** Number of places that use this symbol (if includeUsageCount=true) */
     usageCount: z.ZodOptional<z.ZodNumber>;
+    /** Cyclomatic complexity metrics (present on function/method symbols) */
+    complexity: z.ZodOptional<z.ZodObject<{
+        cyclomaticComplexity: z.ZodNumber;
+        complexityRisk: z.ZodEnum<["low", "moderate", "high", "very_high"]>;
+    }, "strip", z.ZodTypeAny, {
+        cyclomaticComplexity: number;
+        complexityRisk: "low" | "high" | "moderate" | "very_high";
+    }, {
+        cyclomaticComplexity: number;
+        complexityRisk: "low" | "high" | "moderate" | "very_high";
+    }>>;
     /** Language-specific metadata */
     languageMetadata: z.ZodOptional<z.ZodObject<{
         language: z.ZodString;
@@ -665,6 +700,10 @@ declare const symbolInfoSchema: z.ZodObject<{
     signature?: string | undefined;
     documentation?: string | undefined;
     usageCount?: number | undefined;
+    complexity?: {
+        cyclomaticComplexity: number;
+        complexityRisk: "low" | "high" | "moderate" | "very_high";
+    } | undefined;
     languageMetadata?: {
         language: string;
         features?: string[] | undefined;
@@ -688,6 +727,10 @@ declare const symbolInfoSchema: z.ZodObject<{
     signature?: string | undefined;
     documentation?: string | undefined;
     usageCount?: number | undefined;
+    complexity?: {
+        cyclomaticComplexity: number;
+        complexityRisk: "low" | "high" | "moderate" | "very_high";
+    } | undefined;
     languageMetadata?: {
         language: string;
         features?: string[] | undefined;
@@ -728,6 +771,17 @@ declare const searchSymbolsResultSchema: z.ZodObject<{
         isExported: z.ZodBoolean;
         /** Number of places that use this symbol (if includeUsageCount=true) */
         usageCount: z.ZodOptional<z.ZodNumber>;
+        /** Cyclomatic complexity metrics (present on function/method symbols) */
+        complexity: z.ZodOptional<z.ZodObject<{
+            cyclomaticComplexity: z.ZodNumber;
+            complexityRisk: z.ZodEnum<["low", "moderate", "high", "very_high"]>;
+        }, "strip", z.ZodTypeAny, {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        }, {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        }>>;
         /** Language-specific metadata */
         languageMetadata: z.ZodOptional<z.ZodObject<{
             language: z.ZodString;
@@ -766,6 +820,10 @@ declare const searchSymbolsResultSchema: z.ZodObject<{
         signature?: string | undefined;
         documentation?: string | undefined;
         usageCount?: number | undefined;
+        complexity?: {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
         languageMetadata?: {
             language: string;
             features?: string[] | undefined;
@@ -789,6 +847,10 @@ declare const searchSymbolsResultSchema: z.ZodObject<{
         signature?: string | undefined;
         documentation?: string | undefined;
         usageCount?: number | undefined;
+        complexity?: {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
         languageMetadata?: {
             language: string;
             features?: string[] | undefined;
@@ -834,6 +896,10 @@ declare const searchSymbolsResultSchema: z.ZodObject<{
         signature?: string | undefined;
         documentation?: string | undefined;
         usageCount?: number | undefined;
+        complexity?: {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
         languageMetadata?: {
             language: string;
             features?: string[] | undefined;
@@ -866,6 +932,10 @@ declare const searchSymbolsResultSchema: z.ZodObject<{
         signature?: string | undefined;
         documentation?: string | undefined;
         usageCount?: number | undefined;
+        complexity?: {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
         languageMetadata?: {
             language: string;
             features?: string[] | undefined;
@@ -958,6 +1028,17 @@ declare const symbolDetailsSchema: z.ZodObject<{
     isExported: z.ZodBoolean;
     /** Whether marked as deprecated */
     isDeprecated: z.ZodBoolean;
+    /** Cyclomatic complexity metrics (present on function/method symbols) */
+    complexity: z.ZodOptional<z.ZodObject<{
+        cyclomaticComplexity: z.ZodNumber;
+        complexityRisk: z.ZodEnum<["low", "moderate", "high", "very_high"]>;
+    }, "strip", z.ZodTypeAny, {
+        cyclomaticComplexity: number;
+        complexityRisk: "low" | "high" | "moderate" | "very_high";
+    }, {
+        cyclomaticComplexity: number;
+        complexityRisk: "low" | "high" | "moderate" | "very_high";
+    }>>;
     /** Language-specific metadata */
     languageMetadata: z.ZodOptional<z.ZodObject<{
         language: z.ZodString;
@@ -998,6 +1079,10 @@ declare const symbolDetailsSchema: z.ZodObject<{
     column?: number | undefined;
     signature?: string | undefined;
     documentation?: string | undefined;
+    complexity?: {
+        cyclomaticComplexity: number;
+        complexityRisk: "low" | "high" | "moderate" | "very_high";
+    } | undefined;
     languageMetadata?: {
         language: string;
         features?: string[] | undefined;
@@ -1024,6 +1109,10 @@ declare const symbolDetailsSchema: z.ZodObject<{
     column?: number | undefined;
     signature?: string | undefined;
     documentation?: string | undefined;
+    complexity?: {
+        cyclomaticComplexity: number;
+        complexityRisk: "low" | "high" | "moderate" | "very_high";
+    } | undefined;
     languageMetadata?: {
         language: string;
         features?: string[] | undefined;
@@ -1159,6 +1248,17 @@ declare const symbolDetailsResultSchema: z.ZodObject<{
         isExported: z.ZodBoolean;
         /** Whether marked as deprecated */
         isDeprecated: z.ZodBoolean;
+        /** Cyclomatic complexity metrics (present on function/method symbols) */
+        complexity: z.ZodOptional<z.ZodObject<{
+            cyclomaticComplexity: z.ZodNumber;
+            complexityRisk: z.ZodEnum<["low", "moderate", "high", "very_high"]>;
+        }, "strip", z.ZodTypeAny, {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        }, {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        }>>;
         /** Language-specific metadata */
         languageMetadata: z.ZodOptional<z.ZodObject<{
             language: z.ZodString;
@@ -1199,6 +1299,10 @@ declare const symbolDetailsResultSchema: z.ZodObject<{
         column?: number | undefined;
         signature?: string | undefined;
         documentation?: string | undefined;
+        complexity?: {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
         languageMetadata?: {
             language: string;
             features?: string[] | undefined;
@@ -1225,6 +1329,10 @@ declare const symbolDetailsResultSchema: z.ZodObject<{
         column?: number | undefined;
         signature?: string | undefined;
         documentation?: string | undefined;
+        complexity?: {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
         languageMetadata?: {
             language: string;
             features?: string[] | undefined;
@@ -1332,6 +1440,10 @@ declare const symbolDetailsResultSchema: z.ZodObject<{
         column?: number | undefined;
         signature?: string | undefined;
         documentation?: string | undefined;
+        complexity?: {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
         languageMetadata?: {
             language: string;
             features?: string[] | undefined;
@@ -1383,6 +1495,10 @@ declare const symbolDetailsResultSchema: z.ZodObject<{
         column?: number | undefined;
         signature?: string | undefined;
         documentation?: string | undefined;
+        complexity?: {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
         languageMetadata?: {
             language: string;
             features?: string[] | undefined;
@@ -2024,14 +2140,33 @@ declare const tracedSymbolSchema: z.ZodObject<{
     kind: z.ZodString;
     /** File where symbol is defined */
     filePath: z.ZodString;
+    /** Cyclomatic complexity metrics (present on function/method symbols) */
+    complexity: z.ZodOptional<z.ZodObject<{
+        cyclomaticComplexity: z.ZodNumber;
+        complexityRisk: z.ZodEnum<["low", "moderate", "high", "very_high"]>;
+    }, "strip", z.ZodTypeAny, {
+        cyclomaticComplexity: number;
+        complexityRisk: "low" | "high" | "moderate" | "very_high";
+    }, {
+        cyclomaticComplexity: number;
+        complexityRisk: "low" | "high" | "moderate" | "very_high";
+    }>>;
 }, "strip", z.ZodTypeAny, {
     filePath: string;
     name: string;
     kind: string;
+    complexity?: {
+        cyclomaticComplexity: number;
+        complexityRisk: "low" | "high" | "moderate" | "very_high";
+    } | undefined;
 }, {
     filePath: string;
     name: string;
     kind: string;
+    complexity?: {
+        cyclomaticComplexity: number;
+        complexityRisk: "low" | "high" | "moderate" | "very_high";
+    } | undefined;
 }>;
 type TracedSymbol = z.infer<typeof tracedSymbolSchema>;
 /**
@@ -2133,14 +2268,33 @@ declare const traceSymbolUsageResultSchema: z.ZodObject<{
         kind: z.ZodString;
         /** File where symbol is defined */
         filePath: z.ZodString;
+        /** Cyclomatic complexity metrics (present on function/method symbols) */
+        complexity: z.ZodOptional<z.ZodObject<{
+            cyclomaticComplexity: z.ZodNumber;
+            complexityRisk: z.ZodEnum<["low", "moderate", "high", "very_high"]>;
+        }, "strip", z.ZodTypeAny, {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        }, {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        }>>;
     }, "strip", z.ZodTypeAny, {
         filePath: string;
         name: string;
         kind: string;
+        complexity?: {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
     }, {
         filePath: string;
         name: string;
         kind: string;
+        complexity?: {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
     }>;
     /** Direct usages of the symbol */
     directUsages: z.ZodArray<z.ZodObject<{
@@ -2228,6 +2382,10 @@ declare const traceSymbolUsageResultSchema: z.ZodObject<{
         filePath: string;
         name: string;
         kind: string;
+        complexity?: {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
     };
     directUsages: {
         filePath: string;
@@ -2255,6 +2413,10 @@ declare const traceSymbolUsageResultSchema: z.ZodObject<{
         filePath: string;
         name: string;
         kind: string;
+        complexity?: {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
     };
     directUsages: {
         filePath: string;
@@ -2345,18 +2507,37 @@ declare const callGraphRootSchema: z.ZodObject<{
     line: z.ZodNumber;
     /** Column number */
     column: z.ZodNumber;
+    /** Cyclomatic complexity metrics (present on function/method symbols) */
+    complexity: z.ZodOptional<z.ZodObject<{
+        cyclomaticComplexity: z.ZodNumber;
+        complexityRisk: z.ZodEnum<["low", "moderate", "high", "very_high"]>;
+    }, "strip", z.ZodTypeAny, {
+        cyclomaticComplexity: number;
+        complexityRisk: "low" | "high" | "moderate" | "very_high";
+    }, {
+        cyclomaticComplexity: number;
+        complexityRisk: "low" | "high" | "moderate" | "very_high";
+    }>>;
 }, "strip", z.ZodTypeAny, {
     filePath: string;
     line: number;
     column: number;
     symbolId: string;
     name: string;
+    complexity?: {
+        cyclomaticComplexity: number;
+        complexityRisk: "low" | "high" | "moderate" | "very_high";
+    } | undefined;
 }, {
     filePath: string;
     line: number;
     column: number;
     symbolId: string;
     name: string;
+    complexity?: {
+        cyclomaticComplexity: number;
+        complexityRisk: "low" | "high" | "moderate" | "very_high";
+    } | undefined;
 }>;
 type CallGraphRoot = z.infer<typeof callGraphRootSchema>;
 /**
@@ -2375,6 +2556,17 @@ declare const callerNodeSchema: z.ZodObject<{
     column: z.ZodNumber;
     /** Depth from root */
     depth: z.ZodNumber;
+    /** Cyclomatic complexity metrics (present on function/method symbols) */
+    complexity: z.ZodOptional<z.ZodObject<{
+        cyclomaticComplexity: z.ZodNumber;
+        complexityRisk: z.ZodEnum<["low", "moderate", "high", "very_high"]>;
+    }, "strip", z.ZodTypeAny, {
+        cyclomaticComplexity: number;
+        complexityRisk: "low" | "high" | "moderate" | "very_high";
+    }, {
+        cyclomaticComplexity: number;
+        complexityRisk: "low" | "high" | "moderate" | "very_high";
+    }>>;
 }, "strip", z.ZodTypeAny, {
     filePath: string;
     line: number;
@@ -2382,6 +2574,10 @@ declare const callerNodeSchema: z.ZodObject<{
     symbolId: string;
     name: string;
     depth: number;
+    complexity?: {
+        cyclomaticComplexity: number;
+        complexityRisk: "low" | "high" | "moderate" | "very_high";
+    } | undefined;
 }, {
     filePath: string;
     line: number;
@@ -2389,6 +2585,10 @@ declare const callerNodeSchema: z.ZodObject<{
     symbolId: string;
     name: string;
     depth: number;
+    complexity?: {
+        cyclomaticComplexity: number;
+        complexityRisk: "low" | "high" | "moderate" | "very_high";
+    } | undefined;
 }>;
 type CallerNode = z.infer<typeof callerNodeSchema>;
 /**
@@ -2409,6 +2609,17 @@ declare const calleeNodeSchema: z.ZodObject<{
     isAsync: z.ZodBoolean;
     /** Depth from root */
     depth: z.ZodNumber;
+    /** Cyclomatic complexity metrics (present on function/method symbols) */
+    complexity: z.ZodOptional<z.ZodObject<{
+        cyclomaticComplexity: z.ZodNumber;
+        complexityRisk: z.ZodEnum<["low", "moderate", "high", "very_high"]>;
+    }, "strip", z.ZodTypeAny, {
+        cyclomaticComplexity: number;
+        complexityRisk: "low" | "high" | "moderate" | "very_high";
+    }, {
+        cyclomaticComplexity: number;
+        complexityRisk: "low" | "high" | "moderate" | "very_high";
+    }>>;
 }, "strip", z.ZodTypeAny, {
     filePath: string;
     line: number;
@@ -2417,6 +2628,10 @@ declare const calleeNodeSchema: z.ZodObject<{
     name: string;
     depth: number;
     isAsync: boolean;
+    complexity?: {
+        cyclomaticComplexity: number;
+        complexityRisk: "low" | "high" | "moderate" | "very_high";
+    } | undefined;
 }, {
     filePath: string;
     line: number;
@@ -2425,6 +2640,10 @@ declare const calleeNodeSchema: z.ZodObject<{
     name: string;
     depth: number;
     isAsync: boolean;
+    complexity?: {
+        cyclomaticComplexity: number;
+        complexityRisk: "low" | "high" | "moderate" | "very_high";
+    } | undefined;
 }>;
 type CalleeNode = z.infer<typeof calleeNodeSchema>;
 /**
@@ -2443,18 +2662,37 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         line: z.ZodNumber;
         /** Column number */
         column: z.ZodNumber;
+        /** Cyclomatic complexity metrics (present on function/method symbols) */
+        complexity: z.ZodOptional<z.ZodObject<{
+            cyclomaticComplexity: z.ZodNumber;
+            complexityRisk: z.ZodEnum<["low", "moderate", "high", "very_high"]>;
+        }, "strip", z.ZodTypeAny, {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        }, {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        }>>;
     }, "strip", z.ZodTypeAny, {
         filePath: string;
         line: number;
         column: number;
         symbolId: string;
         name: string;
+        complexity?: {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
     }, {
         filePath: string;
         line: number;
         column: number;
         symbolId: string;
         name: string;
+        complexity?: {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
     }>;
     /** Functions that call this symbol (if direction includes 'callers') */
     callers: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -2470,6 +2708,17 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         column: z.ZodNumber;
         /** Depth from root */
         depth: z.ZodNumber;
+        /** Cyclomatic complexity metrics (present on function/method symbols) */
+        complexity: z.ZodOptional<z.ZodObject<{
+            cyclomaticComplexity: z.ZodNumber;
+            complexityRisk: z.ZodEnum<["low", "moderate", "high", "very_high"]>;
+        }, "strip", z.ZodTypeAny, {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        }, {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        }>>;
     }, "strip", z.ZodTypeAny, {
         filePath: string;
         line: number;
@@ -2477,6 +2726,10 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         symbolId: string;
         name: string;
         depth: number;
+        complexity?: {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
     }, {
         filePath: string;
         line: number;
@@ -2484,6 +2737,10 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         symbolId: string;
         name: string;
         depth: number;
+        complexity?: {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
     }>, "many">>;
     /** Functions this symbol calls (if direction includes 'callees') */
     callees: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -2501,6 +2758,17 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         isAsync: z.ZodBoolean;
         /** Depth from root */
         depth: z.ZodNumber;
+        /** Cyclomatic complexity metrics (present on function/method symbols) */
+        complexity: z.ZodOptional<z.ZodObject<{
+            cyclomaticComplexity: z.ZodNumber;
+            complexityRisk: z.ZodEnum<["low", "moderate", "high", "very_high"]>;
+        }, "strip", z.ZodTypeAny, {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        }, {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        }>>;
     }, "strip", z.ZodTypeAny, {
         filePath: string;
         line: number;
@@ -2509,6 +2777,10 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         name: string;
         depth: number;
         isAsync: boolean;
+        complexity?: {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
     }, {
         filePath: string;
         line: number;
@@ -2517,6 +2789,10 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         name: string;
         depth: number;
         isAsync: boolean;
+        complexity?: {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
     }>, "many">>;
     /** Graph representation (if includeGraph=true) */
     graph: z.ZodOptional<z.ZodObject<{
@@ -2619,6 +2895,10 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         column: number;
         symbolId: string;
         name: string;
+        complexity?: {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
     };
     callers?: {
         filePath: string;
@@ -2627,6 +2907,10 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         symbolId: string;
         name: string;
         depth: number;
+        complexity?: {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
     }[] | undefined;
     callees?: {
         filePath: string;
@@ -2636,6 +2920,10 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         name: string;
         depth: number;
         isAsync: boolean;
+        complexity?: {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
     }[] | undefined;
     graph?: {
         nodes: {
@@ -2665,6 +2953,10 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         column: number;
         symbolId: string;
         name: string;
+        complexity?: {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
     };
     callers?: {
         filePath: string;
@@ -2673,6 +2965,10 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         symbolId: string;
         name: string;
         depth: number;
+        complexity?: {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
     }[] | undefined;
     callees?: {
         filePath: string;
@@ -2682,6 +2978,10 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         name: string;
         depth: number;
         isAsync: boolean;
+        complexity?: {
+            cyclomaticComplexity: number;
+            complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
     }[] | undefined;
     graph?: {
         nodes: {
@@ -4551,4 +4851,4 @@ declare const pingResultSchema: z.ZodObject<{
 }>;
 type PingResult = z.infer<typeof pingResultSchema>;
 
-export { type SearchSymbolsResult as $, type ApiResponse as A, type BreakingChangeRisk as B, type CallGraphRoot as C, type DataQualityMetadata as D, ENTRY_POINT_PATTERNS as E, type FileLocation as F, type GetArchitectureOverviewParams as G, type ImpactedFile as H, type ImpactAnalysisParams as I, type ImpactedSymbol as J, type LanguageMetadata as K, type LanguageInfo as L, type ModuleGraph as M, type ModuleGraphEdge as N, type ModuleGraphNode as O, type OrphanedFile as P, type OrphanedSymbol as Q, PYTHON_STDLIB_MODULES as R, type PackageDependency as S, type PaginationMetadata as T, type PingParams as U, type PingResult as V, type ProjectMetadata as W, type QualityMetrics as X, type RelationshipDirections as Y, type RiskLevel as Z, type SearchSymbolsParams as _, type CalleeNode as a, paginationMetadataSchema as a$, type StandardGraphEdge as a0, type StandardGraphNode as a1, type StructureStatistics as a2, type SymbolDetails as a3, type SymbolDetailsResult as a4, type SymbolInfo as a5, type SymbolKindCategory as a6, type SymbolReference as a7, type SymbolRelationships as a8, type SymbolUsageReference as a9, findOrphanedCodeResultSchema as aA, frameworkInfoSchema as aB, getArchitectureOverviewParamsSchema as aC, getArchitectureOverviewResultSchema as aD, getCallGraphParamsSchema as aE, getCallGraphResultSchema as aF, getDependenciesParamsSchema as aG, getDependenciesResultSchema as aH, getDependentsParamsSchema as aI, getDependentsResultSchema as aJ, getSymbolDetailsParamsSchema as aK, graphRepresentationSchema as aL, impactAnalysisParamsSchema as aM, impactAnalysisResultSchema as aN, impactScoreSchema as aO, impactedFileSchema as aP, impactedSymbolSchema as aQ, isErrorResponse as aR, isSuccessResponse as aS, languageInfoSchema as aT, languageMetadataSchema as aU, moduleGraphEdgeSchema as aV, moduleGraphNodeSchema as aW, moduleGraphSchema as aX, orphanedFileSchema as aY, orphanedSymbolSchema as aZ, packageDependencySchema as a_, TEST_PATTERNS as aa, type TraceSymbolUsageParams as ab, type TraceSymbolUsageResult as ac, type TracedSymbol as ad, type TransitiveDependency as ae, type TransitiveDependent as af, type TransitiveUsage as ag, apiErrorResponseSchema as ah, apiResponseSchema as ai, breakingChangeRiskSchema as aj, callGraphRootSchema as ak, calleeNodeSchema as al, callerNodeSchema as am, circularDependencyCycleSchema as an, confidenceScoreSchema as ao, dataQualityMetadataSchema as ap, dependencyMetricsSchema as aq, dependencyOverviewSchema as ar, dependentMetricsSchema as as, directDependencySchema as at, directDependentSchema as au, directUsageSchema as av, fileLocationSchema as aw, findCircularDependenciesParamsSchema as ax, findCircularDependenciesResultSchema as ay, findOrphanedCodeParamsSchema as az, type CallerNode as b, pingParamsSchema as b0, pingResultSchema as b1, projectMetadataSchema as b2, qualityMetricsSchema as b3, relationshipDirectionsSchema as b4, riskLevelSchema as b5, searchSymbolsParamsSchema as b6, searchSymbolsResultSchema as b7, standardGraphEdgeSchema as b8, standardGraphNodeSchema as b9, stringRelationshipDirectionsSchema as ba, structureStatisticsSchema as bb, symbolDetailsResultSchema as bc, symbolDetailsSchema as bd, symbolInfoSchema as be, symbolKindCategorySchema as bf, symbolReferenceSchema as bg, symbolRelationshipsSchema as bh, symbolUsageReferenceSchema as bi, traceSymbolUsageParamsSchema as bj, traceSymbolUsageResultSchema as bk, tracedSymbolSchema as bl, transitiveDependencySchema as bm, transitiveDependentSchema as bn, transitiveUsageSchema as bo, type CircularDependencyCycle as c, type ConfidenceScore as d, type DependencyMetrics as e, type DependencyOverview as f, type DependentMetrics as g, type DirectDependency as h, type DirectDependent as i, type DirectUsage as j, type FindCircularDependenciesParams as k, type FindCircularDependenciesResult as l, type FindOrphanedCodeParams as m, type FindOrphanedCodeResult as n, type FrameworkInfo as o, type GetArchitectureOverviewResult as p, type GetCallGraphParams as q, type GetCallGraphResult as r, type GetDependenciesParams as s, type GetDependenciesResult as t, type GetDependentsParams as u, type GetDependentsResult as v, type GetSymbolDetailsParams as w, type GraphRepresentation as x, type ImpactAnalysisResult as y, type ImpactScore as z };
+export { type RiskLevel as $, type ApiResponse as A, type BreakingChangeRisk as B, type CallGraphRoot as C, type DataQualityMetadata as D, ENTRY_POINT_PATTERNS as E, type FileLocation as F, type GetArchitectureOverviewParams as G, type ImpactAnalysisResult as H, type ImpactAnalysisParams as I, type ImpactScore as J, type ImpactedFile as K, type ImpactedSymbol as L, type LanguageInfo as M, type LanguageMetadata as N, type ModuleGraph as O, type ModuleGraphEdge as P, type ModuleGraphNode as Q, type OrphanedFile as R, type OrphanedSymbol as S, PYTHON_STDLIB_MODULES as T, type PackageDependency as U, type PaginationMetadata as V, type PingParams as W, type PingResult as X, type ProjectMetadata as Y, type QualityMetrics as Z, type RelationshipDirections as _, type CalleeNode as a, moduleGraphSchema as a$, type SearchSymbolsParams as a0, type SearchSymbolsResult as a1, type StandardGraphEdge as a2, type StandardGraphNode as a3, type StructureStatistics as a4, type SymbolDetails as a5, type SymbolDetailsResult as a6, type SymbolInfo as a7, type SymbolKindCategory as a8, type SymbolReference as a9, fileLocationSchema as aA, findCircularDependenciesParamsSchema as aB, findCircularDependenciesResultSchema as aC, findOrphanedCodeParamsSchema as aD, findOrphanedCodeResultSchema as aE, frameworkInfoSchema as aF, getArchitectureOverviewParamsSchema as aG, getArchitectureOverviewResultSchema as aH, getCallGraphParamsSchema as aI, getCallGraphResultSchema as aJ, getDependenciesParamsSchema as aK, getDependenciesResultSchema as aL, getDependentsParamsSchema as aM, getDependentsResultSchema as aN, getSymbolDetailsParamsSchema as aO, graphRepresentationSchema as aP, impactAnalysisParamsSchema as aQ, impactAnalysisResultSchema as aR, impactScoreSchema as aS, impactedFileSchema as aT, impactedSymbolSchema as aU, isErrorResponse as aV, isSuccessResponse as aW, languageInfoSchema as aX, languageMetadataSchema as aY, moduleGraphEdgeSchema as aZ, moduleGraphNodeSchema as a_, type SymbolRelationships as aa, type SymbolUsageReference as ab, TEST_PATTERNS as ac, type TraceSymbolUsageParams as ad, type TraceSymbolUsageResult as ae, type TracedSymbol as af, type TransitiveDependency as ag, type TransitiveDependent as ah, type TransitiveUsage as ai, apiErrorResponseSchema as aj, apiResponseSchema as ak, breakingChangeRiskSchema as al, callGraphRootSchema as am, calleeNodeSchema as an, callerNodeSchema as ao, circularDependencyCycleSchema as ap, complexityMetricsSchema as aq, complexityRiskSchema as ar, confidenceScoreSchema as as, dataQualityMetadataSchema as at, dependencyMetricsSchema as au, dependencyOverviewSchema as av, dependentMetricsSchema as aw, directDependencySchema as ax, directDependentSchema as ay, directUsageSchema as az, type CallerNode as b, orphanedFileSchema as b0, orphanedSymbolSchema as b1, packageDependencySchema as b2, paginationMetadataSchema as b3, pingParamsSchema as b4, pingResultSchema as b5, projectMetadataSchema as b6, qualityMetricsSchema as b7, relationshipDirectionsSchema as b8, riskLevelSchema as b9, searchSymbolsParamsSchema as ba, searchSymbolsResultSchema as bb, standardGraphEdgeSchema as bc, standardGraphNodeSchema as bd, stringRelationshipDirectionsSchema as be, structureStatisticsSchema as bf, symbolDetailsResultSchema as bg, symbolDetailsSchema as bh, symbolInfoSchema as bi, symbolKindCategorySchema as bj, symbolReferenceSchema as bk, symbolRelationshipsSchema as bl, symbolUsageReferenceSchema as bm, traceSymbolUsageParamsSchema as bn, traceSymbolUsageResultSchema as bo, tracedSymbolSchema as bp, transitiveDependencySchema as bq, transitiveDependentSchema as br, transitiveUsageSchema as bs, type CircularDependencyCycle as c, type ComplexityMetrics as d, type ComplexityRisk as e, type ConfidenceScore as f, type DependencyMetrics as g, type DependencyOverview as h, type DependentMetrics as i, type DirectDependency as j, type DirectDependent as k, type DirectUsage as l, type FindCircularDependenciesParams as m, type FindCircularDependenciesResult as n, type FindOrphanedCodeParams as o, type FindOrphanedCodeResult as p, type FrameworkInfo as q, type GetArchitectureOverviewResult as r, type GetCallGraphParams as s, type GetCallGraphResult as t, type GetDependenciesParams as u, type GetDependenciesResult as v, type GetDependentsParams as w, type GetDependentsResult as x, type GetSymbolDetailsParams as y, type GraphRepresentation as z };
