@@ -1242,6 +1242,82 @@ var projectStateSchema = zod.z.object({
   /** List of programming languages detected in the project */
   languages: zod.z.array(zod.z.string())
 });
+var graphNodeTypeSchema = zod.z.enum([
+  "function",
+  "class",
+  "variable",
+  "import",
+  "module",
+  "interface",
+  "type",
+  "constant",
+  "export"
+]);
+var graphEdgeTypeSchema = zod.z.enum([
+  "calls",
+  "imports",
+  "extends",
+  "inherits",
+  "implements",
+  "uses",
+  "references",
+  "exports",
+  "contains"
+]);
+var graphNodeSchema = zod.z.object({
+  id: zod.z.string(),
+  label: zod.z.string(),
+  type: graphNodeTypeSchema,
+  data: zod.z.object({
+    filePath: zod.z.string(),
+    lineNumber: zod.z.number().int().nonnegative(),
+    module: zod.z.string(),
+    visibility: zod.z.string(),
+    isExported: zod.z.boolean()
+  })
+});
+var graphEdgeSchema = zod.z.object({
+  id: zod.z.string(),
+  source: zod.z.string(),
+  target: zod.z.string(),
+  type: graphEdgeTypeSchema,
+  label: zod.z.string().optional()
+});
+var graphSummarySchema = zod.z.object({
+  totalNodes: zod.z.number().int().nonnegative(),
+  totalEdges: zod.z.number().int().nonnegative(),
+  toolName: zod.z.string(),
+  query: zod.z.string(),
+  riskLevel: riskLevelSchema.optional()
+});
+var graphMetadataSchema = zod.z.object({
+  projectName: zod.z.string(),
+  branch: zod.z.string(),
+  asOfCommit: zod.z.string(),
+  lastIndexedAt: zod.z.string()
+});
+var graphToolResultSchema = zod.z.object({
+  nodes: zod.z.array(graphNodeSchema),
+  edges: zod.z.array(graphEdgeSchema),
+  summary: graphSummarySchema,
+  metadata: graphMetadataSchema
+});
+var projectInfoSchema = zod.z.object({
+  projectId: zod.z.string(),
+  projectName: zod.z.string(),
+  defaultBranch: zod.z.string(),
+  lastIndexedAt: zod.z.string().optional(),
+  fileCount: zod.z.number().int().nonnegative().optional(),
+  languages: zod.z.array(zod.z.string()).optional()
+});
+var projectListResponseSchema = zod.z.object({
+  projects: zod.z.array(projectInfoSchema)
+});
+var projectResolveResponseSchema = zod.z.object({
+  projectId: zod.z.string(),
+  projectName: zod.z.string(),
+  defaultBranch: zod.z.string()
+});
 
 exports.ENTRY_POINT_PATTERNS = ENTRY_POINT_PATTERNS;
 exports.PYTHON_STDLIB_MODULES = PYTHON_STDLIB_MODULES;
@@ -1279,7 +1355,14 @@ exports.getDependenciesResultSchema = getDependenciesResultSchema;
 exports.getDependentsParamsSchema = getDependentsParamsSchema;
 exports.getDependentsResultSchema = getDependentsResultSchema;
 exports.getSymbolDetailsParamsSchema = getSymbolDetailsParamsSchema;
+exports.graphEdgeSchema = graphEdgeSchema;
+exports.graphEdgeTypeSchema = graphEdgeTypeSchema;
+exports.graphMetadataSchema = graphMetadataSchema;
+exports.graphNodeSchema = graphNodeSchema;
+exports.graphNodeTypeSchema = graphNodeTypeSchema;
 exports.graphRepresentationSchema = graphRepresentationSchema;
+exports.graphSummarySchema = graphSummarySchema;
+exports.graphToolResultSchema = graphToolResultSchema;
 exports.impactAnalysisParamsSchema = impactAnalysisParamsSchema;
 exports.impactAnalysisResultSchema = impactAnalysisResultSchema;
 exports.impactScoreSchema = impactScoreSchema;
@@ -1302,7 +1385,10 @@ exports.packageDependencySchema = packageDependencySchema;
 exports.paginationMetadataSchema = paginationMetadataSchema;
 exports.pingParamsSchema = pingParamsSchema;
 exports.pingResultSchema = pingResultSchema;
+exports.projectInfoSchema = projectInfoSchema;
+exports.projectListResponseSchema = projectListResponseSchema;
 exports.projectMetadataSchema = projectMetadataSchema;
+exports.projectResolveResponseSchema = projectResolveResponseSchema;
 exports.projectStateSchema = projectStateSchema;
 exports.qualityMetricsSchema = qualityMetricsSchema;
 exports.relationshipDirectionsSchema = relationshipDirectionsSchema;

@@ -461,4 +461,363 @@ declare const projectStateSchema: z.ZodObject<{
 }>;
 type ProjectState = z.infer<typeof projectStateSchema>;
 
-export { type FileFailure, type ImportResolution, type ImportResolutionMetadata, type ImportType, type IndexingResponse, type Point, type ProjectState, type RelationshipFailure, type RelationshipSummary, type SerializedAST, type SyntaxNode, type Tree, fileFailureSchema, importResolutionMetadataSchema, importResolutionSchema, importTypeSchema, indexingResponseSchema, projectStateSchema, relationshipFailureSchema, relationshipSummarySchema, serializedAstSchema };
+declare const graphNodeTypeSchema: z.ZodEnum<["function", "class", "variable", "import", "module", "interface", "type", "constant", "export"]>;
+type GraphNodeType = z.infer<typeof graphNodeTypeSchema>;
+declare const graphEdgeTypeSchema: z.ZodEnum<["calls", "imports", "extends", "inherits", "implements", "uses", "references", "exports", "contains"]>;
+type GraphEdgeType = z.infer<typeof graphEdgeTypeSchema>;
+declare const graphNodeSchema: z.ZodObject<{
+    id: z.ZodString;
+    label: z.ZodString;
+    type: z.ZodEnum<["function", "class", "variable", "import", "module", "interface", "type", "constant", "export"]>;
+    data: z.ZodObject<{
+        filePath: z.ZodString;
+        lineNumber: z.ZodNumber;
+        module: z.ZodString;
+        visibility: z.ZodString;
+        isExported: z.ZodBoolean;
+    }, "strip", z.ZodTypeAny, {
+        visibility: string;
+        module: string;
+        filePath: string;
+        isExported: boolean;
+        lineNumber: number;
+    }, {
+        visibility: string;
+        module: string;
+        filePath: string;
+        isExported: boolean;
+        lineNumber: number;
+    }>;
+}, "strip", z.ZodTypeAny, {
+    type: "function" | "type" | "class" | "interface" | "variable" | "constant" | "module" | "import" | "export";
+    id: string;
+    data: {
+        visibility: string;
+        module: string;
+        filePath: string;
+        isExported: boolean;
+        lineNumber: number;
+    };
+    label: string;
+}, {
+    type: "function" | "type" | "class" | "interface" | "variable" | "constant" | "module" | "import" | "export";
+    id: string;
+    data: {
+        visibility: string;
+        module: string;
+        filePath: string;
+        isExported: boolean;
+        lineNumber: number;
+    };
+    label: string;
+}>;
+type GraphNode = z.infer<typeof graphNodeSchema>;
+declare const graphEdgeSchema: z.ZodObject<{
+    id: z.ZodString;
+    source: z.ZodString;
+    target: z.ZodString;
+    type: z.ZodEnum<["calls", "imports", "extends", "inherits", "implements", "uses", "references", "exports", "contains"]>;
+    label: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    type: "calls" | "references" | "imports" | "extends" | "inherits" | "implements" | "uses" | "exports" | "contains";
+    id: string;
+    source: string;
+    target: string;
+    label?: string | undefined;
+}, {
+    type: "calls" | "references" | "imports" | "extends" | "inherits" | "implements" | "uses" | "exports" | "contains";
+    id: string;
+    source: string;
+    target: string;
+    label?: string | undefined;
+}>;
+type GraphEdge = z.infer<typeof graphEdgeSchema>;
+declare const graphSummarySchema: z.ZodObject<{
+    totalNodes: z.ZodNumber;
+    totalEdges: z.ZodNumber;
+    toolName: z.ZodString;
+    query: z.ZodString;
+    riskLevel: z.ZodOptional<z.ZodEnum<["low", "medium", "high", "critical"]>>;
+}, "strip", z.ZodTypeAny, {
+    query: string;
+    totalNodes: number;
+    totalEdges: number;
+    toolName: string;
+    riskLevel?: "low" | "medium" | "high" | "critical" | undefined;
+}, {
+    query: string;
+    totalNodes: number;
+    totalEdges: number;
+    toolName: string;
+    riskLevel?: "low" | "medium" | "high" | "critical" | undefined;
+}>;
+type GraphSummary = z.infer<typeof graphSummarySchema>;
+declare const graphMetadataSchema: z.ZodObject<{
+    projectName: z.ZodString;
+    branch: z.ZodString;
+    asOfCommit: z.ZodString;
+    lastIndexedAt: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    projectName: string;
+    branch: string;
+    lastIndexedAt: string;
+    asOfCommit: string;
+}, {
+    projectName: string;
+    branch: string;
+    lastIndexedAt: string;
+    asOfCommit: string;
+}>;
+type GraphMetadata = z.infer<typeof graphMetadataSchema>;
+declare const graphToolResultSchema: z.ZodObject<{
+    nodes: z.ZodArray<z.ZodObject<{
+        id: z.ZodString;
+        label: z.ZodString;
+        type: z.ZodEnum<["function", "class", "variable", "import", "module", "interface", "type", "constant", "export"]>;
+        data: z.ZodObject<{
+            filePath: z.ZodString;
+            lineNumber: z.ZodNumber;
+            module: z.ZodString;
+            visibility: z.ZodString;
+            isExported: z.ZodBoolean;
+        }, "strip", z.ZodTypeAny, {
+            visibility: string;
+            module: string;
+            filePath: string;
+            isExported: boolean;
+            lineNumber: number;
+        }, {
+            visibility: string;
+            module: string;
+            filePath: string;
+            isExported: boolean;
+            lineNumber: number;
+        }>;
+    }, "strip", z.ZodTypeAny, {
+        type: "function" | "type" | "class" | "interface" | "variable" | "constant" | "module" | "import" | "export";
+        id: string;
+        data: {
+            visibility: string;
+            module: string;
+            filePath: string;
+            isExported: boolean;
+            lineNumber: number;
+        };
+        label: string;
+    }, {
+        type: "function" | "type" | "class" | "interface" | "variable" | "constant" | "module" | "import" | "export";
+        id: string;
+        data: {
+            visibility: string;
+            module: string;
+            filePath: string;
+            isExported: boolean;
+            lineNumber: number;
+        };
+        label: string;
+    }>, "many">;
+    edges: z.ZodArray<z.ZodObject<{
+        id: z.ZodString;
+        source: z.ZodString;
+        target: z.ZodString;
+        type: z.ZodEnum<["calls", "imports", "extends", "inherits", "implements", "uses", "references", "exports", "contains"]>;
+        label: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        type: "calls" | "references" | "imports" | "extends" | "inherits" | "implements" | "uses" | "exports" | "contains";
+        id: string;
+        source: string;
+        target: string;
+        label?: string | undefined;
+    }, {
+        type: "calls" | "references" | "imports" | "extends" | "inherits" | "implements" | "uses" | "exports" | "contains";
+        id: string;
+        source: string;
+        target: string;
+        label?: string | undefined;
+    }>, "many">;
+    summary: z.ZodObject<{
+        totalNodes: z.ZodNumber;
+        totalEdges: z.ZodNumber;
+        toolName: z.ZodString;
+        query: z.ZodString;
+        riskLevel: z.ZodOptional<z.ZodEnum<["low", "medium", "high", "critical"]>>;
+    }, "strip", z.ZodTypeAny, {
+        query: string;
+        totalNodes: number;
+        totalEdges: number;
+        toolName: string;
+        riskLevel?: "low" | "medium" | "high" | "critical" | undefined;
+    }, {
+        query: string;
+        totalNodes: number;
+        totalEdges: number;
+        toolName: string;
+        riskLevel?: "low" | "medium" | "high" | "critical" | undefined;
+    }>;
+    metadata: z.ZodObject<{
+        projectName: z.ZodString;
+        branch: z.ZodString;
+        asOfCommit: z.ZodString;
+        lastIndexedAt: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        projectName: string;
+        branch: string;
+        lastIndexedAt: string;
+        asOfCommit: string;
+    }, {
+        projectName: string;
+        branch: string;
+        lastIndexedAt: string;
+        asOfCommit: string;
+    }>;
+}, "strip", z.ZodTypeAny, {
+    nodes: {
+        type: "function" | "type" | "class" | "interface" | "variable" | "constant" | "module" | "import" | "export";
+        id: string;
+        data: {
+            visibility: string;
+            module: string;
+            filePath: string;
+            isExported: boolean;
+            lineNumber: number;
+        };
+        label: string;
+    }[];
+    edges: {
+        type: "calls" | "references" | "imports" | "extends" | "inherits" | "implements" | "uses" | "exports" | "contains";
+        id: string;
+        source: string;
+        target: string;
+        label?: string | undefined;
+    }[];
+    metadata: {
+        projectName: string;
+        branch: string;
+        lastIndexedAt: string;
+        asOfCommit: string;
+    };
+    summary: {
+        query: string;
+        totalNodes: number;
+        totalEdges: number;
+        toolName: string;
+        riskLevel?: "low" | "medium" | "high" | "critical" | undefined;
+    };
+}, {
+    nodes: {
+        type: "function" | "type" | "class" | "interface" | "variable" | "constant" | "module" | "import" | "export";
+        id: string;
+        data: {
+            visibility: string;
+            module: string;
+            filePath: string;
+            isExported: boolean;
+            lineNumber: number;
+        };
+        label: string;
+    }[];
+    edges: {
+        type: "calls" | "references" | "imports" | "extends" | "inherits" | "implements" | "uses" | "exports" | "contains";
+        id: string;
+        source: string;
+        target: string;
+        label?: string | undefined;
+    }[];
+    metadata: {
+        projectName: string;
+        branch: string;
+        lastIndexedAt: string;
+        asOfCommit: string;
+    };
+    summary: {
+        query: string;
+        totalNodes: number;
+        totalEdges: number;
+        toolName: string;
+        riskLevel?: "low" | "medium" | "high" | "critical" | undefined;
+    };
+}>;
+type GraphToolResult = z.infer<typeof graphToolResultSchema>;
+
+declare const projectInfoSchema: z.ZodObject<{
+    projectId: z.ZodString;
+    projectName: z.ZodString;
+    defaultBranch: z.ZodString;
+    lastIndexedAt: z.ZodOptional<z.ZodString>;
+    fileCount: z.ZodOptional<z.ZodNumber>;
+    languages: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+}, "strip", z.ZodTypeAny, {
+    projectId: string;
+    projectName: string;
+    defaultBranch: string;
+    fileCount?: number | undefined;
+    languages?: string[] | undefined;
+    lastIndexedAt?: string | undefined;
+}, {
+    projectId: string;
+    projectName: string;
+    defaultBranch: string;
+    fileCount?: number | undefined;
+    languages?: string[] | undefined;
+    lastIndexedAt?: string | undefined;
+}>;
+type ProjectInfo = z.infer<typeof projectInfoSchema>;
+declare const projectListResponseSchema: z.ZodObject<{
+    projects: z.ZodArray<z.ZodObject<{
+        projectId: z.ZodString;
+        projectName: z.ZodString;
+        defaultBranch: z.ZodString;
+        lastIndexedAt: z.ZodOptional<z.ZodString>;
+        fileCount: z.ZodOptional<z.ZodNumber>;
+        languages: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, "strip", z.ZodTypeAny, {
+        projectId: string;
+        projectName: string;
+        defaultBranch: string;
+        fileCount?: number | undefined;
+        languages?: string[] | undefined;
+        lastIndexedAt?: string | undefined;
+    }, {
+        projectId: string;
+        projectName: string;
+        defaultBranch: string;
+        fileCount?: number | undefined;
+        languages?: string[] | undefined;
+        lastIndexedAt?: string | undefined;
+    }>, "many">;
+}, "strip", z.ZodTypeAny, {
+    projects: {
+        projectId: string;
+        projectName: string;
+        defaultBranch: string;
+        fileCount?: number | undefined;
+        languages?: string[] | undefined;
+        lastIndexedAt?: string | undefined;
+    }[];
+}, {
+    projects: {
+        projectId: string;
+        projectName: string;
+        defaultBranch: string;
+        fileCount?: number | undefined;
+        languages?: string[] | undefined;
+        lastIndexedAt?: string | undefined;
+    }[];
+}>;
+type ProjectListResponse = z.infer<typeof projectListResponseSchema>;
+declare const projectResolveResponseSchema: z.ZodObject<{
+    projectId: z.ZodString;
+    projectName: z.ZodString;
+    defaultBranch: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    projectId: string;
+    projectName: string;
+    defaultBranch: string;
+}, {
+    projectId: string;
+    projectName: string;
+    defaultBranch: string;
+}>;
+type ProjectResolveResponse = z.infer<typeof projectResolveResponseSchema>;
+
+export { type FileFailure, type GraphEdge, type GraphEdgeType, type GraphMetadata, type GraphNode, type GraphNodeType, type GraphSummary, type GraphToolResult, type ImportResolution, type ImportResolutionMetadata, type ImportType, type IndexingResponse, type Point, type ProjectInfo, type ProjectListResponse, type ProjectResolveResponse, type ProjectState, type RelationshipFailure, type RelationshipSummary, type SerializedAST, type SyntaxNode, type Tree, fileFailureSchema, graphEdgeSchema, graphEdgeTypeSchema, graphMetadataSchema, graphNodeSchema, graphNodeTypeSchema, graphSummarySchema, graphToolResultSchema, importResolutionMetadataSchema, importResolutionSchema, importTypeSchema, indexingResponseSchema, projectInfoSchema, projectListResponseSchema, projectResolveResponseSchema, projectStateSchema, relationshipFailureSchema, relationshipSummarySchema, serializedAstSchema };
