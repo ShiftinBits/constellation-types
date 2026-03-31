@@ -16,34 +16,48 @@ import {
 /**
  * Input parameters schema for symbol search
  */
-export const searchSymbolsParamsSchema = z.object({
-	/** Name or pattern to search for (max: 200 chars) */
-	query: z.string().min(1).max(200),
+export const searchSymbolsParamsSchema = z
+	.object({
+		/** Name or pattern to search for (max: 200 chars). Can be empty when filterByKind or other filters are provided. */
+		query: z.string().max(200),
 
-	/** Filter by symbol type (use strings for language-agnostic extensibility) */
-	filterByKind: z.array(z.string()).optional(),
+		/** Filter by symbol type (use strings for language-agnostic extensibility) */
+		filterByKind: z.array(z.string()).optional(),
 
-	/** Filter by access modifier (public, private, protected) */
-	filterByVisibility: z.array(z.string()).optional(),
+		/** Filter by access modifier (public, private, protected) */
+		filterByVisibility: z.array(z.string()).optional(),
 
-	/** Only return exported symbols */
-	isExported: z.boolean().optional(),
+		/** Only return exported symbols */
+		isExported: z.boolean().optional(),
 
-	/** Filter results to file paths matching this pattern (supports glob and regex) */
-	filterByFile: z.string().optional(),
+		/** Filter results to file paths matching this pattern (supports glob and regex) */
+		filterByFile: z.string().optional(),
 
-	/** Maximum number of results (default: 50, max: 100) */
-	limit: z.number().int().positive().max(100).default(50),
+		/** Maximum number of results (default: 50, max: 100) */
+		limit: z.number().int().positive().max(100).default(50),
 
-	/** Offset for pagination (default: 0) */
-	offset: z.number().int().nonnegative().default(0),
+		/** Offset for pagination (default: 0) */
+		offset: z.number().int().nonnegative().default(0),
 
-	/** Include usage count information */
-	includeUsageCount: z.boolean().optional(),
+		/** Include usage count information */
+		includeUsageCount: z.boolean().optional(),
 
-	/** Include full documentation */
-	includeDocumentation: z.boolean().optional(),
-});
+		/** Include full documentation */
+		includeDocumentation: z.boolean().optional(),
+	})
+	.refine(
+		(data) =>
+			data.query.length > 0 ||
+			(data.filterByKind && data.filterByKind.length > 0) ||
+			(data.filterByVisibility && data.filterByVisibility.length > 0) ||
+			data.isExported !== undefined ||
+			data.filterByFile !== undefined,
+		{
+			message:
+				'Either query must be non-empty or at least one filter (filterByKind, filterByVisibility, isExported, filterByFile) must be provided',
+			path: ['query'],
+		},
+	);
 
 export type SearchSymbolsParams = z.infer<typeof searchSymbolsParamsSchema>;
 

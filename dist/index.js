@@ -434,8 +434,8 @@ function isErrorResponse(response) {
   return response.success === false;
 }
 var searchSymbolsParamsSchema = zod.z.object({
-  /** Name or pattern to search for (max: 200 chars) */
-  query: zod.z.string().min(1).max(200),
+  /** Name or pattern to search for (max: 200 chars). Can be empty when filterByKind or other filters are provided. */
+  query: zod.z.string().max(200),
   /** Filter by symbol type (use strings for language-agnostic extensibility) */
   filterByKind: zod.z.array(zod.z.string()).optional(),
   /** Filter by access modifier (public, private, protected) */
@@ -452,7 +452,13 @@ var searchSymbolsParamsSchema = zod.z.object({
   includeUsageCount: zod.z.boolean().optional(),
   /** Include full documentation */
   includeDocumentation: zod.z.boolean().optional()
-});
+}).refine(
+  (data) => data.query.length > 0 || data.filterByKind && data.filterByKind.length > 0 || data.filterByVisibility && data.filterByVisibility.length > 0 || data.isExported !== void 0 || data.filterByFile !== void 0,
+  {
+    message: "Either query must be non-empty or at least one filter (filterByKind, filterByVisibility, isExported, filterByFile) must be provided",
+    path: ["query"]
+  }
+);
 var symbolInfoSchema = fileLocationSchema.extend({
   /** Unique symbol identifier */
   id: zod.z.string(),

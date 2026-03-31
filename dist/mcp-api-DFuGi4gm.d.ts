@@ -582,8 +582,8 @@ declare function isErrorResponse<T>(response: ApiResponse<T>): response is {
 /**
  * Input parameters schema for symbol search
  */
-declare const searchSymbolsParamsSchema: z.ZodObject<{
-    /** Name or pattern to search for (max: 200 chars) */
+declare const searchSymbolsParamsSchema: z.ZodEffects<z.ZodObject<{
+    /** Name or pattern to search for (max: 200 chars). Can be empty when filterByKind or other filters are provided. */
     query: z.ZodString;
     /** Filter by symbol type (use strings for language-agnostic extensibility) */
     filterByKind: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
@@ -602,6 +602,26 @@ declare const searchSymbolsParamsSchema: z.ZodObject<{
     /** Include full documentation */
     includeDocumentation: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
+    query: string;
+    limit: number;
+    offset: number;
+    filterByKind?: string[] | undefined;
+    filterByVisibility?: string[] | undefined;
+    isExported?: boolean | undefined;
+    filterByFile?: string | undefined;
+    includeUsageCount?: boolean | undefined;
+    includeDocumentation?: boolean | undefined;
+}, {
+    query: string;
+    filterByKind?: string[] | undefined;
+    filterByVisibility?: string[] | undefined;
+    isExported?: boolean | undefined;
+    filterByFile?: string | undefined;
+    limit?: number | undefined;
+    offset?: number | undefined;
+    includeUsageCount?: boolean | undefined;
+    includeDocumentation?: boolean | undefined;
+}>, {
     query: string;
     limit: number;
     offset: number;
