@@ -181,6 +181,38 @@ export const riskLevelSchema = z.enum(['low', 'medium', 'high', 'critical']);
 export type RiskLevel = z.infer<typeof riskLevelSchema>;
 
 // =============================================================================
+// Complexity Metrics
+// =============================================================================
+
+/**
+ * Cyclomatic complexity risk level for function/method symbols.
+ * Distinct from riskLevelSchema — different values ('moderate' vs 'medium')
+ * and different concept (code complexity vs impact risk).
+ */
+export const complexityRiskSchema = z.enum([
+	'low',
+	'moderate',
+	'high',
+	'very_high',
+]);
+
+export type ComplexityRisk = z.infer<typeof complexityRiskSchema>;
+
+/**
+ * Cyclomatic complexity metrics for a function/method symbol.
+ * Always included on function/method symbols when available.
+ */
+export const complexityMetricsSchema = z.object({
+	/** McCabe cyclomatic complexity score (1 = simplest) */
+	cyclomaticComplexity: z.number().int().nonnegative(),
+
+	/** Risk category: 1-10 low, 11-20 moderate, 21-50 high, 51+ very_high */
+	complexityRisk: complexityRiskSchema,
+});
+
+export type ComplexityMetrics = z.infer<typeof complexityMetricsSchema>;
+
+// =============================================================================
 // File Location
 // =============================================================================
 

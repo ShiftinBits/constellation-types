@@ -88,6 +88,18 @@ var symbolKindCategorySchema = zod.z.enum([
   "unknown"
 ]);
 var riskLevelSchema = zod.z.enum(["low", "medium", "high", "critical"]);
+var complexityRiskSchema = zod.z.enum([
+  "low",
+  "moderate",
+  "high",
+  "very_high"
+]);
+var complexityMetricsSchema = zod.z.object({
+  /** McCabe cyclomatic complexity score (1 = simplest) */
+  cyclomaticComplexity: zod.z.number().int().nonnegative(),
+  /** Risk category: 1-10 low, 11-20 moderate, 21-50 high, 51+ very_high */
+  complexityRisk: complexityRiskSchema
+});
 var fileLocationSchema = zod.z.object({
   /** File path (relative to project root) */
   filePath: zod.z.string(),
@@ -460,6 +472,8 @@ var symbolInfoSchema = fileLocationSchema.extend({
   isExported: zod.z.boolean(),
   /** Number of places that use this symbol (if includeUsageCount=true) */
   usageCount: zod.z.number().int().nonnegative().optional(),
+  /** Cyclomatic complexity metrics (present on function/method symbols) */
+  complexity: complexityMetricsSchema.optional(),
   /** Language-specific metadata */
   languageMetadata: languageMetadataSchema.optional()
 });
@@ -508,6 +522,8 @@ var symbolDetailsSchema = fileLocationSchema.extend({
   isExported: zod.z.boolean(),
   /** Whether marked as deprecated */
   isDeprecated: zod.z.boolean(),
+  /** Cyclomatic complexity metrics (present on function/method symbols) */
+  complexity: complexityMetricsSchema.optional(),
   /** Language-specific metadata */
   languageMetadata: languageMetadataSchema.optional()
 });
@@ -727,7 +743,9 @@ var tracedSymbolSchema = zod.z.object({
   /** Symbol kind */
   kind: zod.z.string(),
   /** File where symbol is defined */
-  filePath: zod.z.string()
+  filePath: zod.z.string(),
+  /** Cyclomatic complexity metrics (present on function/method symbols) */
+  complexity: complexityMetricsSchema.optional()
 });
 var directUsageSchema = zod.z.object({
   /** File path where symbol is used */
@@ -803,7 +821,9 @@ var callGraphRootSchema = zod.z.object({
   /** Line number */
   line: zod.z.number().int().positive(),
   /** Column number */
-  column: zod.z.number().int().nonnegative()
+  column: zod.z.number().int().nonnegative(),
+  /** Cyclomatic complexity metrics (present on function/method symbols) */
+  complexity: complexityMetricsSchema.optional()
 });
 var callerNodeSchema = zod.z.object({
   /** Symbol ID */
@@ -817,7 +837,9 @@ var callerNodeSchema = zod.z.object({
   /** Column number */
   column: zod.z.number().int().nonnegative(),
   /** Depth from root */
-  depth: zod.z.number().int().nonnegative()
+  depth: zod.z.number().int().nonnegative(),
+  /** Cyclomatic complexity metrics (present on function/method symbols) */
+  complexity: complexityMetricsSchema.optional()
 });
 var calleeNodeSchema = zod.z.object({
   /** Symbol ID */
@@ -833,7 +855,9 @@ var calleeNodeSchema = zod.z.object({
   /** Whether call is async */
   isAsync: zod.z.boolean(),
   /** Depth from root */
-  depth: zod.z.number().int().nonnegative()
+  depth: zod.z.number().int().nonnegative(),
+  /** Cyclomatic complexity metrics (present on function/method symbols) */
+  complexity: complexityMetricsSchema.optional()
 });
 var getCallGraphResultSchema = zod.z.object({
   /** Root symbol */
@@ -1223,6 +1247,8 @@ exports.callGraphRootSchema = callGraphRootSchema;
 exports.calleeNodeSchema = calleeNodeSchema;
 exports.callerNodeSchema = callerNodeSchema;
 exports.circularDependencyCycleSchema = circularDependencyCycleSchema;
+exports.complexityMetricsSchema = complexityMetricsSchema;
+exports.complexityRiskSchema = complexityRiskSchema;
 exports.confidenceScoreSchema = confidenceScoreSchema;
 exports.dataQualityMetadataSchema = dataQualityMetadataSchema;
 exports.dependencyMetricsSchema = dependencyMetricsSchema;

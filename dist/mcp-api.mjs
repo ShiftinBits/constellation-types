@@ -86,6 +86,18 @@ var symbolKindCategorySchema = z.enum([
   "unknown"
 ]);
 var riskLevelSchema = z.enum(["low", "medium", "high", "critical"]);
+var complexityRiskSchema = z.enum([
+  "low",
+  "moderate",
+  "high",
+  "very_high"
+]);
+var complexityMetricsSchema = z.object({
+  /** McCabe cyclomatic complexity score (1 = simplest) */
+  cyclomaticComplexity: z.number().int().nonnegative(),
+  /** Risk category: 1-10 low, 11-20 moderate, 21-50 high, 51+ very_high */
+  complexityRisk: complexityRiskSchema
+});
 var fileLocationSchema = z.object({
   /** File path (relative to project root) */
   filePath: z.string(),
@@ -244,6 +256,8 @@ var symbolInfoSchema = fileLocationSchema.extend({
   isExported: z.boolean(),
   /** Number of places that use this symbol (if includeUsageCount=true) */
   usageCount: z.number().int().nonnegative().optional(),
+  /** Cyclomatic complexity metrics (present on function/method symbols) */
+  complexity: complexityMetricsSchema.optional(),
   /** Language-specific metadata */
   languageMetadata: languageMetadataSchema.optional()
 });
@@ -292,6 +306,8 @@ var symbolDetailsSchema = fileLocationSchema.extend({
   isExported: z.boolean(),
   /** Whether marked as deprecated */
   isDeprecated: z.boolean(),
+  /** Cyclomatic complexity metrics (present on function/method symbols) */
+  complexity: complexityMetricsSchema.optional(),
   /** Language-specific metadata */
   languageMetadata: languageMetadataSchema.optional()
 });
@@ -511,7 +527,9 @@ var tracedSymbolSchema = z.object({
   /** Symbol kind */
   kind: z.string(),
   /** File where symbol is defined */
-  filePath: z.string()
+  filePath: z.string(),
+  /** Cyclomatic complexity metrics (present on function/method symbols) */
+  complexity: complexityMetricsSchema.optional()
 });
 var directUsageSchema = z.object({
   /** File path where symbol is used */
@@ -587,7 +605,9 @@ var callGraphRootSchema = z.object({
   /** Line number */
   line: z.number().int().positive(),
   /** Column number */
-  column: z.number().int().nonnegative()
+  column: z.number().int().nonnegative(),
+  /** Cyclomatic complexity metrics (present on function/method symbols) */
+  complexity: complexityMetricsSchema.optional()
 });
 var callerNodeSchema = z.object({
   /** Symbol ID */
@@ -601,7 +621,9 @@ var callerNodeSchema = z.object({
   /** Column number */
   column: z.number().int().nonnegative(),
   /** Depth from root */
-  depth: z.number().int().nonnegative()
+  depth: z.number().int().nonnegative(),
+  /** Cyclomatic complexity metrics (present on function/method symbols) */
+  complexity: complexityMetricsSchema.optional()
 });
 var calleeNodeSchema = z.object({
   /** Symbol ID */
@@ -617,7 +639,9 @@ var calleeNodeSchema = z.object({
   /** Whether call is async */
   isAsync: z.boolean(),
   /** Depth from root */
-  depth: z.number().int().nonnegative()
+  depth: z.number().int().nonnegative(),
+  /** Cyclomatic complexity metrics (present on function/method symbols) */
+  complexity: complexityMetricsSchema.optional()
 });
 var getCallGraphResultSchema = z.object({
   /** Root symbol */
@@ -907,6 +931,6 @@ var pingResultSchema = z.object({
   pong: z.literal(true)
 });
 
-export { ENTRY_POINT_PATTERNS, TEST_PATTERNS, apiErrorResponseSchema, apiResponseSchema, breakingChangeRiskSchema, callGraphRootSchema, calleeNodeSchema, callerNodeSchema, circularDependencyCycleSchema, confidenceScoreSchema, dataQualityMetadataSchema, dependencyMetricsSchema, dependencyOverviewSchema, dependentMetricsSchema, directDependencySchema, directDependentSchema, directUsageSchema, fileLocationSchema, findCircularDependenciesParamsSchema, findCircularDependenciesResultSchema, findOrphanedCodeParamsSchema, findOrphanedCodeResultSchema, frameworkInfoSchema, getArchitectureOverviewParamsSchema, getArchitectureOverviewResultSchema, getCallGraphParamsSchema, getCallGraphResultSchema, getDependenciesParamsSchema, getDependenciesResultSchema, getDependentsParamsSchema, getDependentsResultSchema, getSymbolDetailsParamsSchema, graphRepresentationSchema, impactAnalysisParamsSchema, impactAnalysisResultSchema, impactScoreSchema, impactedFileSchema, impactedSymbolSchema, isErrorResponse, isSuccessResponse, languageInfoSchema, languageMetadataSchema, moduleGraphEdgeSchema, moduleGraphNodeSchema, moduleGraphSchema, orphanedFileSchema, orphanedSymbolSchema, packageDependencySchema, paginationMetadataSchema, pingParamsSchema, pingResultSchema, projectMetadataSchema, qualityMetricsSchema, relationshipDirectionsSchema, riskLevelSchema, searchSymbolsParamsSchema, searchSymbolsResultSchema, standardGraphEdgeSchema, standardGraphNodeSchema, stringRelationshipDirectionsSchema, structureStatisticsSchema, symbolDetailsResultSchema, symbolDetailsSchema, symbolInfoSchema, symbolKindCategorySchema, symbolReferenceSchema, symbolRelationshipsSchema, symbolUsageReferenceSchema, traceSymbolUsageParamsSchema, traceSymbolUsageResultSchema, tracedSymbolSchema, transitiveDependencySchema, transitiveDependentSchema, transitiveUsageSchema };
+export { ENTRY_POINT_PATTERNS, TEST_PATTERNS, apiErrorResponseSchema, apiResponseSchema, breakingChangeRiskSchema, callGraphRootSchema, calleeNodeSchema, callerNodeSchema, circularDependencyCycleSchema, complexityMetricsSchema, complexityRiskSchema, confidenceScoreSchema, dataQualityMetadataSchema, dependencyMetricsSchema, dependencyOverviewSchema, dependentMetricsSchema, directDependencySchema, directDependentSchema, directUsageSchema, fileLocationSchema, findCircularDependenciesParamsSchema, findCircularDependenciesResultSchema, findOrphanedCodeParamsSchema, findOrphanedCodeResultSchema, frameworkInfoSchema, getArchitectureOverviewParamsSchema, getArchitectureOverviewResultSchema, getCallGraphParamsSchema, getCallGraphResultSchema, getDependenciesParamsSchema, getDependenciesResultSchema, getDependentsParamsSchema, getDependentsResultSchema, getSymbolDetailsParamsSchema, graphRepresentationSchema, impactAnalysisParamsSchema, impactAnalysisResultSchema, impactScoreSchema, impactedFileSchema, impactedSymbolSchema, isErrorResponse, isSuccessResponse, languageInfoSchema, languageMetadataSchema, moduleGraphEdgeSchema, moduleGraphNodeSchema, moduleGraphSchema, orphanedFileSchema, orphanedSymbolSchema, packageDependencySchema, paginationMetadataSchema, pingParamsSchema, pingResultSchema, projectMetadataSchema, qualityMetricsSchema, relationshipDirectionsSchema, riskLevelSchema, searchSymbolsParamsSchema, searchSymbolsResultSchema, standardGraphEdgeSchema, standardGraphNodeSchema, stringRelationshipDirectionsSchema, structureStatisticsSchema, symbolDetailsResultSchema, symbolDetailsSchema, symbolInfoSchema, symbolKindCategorySchema, symbolReferenceSchema, symbolRelationshipsSchema, symbolUsageReferenceSchema, traceSymbolUsageParamsSchema, traceSymbolUsageResultSchema, tracedSymbolSchema, transitiveDependencySchema, transitiveDependentSchema, transitiveUsageSchema };
 //# sourceMappingURL=mcp-api.mjs.map
 //# sourceMappingURL=mcp-api.mjs.map

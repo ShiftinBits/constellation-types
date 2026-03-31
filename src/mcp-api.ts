@@ -37,6 +37,12 @@ export {
 	riskLevelSchema,
 	type RiskLevel,
 
+	// Complexity Metrics
+	complexityRiskSchema,
+	complexityMetricsSchema,
+	type ComplexityRisk,
+	type ComplexityMetrics,
+
 	// File Location
 	fileLocationSchema,
 	symbolReferenceSchema,

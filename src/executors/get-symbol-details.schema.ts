@@ -10,6 +10,7 @@ import {
 	languageMetadataSchema,
 	fileLocationSchema,
 	riskLevelSchema,
+	complexityMetricsSchema,
 } from '../common.schema';
 
 /**
@@ -78,6 +79,9 @@ export const symbolDetailsSchema = fileLocationSchema.extend({
 
 	/** Whether marked as deprecated */
 	isDeprecated: z.boolean(),
+
+	/** Cyclomatic complexity metrics (present on function/method symbols) */
+	complexity: complexityMetricsSchema.optional(),
 
 	/** Language-specific metadata */
 	languageMetadata: languageMetadataSchema.optional(),

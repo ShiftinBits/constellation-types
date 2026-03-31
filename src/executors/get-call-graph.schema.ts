@@ -6,7 +6,10 @@
  */
 
 import { z } from 'zod';
-import { graphRepresentationSchema } from '../common.schema';
+import {
+	graphRepresentationSchema,
+	complexityMetricsSchema,
+} from '../common.schema';
 
 /**
  * Input parameters schema for getting call graph
@@ -60,6 +63,9 @@ export const callGraphRootSchema = z.object({
 
 	/** Column number */
 	column: z.number().int().nonnegative(),
+
+	/** Cyclomatic complexity metrics (present on function/method symbols) */
+	complexity: complexityMetricsSchema.optional(),
 });
 
 export type CallGraphRoot = z.infer<typeof callGraphRootSchema>;
@@ -85,6 +91,9 @@ export const callerNodeSchema = z.object({
 
 	/** Depth from root */
 	depth: z.number().int().nonnegative(),
+
+	/** Cyclomatic complexity metrics (present on function/method symbols) */
+	complexity: complexityMetricsSchema.optional(),
 });
 
 export type CallerNode = z.infer<typeof callerNodeSchema>;
@@ -113,6 +122,9 @@ export const calleeNodeSchema = z.object({
 
 	/** Depth from root */
 	depth: z.number().int().nonnegative(),
+
+	/** Cyclomatic complexity metrics (present on function/method symbols) */
+	complexity: complexityMetricsSchema.optional(),
 });
 
 export type CalleeNode = z.infer<typeof calleeNodeSchema>;

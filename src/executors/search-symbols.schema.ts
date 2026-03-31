@@ -10,6 +10,7 @@ import {
 	paginationMetadataSchema,
 	languageMetadataSchema,
 	fileLocationSchema,
+	complexityMetricsSchema,
 } from '../common.schema';
 
 /**
@@ -76,6 +77,9 @@ export const symbolInfoSchema = fileLocationSchema.extend({
 
 	/** Number of places that use this symbol (if includeUsageCount=true) */
 	usageCount: z.number().int().nonnegative().optional(),
+
+	/** Cyclomatic complexity metrics (present on function/method symbols) */
+	complexity: complexityMetricsSchema.optional(),
 
 	/** Language-specific metadata */
 	languageMetadata: languageMetadataSchema.optional(),
