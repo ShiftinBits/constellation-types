@@ -74,3 +74,6 @@ export * from './executors';
 
 // All indexing schemas (CLI <-> Core)
 export * from './indexing';
+
+// MCP App types (graph visualization + project listing)
+export * from './mcp-app';
