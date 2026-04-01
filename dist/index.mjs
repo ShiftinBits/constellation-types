@@ -1298,7 +1298,8 @@ var graphToolResultSchema = z.object({
   nodes: z.array(graphNodeSchema),
   edges: z.array(graphEdgeSchema),
   summary: graphSummarySchema,
-  metadata: graphMetadataSchema
+  metadata: graphMetadataSchema,
+  features: z.record(z.string(), z.boolean()).optional()
 });
 var projectInfoSchema = z.object({
   projectId: z.string(),

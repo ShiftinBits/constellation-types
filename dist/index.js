@@ -1300,7 +1300,8 @@ var graphToolResultSchema = zod.z.object({
   nodes: zod.z.array(graphNodeSchema),
   edges: zod.z.array(graphEdgeSchema),
   summary: graphSummarySchema,
-  metadata: graphMetadataSchema
+  metadata: graphMetadataSchema,
+  features: zod.z.record(zod.z.string(), zod.z.boolean()).optional()
 });
 var projectInfoSchema = zod.z.object({
   projectId: zod.z.string(),

@@ -60,5 +60,6 @@ export const graphToolResultSchema = z.object({
 	edges: z.array(graphEdgeSchema),
 	summary: graphSummarySchema,
 	metadata: graphMetadataSchema,
+	features: z.record(z.string(), z.boolean()).optional(),
 });
 export type GraphToolResult = z.infer<typeof graphToolResultSchema>;

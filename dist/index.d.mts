@@ -670,6 +670,7 @@ declare const graphToolResultSchema: z.ZodObject<{
         lastIndexedAt: string;
         asOfCommit: string;
     }>;
+    features: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodBoolean>>;
 }, "strip", z.ZodTypeAny, {
     nodes: {
         type: "function" | "type" | "class" | "interface" | "variable" | "constant" | "module" | "import" | "export";
@@ -703,6 +704,7 @@ declare const graphToolResultSchema: z.ZodObject<{
         toolName: string;
         riskLevel?: "low" | "medium" | "high" | "critical" | undefined;
     };
+    features?: Record<string, boolean> | undefined;
 }, {
     nodes: {
         type: "function" | "type" | "class" | "interface" | "variable" | "constant" | "module" | "import" | "export";
@@ -736,6 +738,7 @@ declare const graphToolResultSchema: z.ZodObject<{
         toolName: string;
         riskLevel?: "low" | "medium" | "high" | "critical" | undefined;
     };
+    features?: Record<string, boolean> | undefined;
 }>;
 type GraphToolResult = z.infer<typeof graphToolResultSchema>;
 
