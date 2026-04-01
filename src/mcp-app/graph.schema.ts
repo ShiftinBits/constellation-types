@@ -51,7 +51,7 @@ export const graphMetadataSchema = z.object({
 	projectName: z.string(),
 	branch: z.string(),
 	asOfCommit: z.string(),
-	lastIndexedAt: z.string(),
+	lastIndexedAt: z.string().datetime(),
 });
 export type GraphMetadata = z.infer<typeof graphMetadataSchema>;
 

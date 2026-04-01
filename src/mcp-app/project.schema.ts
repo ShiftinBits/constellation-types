@@ -4,7 +4,7 @@ export const projectInfoSchema = z.object({
 	projectId: z.string(),
 	projectName: z.string(),
 	defaultBranch: z.string(),
-	lastIndexedAt: z.string().optional(),
+	lastIndexedAt: z.string().datetime().optional(),
 	fileCount: z.number().int().nonnegative().optional(),
 	languages: z.array(z.string()).optional(),
 });
@@ -15,9 +15,9 @@ export const projectListResponseSchema = z.object({
 });
 export type ProjectListResponse = z.infer<typeof projectListResponseSchema>;
 
-export const projectResolveResponseSchema = z.object({
-	projectId: z.string(),
-	projectName: z.string(),
-	defaultBranch: z.string(),
+export const projectResolveResponseSchema = projectInfoSchema.pick({
+	projectId: true,
+	projectName: true,
+	defaultBranch: true,
 });
 export type ProjectResolveResponse = z.infer<typeof projectResolveResponseSchema>;

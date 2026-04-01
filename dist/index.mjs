@@ -1292,7 +1292,7 @@ var graphMetadataSchema = z.object({
   projectName: z.string(),
   branch: z.string(),
   asOfCommit: z.string(),
-  lastIndexedAt: z.string()
+  lastIndexedAt: z.string().datetime()
 });
 var graphToolResultSchema = z.object({
   nodes: z.array(graphNodeSchema),
@@ -1305,17 +1305,17 @@ var projectInfoSchema = z.object({
   projectId: z.string(),
   projectName: z.string(),
   defaultBranch: z.string(),
-  lastIndexedAt: z.string().optional(),
+  lastIndexedAt: z.string().datetime().optional(),
   fileCount: z.number().int().nonnegative().optional(),
   languages: z.array(z.string()).optional()
 });
 var projectListResponseSchema = z.object({
   projects: z.array(projectInfoSchema)
 });
-var projectResolveResponseSchema = z.object({
-  projectId: z.string(),
-  projectName: z.string(),
-  defaultBranch: z.string()
+var projectResolveResponseSchema = projectInfoSchema.pick({
+  projectId: true,
+  projectName: true,
+  defaultBranch: true
 });
 
 export { ENTRY_POINT_PATTERNS, PYTHON_STDLIB_MODULES, TEST_PATTERNS, apiErrorResponseSchema, apiResponseSchema, breakingChangeRiskSchema, callGraphRootSchema, calleeNodeSchema, callerNodeSchema, circularDependencyCycleSchema, complexityMetricsSchema, complexityRiskSchema, confidenceScoreSchema, dataQualityMetadataSchema, dependencyMetricsSchema, dependencyOverviewSchema, dependentMetricsSchema, directDependencySchema, directDependentSchema, directUsageSchema, fileFailureSchema, fileLocationSchema, findCircularDependenciesParamsSchema, findCircularDependenciesResultSchema, findOrphanedCodeParamsSchema, findOrphanedCodeResultSchema, frameworkInfoSchema, getArchitectureOverviewParamsSchema, getArchitectureOverviewResultSchema, getCallGraphParamsSchema, getCallGraphResultSchema, getDependenciesParamsSchema, getDependenciesResultSchema, getDependentsParamsSchema, getDependentsResultSchema, getSymbolDetailsParamsSchema, graphEdgeSchema, graphEdgeTypeSchema, graphMetadataSchema, graphNodeSchema, graphNodeTypeSchema, graphRepresentationSchema, graphSummarySchema, graphToolResultSchema, impactAnalysisParamsSchema, impactAnalysisResultSchema, impactScoreSchema, impactedFileSchema, impactedSymbolSchema, importResolutionMetadataSchema, importResolutionSchema, importTypeSchema, indexingResponseSchema, isErrorResponse, isSuccessResponse, languageInfoSchema, languageMetadataSchema, moduleGraphEdgeSchema, moduleGraphNodeSchema, moduleGraphSchema, orphanedFileSchema, orphanedSymbolSchema, packageDependencySchema, paginationMetadataSchema, pingParamsSchema, pingResultSchema, projectInfoSchema, projectListResponseSchema, projectMetadataSchema, projectResolveResponseSchema, projectStateSchema, qualityMetricsSchema, relationshipDirectionsSchema, relationshipFailureSchema, relationshipSummarySchema, riskLevelSchema, searchSymbolsParamsSchema, searchSymbolsResultSchema, serializedAstSchema, standardGraphEdgeSchema, standardGraphNodeSchema, stringRelationshipDirectionsSchema, structureStatisticsSchema, symbolDetailsResultSchema, symbolDetailsSchema, symbolInfoSchema, symbolKindCategorySchema, symbolReferenceSchema, symbolRelationshipsSchema, symbolUsageReferenceSchema, traceSymbolUsageParamsSchema, traceSymbolUsageResultSchema, tracedSymbolSchema, transitiveDependencySchema, transitiveDependentSchema, transitiveUsageSchema };

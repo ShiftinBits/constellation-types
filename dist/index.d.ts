@@ -808,11 +808,14 @@ declare const projectListResponseSchema: z.ZodObject<{
     }[];
 }>;
 type ProjectListResponse = z.infer<typeof projectListResponseSchema>;
-declare const projectResolveResponseSchema: z.ZodObject<{
+declare const projectResolveResponseSchema: z.ZodObject<Pick<{
     projectId: z.ZodString;
     projectName: z.ZodString;
     defaultBranch: z.ZodString;
-}, "strip", z.ZodTypeAny, {
+    lastIndexedAt: z.ZodOptional<z.ZodString>;
+    fileCount: z.ZodOptional<z.ZodNumber>;
+    languages: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+}, "projectId" | "projectName" | "defaultBranch">, "strip", z.ZodTypeAny, {
     projectId: string;
     projectName: string;
     defaultBranch: string;

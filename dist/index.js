@@ -1294,7 +1294,7 @@ var graphMetadataSchema = zod.z.object({
   projectName: zod.z.string(),
   branch: zod.z.string(),
   asOfCommit: zod.z.string(),
-  lastIndexedAt: zod.z.string()
+  lastIndexedAt: zod.z.string().datetime()
 });
 var graphToolResultSchema = zod.z.object({
   nodes: zod.z.array(graphNodeSchema),
@@ -1307,17 +1307,17 @@ var projectInfoSchema = zod.z.object({
   projectId: zod.z.string(),
   projectName: zod.z.string(),
   defaultBranch: zod.z.string(),
-  lastIndexedAt: zod.z.string().optional(),
+  lastIndexedAt: zod.z.string().datetime().optional(),
   fileCount: zod.z.number().int().nonnegative().optional(),
   languages: zod.z.array(zod.z.string()).optional()
 });
 var projectListResponseSchema = zod.z.object({
   projects: zod.z.array(projectInfoSchema)
 });
-var projectResolveResponseSchema = zod.z.object({
-  projectId: zod.z.string(),
-  projectName: zod.z.string(),
-  defaultBranch: zod.z.string()
+var projectResolveResponseSchema = projectInfoSchema.pick({
+  projectId: true,
+  projectName: true,
+  defaultBranch: true
 });
 
 exports.ENTRY_POINT_PATTERNS = ENTRY_POINT_PATTERNS;
