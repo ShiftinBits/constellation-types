@@ -1087,7 +1087,7 @@ declare const createErrorReportSchema: z.ZodObject<{
 }>;
 type CreateErrorReport = z.infer<typeof createErrorReportSchema>;
 declare const updateErrorReportSchema: z.ZodObject<{
-    status: z.ZodEnum<["resolved", "unresolved"]>;
+    status: z.ZodEnum<["unresolved", "resolved"]>;
 }, "strip", z.ZodTypeAny, {
     status: "unresolved" | "resolved";
 }, {

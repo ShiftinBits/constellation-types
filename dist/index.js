@@ -1347,7 +1347,7 @@ var errorDataSchema = zod.z.object({
 var logEntrySchema = zod.z.object({
   level: logLevelSchema,
   message: zod.z.string(),
-  timestamp: zod.z.string()
+  timestamp: zod.z.string().datetime()
 });
 var createErrorReportSchema = zod.z.object({
   errorSummary: zod.z.string().max(500),
@@ -1358,7 +1358,7 @@ var createErrorReportSchema = zod.z.object({
   indexType: indexTypeSchema
 });
 var updateErrorReportSchema = zod.z.object({
-  status: zod.z.enum(["resolved", "unresolved"])
+  status: indexErrorReportStatusSchema.exclude(["archived"])
 });
 var errorReportResponseSchema = zod.z.object({
   id: zod.z.string(),

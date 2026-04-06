@@ -48,7 +48,7 @@ export type ErrorData = z.infer<typeof errorDataSchema>;
 export const logEntrySchema = z.object({
 	level: logLevelSchema,
 	message: z.string(),
-	timestamp: z.string(),
+	timestamp: z.string().datetime(),
 });
 export type LogEntry = z.infer<typeof logEntrySchema>;
 
@@ -65,7 +65,7 @@ export const createErrorReportSchema = z.object({
 export type CreateErrorReport = z.infer<typeof createErrorReportSchema>;
 
 export const updateErrorReportSchema = z.object({
-	status: z.enum(['resolved', 'unresolved']),
+	status: indexErrorReportStatusSchema.exclude(['archived']),
 });
 export type UpdateErrorReport = z.infer<typeof updateErrorReportSchema>;
 
