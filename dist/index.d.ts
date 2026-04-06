@@ -826,4 +826,473 @@ declare const projectResolveResponseSchema: z.ZodObject<Pick<{
 }>;
 type ProjectResolveResponse = z.infer<typeof projectResolveResponseSchema>;
 
-export { type FileFailure, type GraphEdge, type GraphEdgeType, type GraphMetadata, type GraphNode, type GraphNodeType, type GraphSummary, type GraphToolResult, type ImportResolution, type ImportResolutionMetadata, type ImportType, type IndexingResponse, type Point, type ProjectInfo, type ProjectListResponse, type ProjectResolveResponse, type ProjectState, type RelationshipFailure, type RelationshipSummary, type SerializedAST, type SyntaxNode, type Tree, fileFailureSchema, graphEdgeSchema, graphEdgeTypeSchema, graphMetadataSchema, graphNodeSchema, graphNodeTypeSchema, graphSummarySchema, graphToolResultSchema, importResolutionMetadataSchema, importResolutionSchema, importTypeSchema, indexingResponseSchema, projectInfoSchema, projectListResponseSchema, projectResolveResponseSchema, projectStateSchema, relationshipFailureSchema, relationshipSummarySchema, serializedAstSchema };
+declare const indexErrorReportStatusSchema: z.ZodEnum<["unresolved", "resolved", "archived"]>;
+type IndexErrorReportStatus = z.infer<typeof indexErrorReportStatusSchema>;
+declare const indexOutcomeSchema: z.ZodEnum<["succeeded", "failed"]>;
+type IndexOutcome = z.infer<typeof indexOutcomeSchema>;
+declare const indexTypeSchema: z.ZodEnum<["full", "incremental"]>;
+type IndexType = z.infer<typeof indexTypeSchema>;
+declare const logLevelSchema: z.ZodEnum<["info", "warn", "error"]>;
+type LogLevel = z.infer<typeof logLevelSchema>;
+declare const errorEntrySchema: z.ZodObject<{
+    type: z.ZodString;
+    message: z.ZodString;
+    phase: z.ZodString;
+    filePath: z.ZodOptional<z.ZodString>;
+    stack: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    message: string;
+    type: string;
+    phase: string;
+    filePath?: string | undefined;
+    stack?: string | undefined;
+}, {
+    message: string;
+    type: string;
+    phase: string;
+    filePath?: string | undefined;
+    stack?: string | undefined;
+}>;
+type ErrorEntry = z.infer<typeof errorEntrySchema>;
+declare const warningEntrySchema: z.ZodObject<{
+    type: z.ZodString;
+    message: z.ZodString;
+    phase: z.ZodString;
+    filePath: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    message: string;
+    type: string;
+    phase: string;
+    filePath?: string | undefined;
+}, {
+    message: string;
+    type: string;
+    phase: string;
+    filePath?: string | undefined;
+}>;
+type WarningEntry = z.infer<typeof warningEntrySchema>;
+declare const errorDataSchema: z.ZodObject<{
+    errors: z.ZodArray<z.ZodObject<{
+        type: z.ZodString;
+        message: z.ZodString;
+        phase: z.ZodString;
+        filePath: z.ZodOptional<z.ZodString>;
+        stack: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        message: string;
+        type: string;
+        phase: string;
+        filePath?: string | undefined;
+        stack?: string | undefined;
+    }, {
+        message: string;
+        type: string;
+        phase: string;
+        filePath?: string | undefined;
+        stack?: string | undefined;
+    }>, "many">;
+    warnings: z.ZodArray<z.ZodObject<{
+        type: z.ZodString;
+        message: z.ZodString;
+        phase: z.ZodString;
+        filePath: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        message: string;
+        type: string;
+        phase: string;
+        filePath?: string | undefined;
+    }, {
+        message: string;
+        type: string;
+        phase: string;
+        filePath?: string | undefined;
+    }>, "many">;
+}, "strip", z.ZodTypeAny, {
+    warnings: {
+        message: string;
+        type: string;
+        phase: string;
+        filePath?: string | undefined;
+    }[];
+    errors: {
+        message: string;
+        type: string;
+        phase: string;
+        filePath?: string | undefined;
+        stack?: string | undefined;
+    }[];
+}, {
+    warnings: {
+        message: string;
+        type: string;
+        phase: string;
+        filePath?: string | undefined;
+    }[];
+    errors: {
+        message: string;
+        type: string;
+        phase: string;
+        filePath?: string | undefined;
+        stack?: string | undefined;
+    }[];
+}>;
+type ErrorData = z.infer<typeof errorDataSchema>;
+declare const logEntrySchema: z.ZodObject<{
+    level: z.ZodEnum<["info", "warn", "error"]>;
+    message: z.ZodString;
+    timestamp: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    message: string;
+    timestamp: string;
+    level: "error" | "info" | "warn";
+}, {
+    message: string;
+    timestamp: string;
+    level: "error" | "info" | "warn";
+}>;
+type LogEntry = z.infer<typeof logEntrySchema>;
+declare const createErrorReportSchema: z.ZodObject<{
+    errorSummary: z.ZodString;
+    errorData: z.ZodObject<{
+        errors: z.ZodArray<z.ZodObject<{
+            type: z.ZodString;
+            message: z.ZodString;
+            phase: z.ZodString;
+            filePath: z.ZodOptional<z.ZodString>;
+            stack: z.ZodOptional<z.ZodString>;
+        }, "strip", z.ZodTypeAny, {
+            message: string;
+            type: string;
+            phase: string;
+            filePath?: string | undefined;
+            stack?: string | undefined;
+        }, {
+            message: string;
+            type: string;
+            phase: string;
+            filePath?: string | undefined;
+            stack?: string | undefined;
+        }>, "many">;
+        warnings: z.ZodArray<z.ZodObject<{
+            type: z.ZodString;
+            message: z.ZodString;
+            phase: z.ZodString;
+            filePath: z.ZodOptional<z.ZodString>;
+        }, "strip", z.ZodTypeAny, {
+            message: string;
+            type: string;
+            phase: string;
+            filePath?: string | undefined;
+        }, {
+            message: string;
+            type: string;
+            phase: string;
+            filePath?: string | undefined;
+        }>, "many">;
+    }, "strip", z.ZodTypeAny, {
+        warnings: {
+            message: string;
+            type: string;
+            phase: string;
+            filePath?: string | undefined;
+        }[];
+        errors: {
+            message: string;
+            type: string;
+            phase: string;
+            filePath?: string | undefined;
+            stack?: string | undefined;
+        }[];
+    }, {
+        warnings: {
+            message: string;
+            type: string;
+            phase: string;
+            filePath?: string | undefined;
+        }[];
+        errors: {
+            message: string;
+            type: string;
+            phase: string;
+            filePath?: string | undefined;
+            stack?: string | undefined;
+        }[];
+    }>;
+    logEntries: z.ZodArray<z.ZodObject<{
+        level: z.ZodEnum<["info", "warn", "error"]>;
+        message: z.ZodString;
+        timestamp: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        message: string;
+        timestamp: string;
+        level: "error" | "info" | "warn";
+    }, {
+        message: string;
+        timestamp: string;
+        level: "error" | "info" | "warn";
+    }>, "many">;
+    cliVersion: z.ZodString;
+    outcome: z.ZodEnum<["succeeded", "failed"]>;
+    indexType: z.ZodEnum<["full", "incremental"]>;
+}, "strip", z.ZodTypeAny, {
+    errorSummary: string;
+    errorData: {
+        warnings: {
+            message: string;
+            type: string;
+            phase: string;
+            filePath?: string | undefined;
+        }[];
+        errors: {
+            message: string;
+            type: string;
+            phase: string;
+            filePath?: string | undefined;
+            stack?: string | undefined;
+        }[];
+    };
+    logEntries: {
+        message: string;
+        timestamp: string;
+        level: "error" | "info" | "warn";
+    }[];
+    cliVersion: string;
+    outcome: "failed" | "succeeded";
+    indexType: "full" | "incremental";
+}, {
+    errorSummary: string;
+    errorData: {
+        warnings: {
+            message: string;
+            type: string;
+            phase: string;
+            filePath?: string | undefined;
+        }[];
+        errors: {
+            message: string;
+            type: string;
+            phase: string;
+            filePath?: string | undefined;
+            stack?: string | undefined;
+        }[];
+    };
+    logEntries: {
+        message: string;
+        timestamp: string;
+        level: "error" | "info" | "warn";
+    }[];
+    cliVersion: string;
+    outcome: "failed" | "succeeded";
+    indexType: "full" | "incremental";
+}>;
+type CreateErrorReport = z.infer<typeof createErrorReportSchema>;
+declare const updateErrorReportSchema: z.ZodObject<{
+    status: z.ZodEnum<["resolved", "unresolved"]>;
+}, "strip", z.ZodTypeAny, {
+    status: "unresolved" | "resolved";
+}, {
+    status: "unresolved" | "resolved";
+}>;
+type UpdateErrorReport = z.infer<typeof updateErrorReportSchema>;
+declare const errorReportResponseSchema: z.ZodObject<{
+    id: z.ZodString;
+    organizationId: z.ZodString;
+    userId: z.ZodString;
+    projectId: z.ZodString;
+    branchName: z.ZodString;
+    commitHash: z.ZodNullable<z.ZodString>;
+    indexType: z.ZodEnum<["full", "incremental"]>;
+    status: z.ZodEnum<["unresolved", "resolved", "archived"]>;
+    outcome: z.ZodEnum<["succeeded", "failed"]>;
+    errorSummary: z.ZodString;
+    errorData: z.ZodObject<{
+        errors: z.ZodArray<z.ZodObject<{
+            type: z.ZodString;
+            message: z.ZodString;
+            phase: z.ZodString;
+            filePath: z.ZodOptional<z.ZodString>;
+            stack: z.ZodOptional<z.ZodString>;
+        }, "strip", z.ZodTypeAny, {
+            message: string;
+            type: string;
+            phase: string;
+            filePath?: string | undefined;
+            stack?: string | undefined;
+        }, {
+            message: string;
+            type: string;
+            phase: string;
+            filePath?: string | undefined;
+            stack?: string | undefined;
+        }>, "many">;
+        warnings: z.ZodArray<z.ZodObject<{
+            type: z.ZodString;
+            message: z.ZodString;
+            phase: z.ZodString;
+            filePath: z.ZodOptional<z.ZodString>;
+        }, "strip", z.ZodTypeAny, {
+            message: string;
+            type: string;
+            phase: string;
+            filePath?: string | undefined;
+        }, {
+            message: string;
+            type: string;
+            phase: string;
+            filePath?: string | undefined;
+        }>, "many">;
+    }, "strip", z.ZodTypeAny, {
+        warnings: {
+            message: string;
+            type: string;
+            phase: string;
+            filePath?: string | undefined;
+        }[];
+        errors: {
+            message: string;
+            type: string;
+            phase: string;
+            filePath?: string | undefined;
+            stack?: string | undefined;
+        }[];
+    }, {
+        warnings: {
+            message: string;
+            type: string;
+            phase: string;
+            filePath?: string | undefined;
+        }[];
+        errors: {
+            message: string;
+            type: string;
+            phase: string;
+            filePath?: string | undefined;
+            stack?: string | undefined;
+        }[];
+    }>;
+    logEntries: z.ZodArray<z.ZodObject<{
+        level: z.ZodEnum<["info", "warn", "error"]>;
+        message: z.ZodString;
+        timestamp: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        message: string;
+        timestamp: string;
+        level: "error" | "info" | "warn";
+    }, {
+        message: string;
+        timestamp: string;
+        level: "error" | "info" | "warn";
+    }>, "many">;
+    cliVersion: z.ZodString;
+    resolvedAt: z.ZodNullable<z.ZodString>;
+    resolvedBy: z.ZodNullable<z.ZodString>;
+    createdAt: z.ZodString;
+    updatedAt: z.ZodString;
+    organizationName: z.ZodOptional<z.ZodString>;
+    projectName: z.ZodOptional<z.ZodString>;
+    userEmail: z.ZodOptional<z.ZodString>;
+    resolvedByEmail: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    status: "unresolved" | "resolved" | "archived";
+    id: string;
+    projectId: string;
+    branchName: string;
+    errorSummary: string;
+    errorData: {
+        warnings: {
+            message: string;
+            type: string;
+            phase: string;
+            filePath?: string | undefined;
+        }[];
+        errors: {
+            message: string;
+            type: string;
+            phase: string;
+            filePath?: string | undefined;
+            stack?: string | undefined;
+        }[];
+    };
+    logEntries: {
+        message: string;
+        timestamp: string;
+        level: "error" | "info" | "warn";
+    }[];
+    cliVersion: string;
+    outcome: "failed" | "succeeded";
+    indexType: "full" | "incremental";
+    organizationId: string;
+    userId: string;
+    commitHash: string | null;
+    resolvedAt: string | null;
+    resolvedBy: string | null;
+    createdAt: string;
+    updatedAt: string;
+    projectName?: string | undefined;
+    organizationName?: string | undefined;
+    userEmail?: string | undefined;
+    resolvedByEmail?: string | undefined;
+}, {
+    status: "unresolved" | "resolved" | "archived";
+    id: string;
+    projectId: string;
+    branchName: string;
+    errorSummary: string;
+    errorData: {
+        warnings: {
+            message: string;
+            type: string;
+            phase: string;
+            filePath?: string | undefined;
+        }[];
+        errors: {
+            message: string;
+            type: string;
+            phase: string;
+            filePath?: string | undefined;
+            stack?: string | undefined;
+        }[];
+    };
+    logEntries: {
+        message: string;
+        timestamp: string;
+        level: "error" | "info" | "warn";
+    }[];
+    cliVersion: string;
+    outcome: "failed" | "succeeded";
+    indexType: "full" | "incremental";
+    organizationId: string;
+    userId: string;
+    commitHash: string | null;
+    resolvedAt: string | null;
+    resolvedBy: string | null;
+    createdAt: string;
+    updatedAt: string;
+    projectName?: string | undefined;
+    organizationName?: string | undefined;
+    userEmail?: string | undefined;
+    resolvedByEmail?: string | undefined;
+}>;
+type ErrorReportResponse = z.infer<typeof errorReportResponseSchema>;
+declare const errorReportMetricsSchema: z.ZodObject<{
+    unresolvedCount: z.ZodNumber;
+    failedRunCount: z.ZodNumber;
+    resolvedLast30d: z.ZodNumber;
+    avgResolutionDays: z.ZodNullable<z.ZodNumber>;
+    affectedOrgCount: z.ZodNumber;
+}, "strip", z.ZodTypeAny, {
+    unresolvedCount: number;
+    failedRunCount: number;
+    resolvedLast30d: number;
+    avgResolutionDays: number | null;
+    affectedOrgCount: number;
+}, {
+    unresolvedCount: number;
+    failedRunCount: number;
+    resolvedLast30d: number;
+    avgResolutionDays: number | null;
+    affectedOrgCount: number;
+}>;
+type ErrorReportMetrics = z.infer<typeof errorReportMetricsSchema>;
+
+export { type CreateErrorReport, type ErrorData, type ErrorEntry, type ErrorReportMetrics, type ErrorReportResponse, type FileFailure, type GraphEdge, type GraphEdgeType, type GraphMetadata, type GraphNode, type GraphNodeType, type GraphSummary, type GraphToolResult, type ImportResolution, type ImportResolutionMetadata, type ImportType, type IndexErrorReportStatus, type IndexOutcome, type IndexType, type IndexingResponse, type LogEntry, type LogLevel, type Point, type ProjectInfo, type ProjectListResponse, type ProjectResolveResponse, type ProjectState, type RelationshipFailure, type RelationshipSummary, type SerializedAST, type SyntaxNode, type Tree, type UpdateErrorReport, type WarningEntry, createErrorReportSchema, errorDataSchema, errorEntrySchema, errorReportMetricsSchema, errorReportResponseSchema, fileFailureSchema, graphEdgeSchema, graphEdgeTypeSchema, graphMetadataSchema, graphNodeSchema, graphNodeTypeSchema, graphSummarySchema, graphToolResultSchema, importResolutionMetadataSchema, importResolutionSchema, importTypeSchema, indexErrorReportStatusSchema, indexOutcomeSchema, indexTypeSchema, indexingResponseSchema, logEntrySchema, logLevelSchema, projectInfoSchema, projectListResponseSchema, projectResolveResponseSchema, projectStateSchema, relationshipFailureSchema, relationshipSummarySchema, serializedAstSchema, updateErrorReportSchema, warningEntrySchema };

@@ -77,3 +77,6 @@ export * from './indexing';
 
 // MCP App types (graph visualization + project listing)
 export * from './mcp-app';
+
+// Error reporting schemas (CLI error reports)
+export * from './error-reports';
