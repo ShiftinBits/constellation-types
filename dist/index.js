@@ -1319,6 +1319,78 @@ var projectResolveResponseSchema = projectInfoSchema.pick({
   projectName: true,
   defaultBranch: true
 });
+var indexErrorReportStatusSchema = zod.z.enum([
+  "unresolved",
+  "resolved",
+  "archived"
+]);
+var indexOutcomeSchema = zod.z.enum(["succeeded", "failed"]);
+var indexTypeSchema = zod.z.enum(["full", "incremental"]);
+var logLevelSchema = zod.z.enum(["info", "warn", "error"]);
+var errorEntrySchema = zod.z.object({
+  type: zod.z.string(),
+  message: zod.z.string(),
+  phase: zod.z.string(),
+  filePath: zod.z.string().optional(),
+  stack: zod.z.string().optional()
+});
+var warningEntrySchema = zod.z.object({
+  type: zod.z.string(),
+  message: zod.z.string(),
+  phase: zod.z.string(),
+  filePath: zod.z.string().optional()
+});
+var errorDataSchema = zod.z.object({
+  errors: zod.z.array(errorEntrySchema),
+  warnings: zod.z.array(warningEntrySchema)
+});
+var logEntrySchema = zod.z.object({
+  level: logLevelSchema,
+  message: zod.z.string(),
+  timestamp: zod.z.string().datetime()
+});
+var createErrorReportSchema = zod.z.object({
+  errorSummary: zod.z.string().max(500),
+  errorData: errorDataSchema,
+  logEntries: zod.z.array(logEntrySchema),
+  cliVersion: zod.z.string(),
+  outcome: indexOutcomeSchema,
+  indexType: indexTypeSchema
+});
+var updateErrorReportSchema = zod.z.object({
+  status: indexErrorReportStatusSchema.exclude(["archived"])
+});
+var errorReportResponseSchema = zod.z.object({
+  id: zod.z.string(),
+  organizationId: zod.z.string(),
+  userId: zod.z.string(),
+  projectId: zod.z.string(),
+  branchName: zod.z.string(),
+  commitHash: zod.z.string().nullable(),
+  indexType: indexTypeSchema,
+  status: indexErrorReportStatusSchema,
+  outcome: indexOutcomeSchema,
+  errorSummary: zod.z.string(),
+  errorData: errorDataSchema,
+  logEntries: zod.z.array(logEntrySchema),
+  cliVersion: zod.z.string(),
+  resolvedAt: zod.z.string().nullable(),
+  resolvedBy: zod.z.string().nullable(),
+  createdAt: zod.z.string(),
+  updatedAt: zod.z.string(),
+  // Joined fields (from list endpoint)
+  organizationName: zod.z.string().optional(),
+  projectName: zod.z.string().optional(),
+  userEmail: zod.z.string().optional(),
+  resolvedByEmail: zod.z.string().optional()
+});
+var errorReportMetricsSchema = zod.z.object({
+  unresolvedCount: zod.z.number(),
+  failedRunCount: zod.z.number(),
+  resolvedLast30d: zod.z.number(),
+  avgResolutionDays: zod.z.number().nullable(),
+  affectedOrgCount: zod.z.number()
+});
 
 exports.ENTRY_POINT_PATTERNS = ENTRY_POINT_PATTERNS;
 exports.PYTHON_STDLIB_MODULES = PYTHON_STDLIB_MODULES;
@@ -1333,6 +1405,7 @@ exports.circularDependencyCycleSchema = circularDependencyCycleSchema;
 exports.complexityMetricsSchema = complexityMetricsSchema;
 exports.complexityRiskSchema = complexityRiskSchema;
 exports.confidenceScoreSchema = confidenceScoreSchema;
+exports.createErrorReportSchema = createErrorReportSchema;
 exports.dataQualityMetadataSchema = dataQualityMetadataSchema;
 exports.dependencyMetricsSchema = dependencyMetricsSchema;
 exports.dependencyOverviewSchema = dependencyOverviewSchema;
@@ -1340,6 +1413,10 @@ exports.dependentMetricsSchema = dependentMetricsSchema;
 exports.directDependencySchema = directDependencySchema;
 exports.directDependentSchema = directDependentSchema;
 exports.directUsageSchema = directUsageSchema;
+exports.errorDataSchema = errorDataSchema;
+exports.errorEntrySchema = errorEntrySchema;
+exports.errorReportMetricsSchema = errorReportMetricsSchema;
+exports.errorReportResponseSchema = errorReportResponseSchema;
 exports.fileFailureSchema = fileFailureSchema;
 exports.fileLocationSchema = fileLocationSchema;
 exports.findCircularDependenciesParamsSchema = findCircularDependenciesParamsSchema;
@@ -1372,11 +1449,16 @@ exports.impactedSymbolSchema = impactedSymbolSchema;
 exports.importResolutionMetadataSchema = importResolutionMetadataSchema;
 exports.importResolutionSchema = importResolutionSchema;
 exports.importTypeSchema = importTypeSchema;
+exports.indexErrorReportStatusSchema = indexErrorReportStatusSchema;
+exports.indexOutcomeSchema = indexOutcomeSchema;
+exports.indexTypeSchema = indexTypeSchema;
 exports.indexingResponseSchema = indexingResponseSchema;
 exports.isErrorResponse = isErrorResponse;
 exports.isSuccessResponse = isSuccessResponse;
 exports.languageInfoSchema = languageInfoSchema;
 exports.languageMetadataSchema = languageMetadataSchema;
+exports.logEntrySchema = logEntrySchema;
+exports.logLevelSchema = logLevelSchema;
 exports.moduleGraphEdgeSchema = moduleGraphEdgeSchema;
 exports.moduleGraphNodeSchema = moduleGraphNodeSchema;
 exports.moduleGraphSchema = moduleGraphSchema;
@@ -1416,5 +1498,7 @@ exports.tracedSymbolSchema = tracedSymbolSchema;
 exports.transitiveDependencySchema = transitiveDependencySchema;
 exports.transitiveDependentSchema = transitiveDependentSchema;
 exports.transitiveUsageSchema = transitiveUsageSchema;
+exports.updateErrorReportSchema = updateErrorReportSchema;
+exports.warningEntrySchema = warningEntrySchema;
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

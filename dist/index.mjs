@@ -1317,7 +1317,79 @@ var projectResolveResponseSchema = projectInfoSchema.pick({
   projectName: true,
   defaultBranch: true
 });
+var indexErrorReportStatusSchema = z.enum([
+  "unresolved",
+  "resolved",
+  "archived"
+]);
+var indexOutcomeSchema = z.enum(["succeeded", "failed"]);
+var indexTypeSchema = z.enum(["full", "incremental"]);
+var logLevelSchema = z.enum(["info", "warn", "error"]);
+var errorEntrySchema = z.object({
+  type: z.string(),
+  message: z.string(),
+  phase: z.string(),
+  filePath: z.string().optional(),
+  stack: z.string().optional()
+});
+var warningEntrySchema = z.object({
+  type: z.string(),
+  message: z.string(),
+  phase: z.string(),
+  filePath: z.string().optional()
+});
+var errorDataSchema = z.object({
+  errors: z.array(errorEntrySchema),
+  warnings: z.array(warningEntrySchema)
+});
+var logEntrySchema = z.object({
+  level: logLevelSchema,
+  message: z.string(),
+  timestamp: z.string().datetime()
+});
+var createErrorReportSchema = z.object({
+  errorSummary: z.string().max(500),
+  errorData: errorDataSchema,
+  logEntries: z.array(logEntrySchema),
+  cliVersion: z.string(),
+  outcome: indexOutcomeSchema,
+  indexType: indexTypeSchema
+});
+var updateErrorReportSchema = z.object({
+  status: indexErrorReportStatusSchema.exclude(["archived"])
+});
+var errorReportResponseSchema = z.object({
+  id: z.string(),
+  organizationId: z.string(),
+  userId: z.string(),
+  projectId: z.string(),
+  branchName: z.string(),
+  commitHash: z.string().nullable(),
+  indexType: indexTypeSchema,
+  status: indexErrorReportStatusSchema,
+  outcome: indexOutcomeSchema,
+  errorSummary: z.string(),
+  errorData: errorDataSchema,
+  logEntries: z.array(logEntrySchema),
+  cliVersion: z.string(),
+  resolvedAt: z.string().nullable(),
+  resolvedBy: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  // Joined fields (from list endpoint)
+  organizationName: z.string().optional(),
+  projectName: z.string().optional(),
+  userEmail: z.string().optional(),
+  resolvedByEmail: z.string().optional()
+});
+var errorReportMetricsSchema = z.object({
+  unresolvedCount: z.number(),
+  failedRunCount: z.number(),
+  resolvedLast30d: z.number(),
+  avgResolutionDays: z.number().nullable(),
+  affectedOrgCount: z.number()
+});
 
-export { ENTRY_POINT_PATTERNS, PYTHON_STDLIB_MODULES, TEST_PATTERNS, apiErrorResponseSchema, apiResponseSchema, breakingChangeRiskSchema, callGraphRootSchema, calleeNodeSchema, callerNodeSchema, circularDependencyCycleSchema, complexityMetricsSchema, complexityRiskSchema, confidenceScoreSchema, dataQualityMetadataSchema, dependencyMetricsSchema, dependencyOverviewSchema, dependentMetricsSchema, directDependencySchema, directDependentSchema, directUsageSchema, fileFailureSchema, fileLocationSchema, findCircularDependenciesParamsSchema, findCircularDependenciesResultSchema, findOrphanedCodeParamsSchema, findOrphanedCodeResultSchema, frameworkInfoSchema, getArchitectureOverviewParamsSchema, getArchitectureOverviewResultSchema, getCallGraphParamsSchema, getCallGraphResultSchema, getDependenciesParamsSchema, getDependenciesResultSchema, getDependentsParamsSchema, getDependentsResultSchema, getSymbolDetailsParamsSchema, graphEdgeSchema, graphEdgeTypeSchema, graphMetadataSchema, graphNodeSchema, graphNodeTypeSchema, graphRepresentationSchema, graphSummarySchema, graphToolResultSchema, impactAnalysisParamsSchema, impactAnalysisResultSchema, impactScoreSchema, impactedFileSchema, impactedSymbolSchema, importResolutionMetadataSchema, importResolutionSchema, importTypeSchema, indexingResponseSchema, isErrorResponse, isSuccessResponse, languageInfoSchema, languageMetadataSchema, moduleGraphEdgeSchema, moduleGraphNodeSchema, moduleGraphSchema, orphanedFileSchema, orphanedSymbolSchema, packageDependencySchema, paginationMetadataSchema, pingParamsSchema, pingResultSchema, projectInfoSchema, projectListResponseSchema, projectMetadataSchema, projectResolveResponseSchema, projectStateSchema, qualityMetricsSchema, relationshipDirectionsSchema, relationshipFailureSchema, relationshipSummarySchema, riskLevelSchema, searchSymbolsParamsSchema, searchSymbolsResultSchema, serializedAstSchema, standardGraphEdgeSchema, standardGraphNodeSchema, stringRelationshipDirectionsSchema, structureStatisticsSchema, symbolDetailsResultSchema, symbolDetailsSchema, symbolInfoSchema, symbolKindCategorySchema, symbolReferenceSchema, symbolRelationshipsSchema, symbolUsageReferenceSchema, traceSymbolUsageParamsSchema, traceSymbolUsageResultSchema, tracedSymbolSchema, transitiveDependencySchema, transitiveDependentSchema, transitiveUsageSchema };
+export { ENTRY_POINT_PATTERNS, PYTHON_STDLIB_MODULES, TEST_PATTERNS, apiErrorResponseSchema, apiResponseSchema, breakingChangeRiskSchema, callGraphRootSchema, calleeNodeSchema, callerNodeSchema, circularDependencyCycleSchema, complexityMetricsSchema, complexityRiskSchema, confidenceScoreSchema, createErrorReportSchema, dataQualityMetadataSchema, dependencyMetricsSchema, dependencyOverviewSchema, dependentMetricsSchema, directDependencySchema, directDependentSchema, directUsageSchema, errorDataSchema, errorEntrySchema, errorReportMetricsSchema, errorReportResponseSchema, fileFailureSchema, fileLocationSchema, findCircularDependenciesParamsSchema, findCircularDependenciesResultSchema, findOrphanedCodeParamsSchema, findOrphanedCodeResultSchema, frameworkInfoSchema, getArchitectureOverviewParamsSchema, getArchitectureOverviewResultSchema, getCallGraphParamsSchema, getCallGraphResultSchema, getDependenciesParamsSchema, getDependenciesResultSchema, getDependentsParamsSchema, getDependentsResultSchema, getSymbolDetailsParamsSchema, graphEdgeSchema, graphEdgeTypeSchema, graphMetadataSchema, graphNodeSchema, graphNodeTypeSchema, graphRepresentationSchema, graphSummarySchema, graphToolResultSchema, impactAnalysisParamsSchema, impactAnalysisResultSchema, impactScoreSchema, impactedFileSchema, impactedSymbolSchema, importResolutionMetadataSchema, importResolutionSchema, importTypeSchema, indexErrorReportStatusSchema, indexOutcomeSchema, indexTypeSchema, indexingResponseSchema, isErrorResponse, isSuccessResponse, languageInfoSchema, languageMetadataSchema, logEntrySchema, logLevelSchema, moduleGraphEdgeSchema, moduleGraphNodeSchema, moduleGraphSchema, orphanedFileSchema, orphanedSymbolSchema, packageDependencySchema, paginationMetadataSchema, pingParamsSchema, pingResultSchema, projectInfoSchema, projectListResponseSchema, projectMetadataSchema, projectResolveResponseSchema, projectStateSchema, qualityMetricsSchema, relationshipDirectionsSchema, relationshipFailureSchema, relationshipSummarySchema, riskLevelSchema, searchSymbolsParamsSchema, searchSymbolsResultSchema, serializedAstSchema, standardGraphEdgeSchema, standardGraphNodeSchema, stringRelationshipDirectionsSchema, structureStatisticsSchema, symbolDetailsResultSchema, symbolDetailsSchema, symbolInfoSchema, symbolKindCategorySchema, symbolReferenceSchema, symbolRelationshipsSchema, symbolUsageReferenceSchema, traceSymbolUsageParamsSchema, traceSymbolUsageResultSchema, tracedSymbolSchema, transitiveDependencySchema, transitiveDependentSchema, transitiveUsageSchema, updateErrorReportSchema, warningEntrySchema };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map
