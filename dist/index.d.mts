@@ -491,16 +491,18 @@ declare const referenceLocationSchema: z.ZodObject<{
 type ReferenceLocation = z.infer<typeof referenceLocationSchema>;
 /**
  * A call hierarchy entry representing an incoming or outgoing call.
+ * Extends referenceLocationSchema with a symbol name.
  */
 declare const callReferenceSchema: z.ZodObject<{
+    /** POSIX relative path to the file containing the reference */
+    filePath: z.ZodString;
+    /** 1-based line number of the reference */
+    line: z.ZodNumber;
+    /** 0-based column offset of the reference */
+    column: z.ZodNumber;
+} & {
     /** Name of the calling/called symbol */
     name: z.ZodString;
-    /** POSIX relative path to the file containing the call */
-    filePath: z.ZodString;
-    /** 1-based line number of the call */
-    line: z.ZodNumber;
-    /** 0-based column offset of the call */
-    column: z.ZodNumber;
 }, "strip", z.ZodTypeAny, {
     filePath: string;
     line: number;
@@ -648,14 +650,15 @@ declare const symbolEnrichmentSchema: z.ZodObject<{
     callHierarchy: z.ZodOptional<z.ZodObject<{
         /** Functions/methods that call this symbol (capped at 200) */
         incomingCalls: z.ZodArray<z.ZodObject<{
+            /** POSIX relative path to the file containing the reference */
+            filePath: z.ZodString;
+            /** 1-based line number of the reference */
+            line: z.ZodNumber;
+            /** 0-based column offset of the reference */
+            column: z.ZodNumber;
+        } & {
             /** Name of the calling/called symbol */
             name: z.ZodString;
-            /** POSIX relative path to the file containing the call */
-            filePath: z.ZodString;
-            /** 1-based line number of the call */
-            line: z.ZodNumber;
-            /** 0-based column offset of the call */
-            column: z.ZodNumber;
         }, "strip", z.ZodTypeAny, {
             filePath: string;
             line: number;
@@ -669,14 +672,15 @@ declare const symbolEnrichmentSchema: z.ZodObject<{
         }>, "many">;
         /** Functions/methods called by this symbol (capped at 200) */
         outgoingCalls: z.ZodArray<z.ZodObject<{
+            /** POSIX relative path to the file containing the reference */
+            filePath: z.ZodString;
+            /** 1-based line number of the reference */
+            line: z.ZodNumber;
+            /** 0-based column offset of the reference */
+            column: z.ZodNumber;
+        } & {
             /** Name of the calling/called symbol */
             name: z.ZodString;
-            /** POSIX relative path to the file containing the call */
-            filePath: z.ZodString;
-            /** 1-based line number of the call */
-            line: z.ZodNumber;
-            /** 0-based column offset of the call */
-            column: z.ZodNumber;
         }, "strip", z.ZodTypeAny, {
             filePath: string;
             line: number;
@@ -890,14 +894,15 @@ declare const fileEnrichmentSchema: z.ZodObject<{
         callHierarchy: z.ZodOptional<z.ZodObject<{
             /** Functions/methods that call this symbol (capped at 200) */
             incomingCalls: z.ZodArray<z.ZodObject<{
+                /** POSIX relative path to the file containing the reference */
+                filePath: z.ZodString;
+                /** 1-based line number of the reference */
+                line: z.ZodNumber;
+                /** 0-based column offset of the reference */
+                column: z.ZodNumber;
+            } & {
                 /** Name of the calling/called symbol */
                 name: z.ZodString;
-                /** POSIX relative path to the file containing the call */
-                filePath: z.ZodString;
-                /** 1-based line number of the call */
-                line: z.ZodNumber;
-                /** 0-based column offset of the call */
-                column: z.ZodNumber;
             }, "strip", z.ZodTypeAny, {
                 filePath: string;
                 line: number;
@@ -911,14 +916,15 @@ declare const fileEnrichmentSchema: z.ZodObject<{
             }>, "many">;
             /** Functions/methods called by this symbol (capped at 200) */
             outgoingCalls: z.ZodArray<z.ZodObject<{
+                /** POSIX relative path to the file containing the reference */
+                filePath: z.ZodString;
+                /** 1-based line number of the reference */
+                line: z.ZodNumber;
+                /** 0-based column offset of the reference */
+                column: z.ZodNumber;
+            } & {
                 /** Name of the calling/called symbol */
                 name: z.ZodString;
-                /** POSIX relative path to the file containing the call */
-                filePath: z.ZodString;
-                /** 1-based line number of the call */
-                line: z.ZodNumber;
-                /** 0-based column offset of the call */
-                column: z.ZodNumber;
             }, "strip", z.ZodTypeAny, {
                 filePath: string;
                 line: number;

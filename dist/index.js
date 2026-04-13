@@ -1250,15 +1250,9 @@ var referenceLocationSchema = zod.z.object({
   /** 0-based column offset of the reference */
   column: zod.z.number().int().nonnegative()
 });
-var callReferenceSchema = zod.z.object({
+var callReferenceSchema = referenceLocationSchema.extend({
   /** Name of the calling/called symbol */
-  name: zod.z.string().min(1),
-  /** POSIX relative path to the file containing the call */
-  filePath: zod.z.string().min(1),
-  /** 1-based line number of the call */
-  line: zod.z.number().int().positive(),
-  /** 0-based column offset of the call */
-  column: zod.z.number().int().nonnegative()
+  name: zod.z.string().min(1)
 });
 var typeInfoSchema = zod.z.object({
   /** The fully resolved type string from LSP */

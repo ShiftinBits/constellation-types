@@ -1248,15 +1248,9 @@ var referenceLocationSchema = z.object({
   /** 0-based column offset of the reference */
   column: z.number().int().nonnegative()
 });
-var callReferenceSchema = z.object({
+var callReferenceSchema = referenceLocationSchema.extend({
   /** Name of the calling/called symbol */
-  name: z.string().min(1),
-  /** POSIX relative path to the file containing the call */
-  filePath: z.string().min(1),
-  /** 1-based line number of the call */
-  line: z.number().int().positive(),
-  /** 0-based column offset of the call */
-  column: z.number().int().nonnegative()
+  name: z.string().min(1)
 });
 var typeInfoSchema = z.object({
   /** The fully resolved type string from LSP */
