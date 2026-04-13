@@ -36,6 +36,9 @@ export const callReferenceSchema = z.object({
 
 	/** 1-based line number of the call */
 	line: z.number().int().positive(),
+
+	/** 0-based column offset of the call */
+	column: z.number().int().nonnegative(),
 });
 
 export type CallReference = z.infer<typeof callReferenceSchema>;
@@ -112,11 +115,11 @@ export const symbolEnrichmentSchema = z.object({
 	/** Incoming and outgoing call hierarchy */
 	callHierarchy: z
 		.object({
-			/** Functions/methods that call this symbol */
-			incomingCalls: z.array(callReferenceSchema),
+			/** Functions/methods that call this symbol (capped at 200) */
+			incomingCalls: z.array(callReferenceSchema).max(200),
 
-			/** Functions/methods called by this symbol */
-			outgoingCalls: z.array(callReferenceSchema),
+			/** Functions/methods called by this symbol (capped at 200) */
+			outgoingCalls: z.array(callReferenceSchema).max(200),
 		})
 		.optional(),
 });

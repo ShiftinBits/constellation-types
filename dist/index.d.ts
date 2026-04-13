@@ -499,13 +499,17 @@ declare const callReferenceSchema: z.ZodObject<{
     filePath: z.ZodString;
     /** 1-based line number of the call */
     line: z.ZodNumber;
+    /** 0-based column offset of the call */
+    column: z.ZodNumber;
 }, "strip", z.ZodTypeAny, {
     filePath: string;
     line: number;
+    column: number;
     name: string;
 }, {
     filePath: string;
     line: number;
+    column: number;
     name: string;
 }>;
 type CallReference = z.infer<typeof callReferenceSchema>;
@@ -642,7 +646,7 @@ declare const symbolEnrichmentSchema: z.ZodObject<{
     }>>;
     /** Incoming and outgoing call hierarchy */
     callHierarchy: z.ZodOptional<z.ZodObject<{
-        /** Functions/methods that call this symbol */
+        /** Functions/methods that call this symbol (capped at 200) */
         incomingCalls: z.ZodArray<z.ZodObject<{
             /** Name of the calling/called symbol */
             name: z.ZodString;
@@ -650,16 +654,20 @@ declare const symbolEnrichmentSchema: z.ZodObject<{
             filePath: z.ZodString;
             /** 1-based line number of the call */
             line: z.ZodNumber;
+            /** 0-based column offset of the call */
+            column: z.ZodNumber;
         }, "strip", z.ZodTypeAny, {
             filePath: string;
             line: number;
+            column: number;
             name: string;
         }, {
             filePath: string;
             line: number;
+            column: number;
             name: string;
         }>, "many">;
-        /** Functions/methods called by this symbol */
+        /** Functions/methods called by this symbol (capped at 200) */
         outgoingCalls: z.ZodArray<z.ZodObject<{
             /** Name of the calling/called symbol */
             name: z.ZodString;
@@ -667,35 +675,43 @@ declare const symbolEnrichmentSchema: z.ZodObject<{
             filePath: z.ZodString;
             /** 1-based line number of the call */
             line: z.ZodNumber;
+            /** 0-based column offset of the call */
+            column: z.ZodNumber;
         }, "strip", z.ZodTypeAny, {
             filePath: string;
             line: number;
+            column: number;
             name: string;
         }, {
             filePath: string;
             line: number;
+            column: number;
             name: string;
         }>, "many">;
     }, "strip", z.ZodTypeAny, {
         incomingCalls: {
             filePath: string;
             line: number;
+            column: number;
             name: string;
         }[];
         outgoingCalls: {
             filePath: string;
             line: number;
+            column: number;
             name: string;
         }[];
     }, {
         incomingCalls: {
             filePath: string;
             line: number;
+            column: number;
             name: string;
         }[];
         outgoingCalls: {
             filePath: string;
             line: number;
+            column: number;
             name: string;
         }[];
     }>>;
@@ -727,11 +743,13 @@ declare const symbolEnrichmentSchema: z.ZodObject<{
         incomingCalls: {
             filePath: string;
             line: number;
+            column: number;
             name: string;
         }[];
         outgoingCalls: {
             filePath: string;
             line: number;
+            column: number;
             name: string;
         }[];
     } | undefined;
@@ -763,11 +781,13 @@ declare const symbolEnrichmentSchema: z.ZodObject<{
         incomingCalls: {
             filePath: string;
             line: number;
+            column: number;
             name: string;
         }[];
         outgoingCalls: {
             filePath: string;
             line: number;
+            column: number;
             name: string;
         }[];
     } | undefined;
@@ -868,7 +888,7 @@ declare const fileEnrichmentSchema: z.ZodObject<{
         }>>;
         /** Incoming and outgoing call hierarchy */
         callHierarchy: z.ZodOptional<z.ZodObject<{
-            /** Functions/methods that call this symbol */
+            /** Functions/methods that call this symbol (capped at 200) */
             incomingCalls: z.ZodArray<z.ZodObject<{
                 /** Name of the calling/called symbol */
                 name: z.ZodString;
@@ -876,16 +896,20 @@ declare const fileEnrichmentSchema: z.ZodObject<{
                 filePath: z.ZodString;
                 /** 1-based line number of the call */
                 line: z.ZodNumber;
+                /** 0-based column offset of the call */
+                column: z.ZodNumber;
             }, "strip", z.ZodTypeAny, {
                 filePath: string;
                 line: number;
+                column: number;
                 name: string;
             }, {
                 filePath: string;
                 line: number;
+                column: number;
                 name: string;
             }>, "many">;
-            /** Functions/methods called by this symbol */
+            /** Functions/methods called by this symbol (capped at 200) */
             outgoingCalls: z.ZodArray<z.ZodObject<{
                 /** Name of the calling/called symbol */
                 name: z.ZodString;
@@ -893,35 +917,43 @@ declare const fileEnrichmentSchema: z.ZodObject<{
                 filePath: z.ZodString;
                 /** 1-based line number of the call */
                 line: z.ZodNumber;
+                /** 0-based column offset of the call */
+                column: z.ZodNumber;
             }, "strip", z.ZodTypeAny, {
                 filePath: string;
                 line: number;
+                column: number;
                 name: string;
             }, {
                 filePath: string;
                 line: number;
+                column: number;
                 name: string;
             }>, "many">;
         }, "strip", z.ZodTypeAny, {
             incomingCalls: {
                 filePath: string;
                 line: number;
+                column: number;
                 name: string;
             }[];
             outgoingCalls: {
                 filePath: string;
                 line: number;
+                column: number;
                 name: string;
             }[];
         }, {
             incomingCalls: {
                 filePath: string;
                 line: number;
+                column: number;
                 name: string;
             }[];
             outgoingCalls: {
                 filePath: string;
                 line: number;
+                column: number;
                 name: string;
             }[];
         }>>;
@@ -953,11 +985,13 @@ declare const fileEnrichmentSchema: z.ZodObject<{
             incomingCalls: {
                 filePath: string;
                 line: number;
+                column: number;
                 name: string;
             }[];
             outgoingCalls: {
                 filePath: string;
                 line: number;
+                column: number;
                 name: string;
             }[];
         } | undefined;
@@ -989,11 +1023,13 @@ declare const fileEnrichmentSchema: z.ZodObject<{
             incomingCalls: {
                 filePath: string;
                 line: number;
+                column: number;
                 name: string;
             }[];
             outgoingCalls: {
                 filePath: string;
                 line: number;
+                column: number;
                 name: string;
             }[];
         } | undefined;
@@ -1029,11 +1065,13 @@ declare const fileEnrichmentSchema: z.ZodObject<{
             incomingCalls: {
                 filePath: string;
                 line: number;
+                column: number;
                 name: string;
             }[];
             outgoingCalls: {
                 filePath: string;
                 line: number;
+                column: number;
                 name: string;
             }[];
         } | undefined;
@@ -1069,11 +1107,13 @@ declare const fileEnrichmentSchema: z.ZodObject<{
             incomingCalls: {
                 filePath: string;
                 line: number;
+                column: number;
                 name: string;
             }[];
             outgoingCalls: {
                 filePath: string;
                 line: number;
+                column: number;
                 name: string;
             }[];
         } | undefined;

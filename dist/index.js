@@ -1256,7 +1256,9 @@ var callReferenceSchema = zod.z.object({
   /** POSIX relative path to the file containing the call */
   filePath: zod.z.string().min(1),
   /** 1-based line number of the call */
-  line: zod.z.number().int().positive()
+  line: zod.z.number().int().positive(),
+  /** 0-based column offset of the call */
+  column: zod.z.number().int().nonnegative()
 });
 var typeInfoSchema = zod.z.object({
   /** The fully resolved type string from LSP */
@@ -1298,10 +1300,10 @@ var symbolEnrichmentSchema = zod.z.object({
   }).optional(),
   /** Incoming and outgoing call hierarchy */
   callHierarchy: zod.z.object({
-    /** Functions/methods that call this symbol */
-    incomingCalls: zod.z.array(callReferenceSchema),
-    /** Functions/methods called by this symbol */
-    outgoingCalls: zod.z.array(callReferenceSchema)
+    /** Functions/methods that call this symbol (capped at 200) */
+    incomingCalls: zod.z.array(callReferenceSchema).max(200),
+    /** Functions/methods called by this symbol (capped at 200) */
+    outgoingCalls: zod.z.array(callReferenceSchema).max(200)
   }).optional()
 });
 var fileEnrichmentSchema = zod.z.object({

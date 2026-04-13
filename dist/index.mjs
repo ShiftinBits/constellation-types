@@ -1254,7 +1254,9 @@ var callReferenceSchema = z.object({
   /** POSIX relative path to the file containing the call */
   filePath: z.string().min(1),
   /** 1-based line number of the call */
-  line: z.number().int().positive()
+  line: z.number().int().positive(),
+  /** 0-based column offset of the call */
+  column: z.number().int().nonnegative()
 });
 var typeInfoSchema = z.object({
   /** The fully resolved type string from LSP */
@@ -1296,10 +1298,10 @@ var symbolEnrichmentSchema = z.object({
   }).optional(),
   /** Incoming and outgoing call hierarchy */
   callHierarchy: z.object({
-    /** Functions/methods that call this symbol */
-    incomingCalls: z.array(callReferenceSchema),
-    /** Functions/methods called by this symbol */
-    outgoingCalls: z.array(callReferenceSchema)
+    /** Functions/methods that call this symbol (capped at 200) */
+    incomingCalls: z.array(callReferenceSchema).max(200),
+    /** Functions/methods called by this symbol (capped at 200) */
+    outgoingCalls: z.array(callReferenceSchema).max(200)
   }).optional()
 });
 var fileEnrichmentSchema = z.object({
