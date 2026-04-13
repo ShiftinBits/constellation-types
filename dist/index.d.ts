@@ -461,6 +461,655 @@ declare const projectStateSchema: z.ZodObject<{
 }>;
 type ProjectState = z.infer<typeof projectStateSchema>;
 
+/**
+ * Enrichment Schemas
+ *
+ * Zod schemas for LSP enrichment data sent from CLI to Core.
+ * Defines the contract for type info, references, call hierarchy,
+ * and definition locations gathered via LSP during indexing.
+ */
+
+/**
+ * A reference location pointing to where a symbol is used.
+ */
+declare const referenceLocationSchema: z.ZodObject<{
+    /** POSIX relative path to the file containing the reference */
+    filePath: z.ZodString;
+    /** 1-based line number of the reference */
+    line: z.ZodNumber;
+    /** 0-based column offset of the reference */
+    column: z.ZodNumber;
+}, "strip", z.ZodTypeAny, {
+    filePath: string;
+    line: number;
+    column: number;
+}, {
+    filePath: string;
+    line: number;
+    column: number;
+}>;
+type ReferenceLocation = z.infer<typeof referenceLocationSchema>;
+/**
+ * A call hierarchy entry representing an incoming or outgoing call.
+ */
+declare const callReferenceSchema: z.ZodObject<{
+    /** Name of the calling/called symbol */
+    name: z.ZodString;
+    /** POSIX relative path to the file containing the call */
+    filePath: z.ZodString;
+    /** 1-based line number of the call */
+    line: z.ZodNumber;
+}, "strip", z.ZodTypeAny, {
+    filePath: string;
+    line: number;
+    name: string;
+}, {
+    filePath: string;
+    line: number;
+    name: string;
+}>;
+type CallReference = z.infer<typeof callReferenceSchema>;
+/**
+ * Type information resolved from LSP hover results.
+ */
+declare const typeInfoSchema: z.ZodObject<{
+    /** The fully resolved type string from LSP */
+    resolvedType: z.ZodString;
+    /** Return type for function/method symbols */
+    returnType: z.ZodOptional<z.ZodString>;
+    /** Extracted documentation comment */
+    documentation: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    resolvedType: string;
+    documentation?: string | undefined;
+    returnType?: string | undefined;
+}, {
+    resolvedType: string;
+    documentation?: string | undefined;
+    returnType?: string | undefined;
+}>;
+type TypeInfo = z.infer<typeof typeInfoSchema>;
+/**
+ * Go-to-definition result pointing to a symbol's declaration.
+ */
+declare const definitionLocationSchema: z.ZodObject<{
+    /** POSIX relative path to the definition file */
+    filePath: z.ZodString;
+    /** 1-based line number of the definition */
+    line: z.ZodNumber;
+    /** 0-based column offset of the definition */
+    column: z.ZodNumber;
+    /** True if the definition is outside the project root (e.g., node_modules) */
+    isExternal: z.ZodBoolean;
+}, "strip", z.ZodTypeAny, {
+    filePath: string;
+    line: number;
+    column: number;
+    isExternal: boolean;
+}, {
+    filePath: string;
+    line: number;
+    column: number;
+    isExternal: boolean;
+}>;
+type DefinitionLocation = z.infer<typeof definitionLocationSchema>;
+/**
+ * Per-symbol LSP enrichment data aggregating type info, definition,
+ * references, and call hierarchy for a single symbol.
+ */
+declare const symbolEnrichmentSchema: z.ZodObject<{
+    /** Symbol name (must match the corresponding graph node) */
+    name: z.ZodString;
+    /** 1-based line number (must match the corresponding graph node) */
+    line: z.ZodNumber;
+    /** 0-based column offset */
+    column: z.ZodNumber;
+    /** Symbol kind (e.g., function, class, variable, interface) */
+    kind: z.ZodString;
+    /** Resolved type information from LSP hover */
+    typeInfo: z.ZodOptional<z.ZodObject<{
+        /** The fully resolved type string from LSP */
+        resolvedType: z.ZodString;
+        /** Return type for function/method symbols */
+        returnType: z.ZodOptional<z.ZodString>;
+        /** Extracted documentation comment */
+        documentation: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        resolvedType: string;
+        documentation?: string | undefined;
+        returnType?: string | undefined;
+    }, {
+        resolvedType: string;
+        documentation?: string | undefined;
+        returnType?: string | undefined;
+    }>>;
+    /** Go-to-definition result */
+    definition: z.ZodOptional<z.ZodObject<{
+        /** POSIX relative path to the definition file */
+        filePath: z.ZodString;
+        /** 1-based line number of the definition */
+        line: z.ZodNumber;
+        /** 0-based column offset of the definition */
+        column: z.ZodNumber;
+        /** True if the definition is outside the project root (e.g., node_modules) */
+        isExternal: z.ZodBoolean;
+    }, "strip", z.ZodTypeAny, {
+        filePath: string;
+        line: number;
+        column: number;
+        isExternal: boolean;
+    }, {
+        filePath: string;
+        line: number;
+        column: number;
+        isExternal: boolean;
+    }>>;
+    /** Reference locations where this symbol is used */
+    references: z.ZodOptional<z.ZodObject<{
+        /** Total number of references found */
+        count: z.ZodNumber;
+        /** Reference locations (capped at 100) */
+        locations: z.ZodArray<z.ZodObject<{
+            /** POSIX relative path to the file containing the reference */
+            filePath: z.ZodString;
+            /** 1-based line number of the reference */
+            line: z.ZodNumber;
+            /** 0-based column offset of the reference */
+            column: z.ZodNumber;
+        }, "strip", z.ZodTypeAny, {
+            filePath: string;
+            line: number;
+            column: number;
+        }, {
+            filePath: string;
+            line: number;
+            column: number;
+        }>, "many">;
+    }, "strip", z.ZodTypeAny, {
+        count: number;
+        locations: {
+            filePath: string;
+            line: number;
+            column: number;
+        }[];
+    }, {
+        count: number;
+        locations: {
+            filePath: string;
+            line: number;
+            column: number;
+        }[];
+    }>>;
+    /** Incoming and outgoing call hierarchy */
+    callHierarchy: z.ZodOptional<z.ZodObject<{
+        /** Functions/methods that call this symbol */
+        incomingCalls: z.ZodArray<z.ZodObject<{
+            /** Name of the calling/called symbol */
+            name: z.ZodString;
+            /** POSIX relative path to the file containing the call */
+            filePath: z.ZodString;
+            /** 1-based line number of the call */
+            line: z.ZodNumber;
+        }, "strip", z.ZodTypeAny, {
+            filePath: string;
+            line: number;
+            name: string;
+        }, {
+            filePath: string;
+            line: number;
+            name: string;
+        }>, "many">;
+        /** Functions/methods called by this symbol */
+        outgoingCalls: z.ZodArray<z.ZodObject<{
+            /** Name of the calling/called symbol */
+            name: z.ZodString;
+            /** POSIX relative path to the file containing the call */
+            filePath: z.ZodString;
+            /** 1-based line number of the call */
+            line: z.ZodNumber;
+        }, "strip", z.ZodTypeAny, {
+            filePath: string;
+            line: number;
+            name: string;
+        }, {
+            filePath: string;
+            line: number;
+            name: string;
+        }>, "many">;
+    }, "strip", z.ZodTypeAny, {
+        incomingCalls: {
+            filePath: string;
+            line: number;
+            name: string;
+        }[];
+        outgoingCalls: {
+            filePath: string;
+            line: number;
+            name: string;
+        }[];
+    }, {
+        incomingCalls: {
+            filePath: string;
+            line: number;
+            name: string;
+        }[];
+        outgoingCalls: {
+            filePath: string;
+            line: number;
+            name: string;
+        }[];
+    }>>;
+}, "strip", z.ZodTypeAny, {
+    line: number;
+    column: number;
+    name: string;
+    kind: string;
+    typeInfo?: {
+        resolvedType: string;
+        documentation?: string | undefined;
+        returnType?: string | undefined;
+    } | undefined;
+    references?: {
+        count: number;
+        locations: {
+            filePath: string;
+            line: number;
+            column: number;
+        }[];
+    } | undefined;
+    definition?: {
+        filePath: string;
+        line: number;
+        column: number;
+        isExternal: boolean;
+    } | undefined;
+    callHierarchy?: {
+        incomingCalls: {
+            filePath: string;
+            line: number;
+            name: string;
+        }[];
+        outgoingCalls: {
+            filePath: string;
+            line: number;
+            name: string;
+        }[];
+    } | undefined;
+}, {
+    line: number;
+    column: number;
+    name: string;
+    kind: string;
+    typeInfo?: {
+        resolvedType: string;
+        documentation?: string | undefined;
+        returnType?: string | undefined;
+    } | undefined;
+    references?: {
+        count: number;
+        locations: {
+            filePath: string;
+            line: number;
+            column: number;
+        }[];
+    } | undefined;
+    definition?: {
+        filePath: string;
+        line: number;
+        column: number;
+        isExternal: boolean;
+    } | undefined;
+    callHierarchy?: {
+        incomingCalls: {
+            filePath: string;
+            line: number;
+            name: string;
+        }[];
+        outgoingCalls: {
+            filePath: string;
+            line: number;
+            name: string;
+        }[];
+    } | undefined;
+}>;
+type SymbolEnrichment = z.infer<typeof symbolEnrichmentSchema>;
+/**
+ * File-level enrichment data containing all enriched symbols for a single file.
+ * Each instance represents one NDJSON line in the enrichment payload.
+ */
+declare const fileEnrichmentSchema: z.ZodObject<{
+    /** POSIX relative path to the source file */
+    filePath: z.ZodString;
+    /** Programming language identifier (e.g., 'typescript', 'python') */
+    language: z.ZodString;
+    /** Enriched symbols found in this file */
+    symbols: z.ZodArray<z.ZodObject<{
+        /** Symbol name (must match the corresponding graph node) */
+        name: z.ZodString;
+        /** 1-based line number (must match the corresponding graph node) */
+        line: z.ZodNumber;
+        /** 0-based column offset */
+        column: z.ZodNumber;
+        /** Symbol kind (e.g., function, class, variable, interface) */
+        kind: z.ZodString;
+        /** Resolved type information from LSP hover */
+        typeInfo: z.ZodOptional<z.ZodObject<{
+            /** The fully resolved type string from LSP */
+            resolvedType: z.ZodString;
+            /** Return type for function/method symbols */
+            returnType: z.ZodOptional<z.ZodString>;
+            /** Extracted documentation comment */
+            documentation: z.ZodOptional<z.ZodString>;
+        }, "strip", z.ZodTypeAny, {
+            resolvedType: string;
+            documentation?: string | undefined;
+            returnType?: string | undefined;
+        }, {
+            resolvedType: string;
+            documentation?: string | undefined;
+            returnType?: string | undefined;
+        }>>;
+        /** Go-to-definition result */
+        definition: z.ZodOptional<z.ZodObject<{
+            /** POSIX relative path to the definition file */
+            filePath: z.ZodString;
+            /** 1-based line number of the definition */
+            line: z.ZodNumber;
+            /** 0-based column offset of the definition */
+            column: z.ZodNumber;
+            /** True if the definition is outside the project root (e.g., node_modules) */
+            isExternal: z.ZodBoolean;
+        }, "strip", z.ZodTypeAny, {
+            filePath: string;
+            line: number;
+            column: number;
+            isExternal: boolean;
+        }, {
+            filePath: string;
+            line: number;
+            column: number;
+            isExternal: boolean;
+        }>>;
+        /** Reference locations where this symbol is used */
+        references: z.ZodOptional<z.ZodObject<{
+            /** Total number of references found */
+            count: z.ZodNumber;
+            /** Reference locations (capped at 100) */
+            locations: z.ZodArray<z.ZodObject<{
+                /** POSIX relative path to the file containing the reference */
+                filePath: z.ZodString;
+                /** 1-based line number of the reference */
+                line: z.ZodNumber;
+                /** 0-based column offset of the reference */
+                column: z.ZodNumber;
+            }, "strip", z.ZodTypeAny, {
+                filePath: string;
+                line: number;
+                column: number;
+            }, {
+                filePath: string;
+                line: number;
+                column: number;
+            }>, "many">;
+        }, "strip", z.ZodTypeAny, {
+            count: number;
+            locations: {
+                filePath: string;
+                line: number;
+                column: number;
+            }[];
+        }, {
+            count: number;
+            locations: {
+                filePath: string;
+                line: number;
+                column: number;
+            }[];
+        }>>;
+        /** Incoming and outgoing call hierarchy */
+        callHierarchy: z.ZodOptional<z.ZodObject<{
+            /** Functions/methods that call this symbol */
+            incomingCalls: z.ZodArray<z.ZodObject<{
+                /** Name of the calling/called symbol */
+                name: z.ZodString;
+                /** POSIX relative path to the file containing the call */
+                filePath: z.ZodString;
+                /** 1-based line number of the call */
+                line: z.ZodNumber;
+            }, "strip", z.ZodTypeAny, {
+                filePath: string;
+                line: number;
+                name: string;
+            }, {
+                filePath: string;
+                line: number;
+                name: string;
+            }>, "many">;
+            /** Functions/methods called by this symbol */
+            outgoingCalls: z.ZodArray<z.ZodObject<{
+                /** Name of the calling/called symbol */
+                name: z.ZodString;
+                /** POSIX relative path to the file containing the call */
+                filePath: z.ZodString;
+                /** 1-based line number of the call */
+                line: z.ZodNumber;
+            }, "strip", z.ZodTypeAny, {
+                filePath: string;
+                line: number;
+                name: string;
+            }, {
+                filePath: string;
+                line: number;
+                name: string;
+            }>, "many">;
+        }, "strip", z.ZodTypeAny, {
+            incomingCalls: {
+                filePath: string;
+                line: number;
+                name: string;
+            }[];
+            outgoingCalls: {
+                filePath: string;
+                line: number;
+                name: string;
+            }[];
+        }, {
+            incomingCalls: {
+                filePath: string;
+                line: number;
+                name: string;
+            }[];
+            outgoingCalls: {
+                filePath: string;
+                line: number;
+                name: string;
+            }[];
+        }>>;
+    }, "strip", z.ZodTypeAny, {
+        line: number;
+        column: number;
+        name: string;
+        kind: string;
+        typeInfo?: {
+            resolvedType: string;
+            documentation?: string | undefined;
+            returnType?: string | undefined;
+        } | undefined;
+        references?: {
+            count: number;
+            locations: {
+                filePath: string;
+                line: number;
+                column: number;
+            }[];
+        } | undefined;
+        definition?: {
+            filePath: string;
+            line: number;
+            column: number;
+            isExternal: boolean;
+        } | undefined;
+        callHierarchy?: {
+            incomingCalls: {
+                filePath: string;
+                line: number;
+                name: string;
+            }[];
+            outgoingCalls: {
+                filePath: string;
+                line: number;
+                name: string;
+            }[];
+        } | undefined;
+    }, {
+        line: number;
+        column: number;
+        name: string;
+        kind: string;
+        typeInfo?: {
+            resolvedType: string;
+            documentation?: string | undefined;
+            returnType?: string | undefined;
+        } | undefined;
+        references?: {
+            count: number;
+            locations: {
+                filePath: string;
+                line: number;
+                column: number;
+            }[];
+        } | undefined;
+        definition?: {
+            filePath: string;
+            line: number;
+            column: number;
+            isExternal: boolean;
+        } | undefined;
+        callHierarchy?: {
+            incomingCalls: {
+                filePath: string;
+                line: number;
+                name: string;
+            }[];
+            outgoingCalls: {
+                filePath: string;
+                line: number;
+                name: string;
+            }[];
+        } | undefined;
+    }>, "many">;
+}, "strip", z.ZodTypeAny, {
+    language: string;
+    filePath: string;
+    symbols: {
+        line: number;
+        column: number;
+        name: string;
+        kind: string;
+        typeInfo?: {
+            resolvedType: string;
+            documentation?: string | undefined;
+            returnType?: string | undefined;
+        } | undefined;
+        references?: {
+            count: number;
+            locations: {
+                filePath: string;
+                line: number;
+                column: number;
+            }[];
+        } | undefined;
+        definition?: {
+            filePath: string;
+            line: number;
+            column: number;
+            isExternal: boolean;
+        } | undefined;
+        callHierarchy?: {
+            incomingCalls: {
+                filePath: string;
+                line: number;
+                name: string;
+            }[];
+            outgoingCalls: {
+                filePath: string;
+                line: number;
+                name: string;
+            }[];
+        } | undefined;
+    }[];
+}, {
+    language: string;
+    filePath: string;
+    symbols: {
+        line: number;
+        column: number;
+        name: string;
+        kind: string;
+        typeInfo?: {
+            resolvedType: string;
+            documentation?: string | undefined;
+            returnType?: string | undefined;
+        } | undefined;
+        references?: {
+            count: number;
+            locations: {
+                filePath: string;
+                line: number;
+                column: number;
+            }[];
+        } | undefined;
+        definition?: {
+            filePath: string;
+            line: number;
+            column: number;
+            isExternal: boolean;
+        } | undefined;
+        callHierarchy?: {
+            incomingCalls: {
+                filePath: string;
+                line: number;
+                name: string;
+            }[];
+            outgoingCalls: {
+                filePath: string;
+                line: number;
+                name: string;
+            }[];
+        } | undefined;
+    }[];
+}>;
+type FileEnrichment = z.infer<typeof fileEnrichmentSchema>;
+/**
+ * Metadata describing the context of an enrichment run.
+ */
+declare const enrichmentMetadataSchema: z.ZodObject<{
+    /** Project identifier */
+    projectId: z.ZodString;
+    /** Git branch name */
+    branch: z.ZodString;
+    /** Full 40-character SHA-1 commit hash */
+    commit: z.ZodString;
+    /** ISO 8601 timestamp of the enrichment run */
+    timestamp: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    commit: string;
+    timestamp: string;
+    projectId: string;
+    branch: string;
+}, {
+    commit: string;
+    timestamp: string;
+    projectId: string;
+    branch: string;
+}>;
+type EnrichmentMetadata = z.infer<typeof enrichmentMetadataSchema>;
+/**
+ * Status of an enrichment operation.
+ */
+declare const enrichmentStatusSchema: z.ZodEnum<["pending", "processing", "completed", "failed", "skipped"]>;
+type EnrichmentStatus = z.infer<typeof enrichmentStatusSchema>;
+
 declare const graphNodeTypeSchema: z.ZodEnum<["function", "class", "variable", "import", "module", "interface", "type", "constant", "export"]>;
 type GraphNodeType = z.infer<typeof graphNodeTypeSchema>;
 declare const graphEdgeTypeSchema: z.ZodEnum<["calls", "imports", "extends", "inherits", "implements", "uses", "references", "exports", "contains"]>;
@@ -1295,4 +1944,4 @@ declare const errorReportMetricsSchema: z.ZodObject<{
 }>;
 type ErrorReportMetrics = z.infer<typeof errorReportMetricsSchema>;
 
-export { type CreateErrorReport, type ErrorData, type ErrorEntry, type ErrorReportMetrics, type ErrorReportResponse, type FileFailure, type GraphEdge, type GraphEdgeType, type GraphMetadata, type GraphNode, type GraphNodeType, type GraphSummary, type GraphToolResult, type ImportResolution, type ImportResolutionMetadata, type ImportType, type IndexErrorReportStatus, type IndexOutcome, type IndexType, type IndexingResponse, type LogEntry, type LogLevel, type Point, type ProjectInfo, type ProjectListResponse, type ProjectResolveResponse, type ProjectState, type RelationshipFailure, type RelationshipSummary, type SerializedAST, type SyntaxNode, type Tree, type UpdateErrorReport, type WarningEntry, createErrorReportSchema, errorDataSchema, errorEntrySchema, errorReportMetricsSchema, errorReportResponseSchema, fileFailureSchema, graphEdgeSchema, graphEdgeTypeSchema, graphMetadataSchema, graphNodeSchema, graphNodeTypeSchema, graphSummarySchema, graphToolResultSchema, importResolutionMetadataSchema, importResolutionSchema, importTypeSchema, indexErrorReportStatusSchema, indexOutcomeSchema, indexTypeSchema, indexingResponseSchema, logEntrySchema, logLevelSchema, projectInfoSchema, projectListResponseSchema, projectResolveResponseSchema, projectStateSchema, relationshipFailureSchema, relationshipSummarySchema, serializedAstSchema, updateErrorReportSchema, warningEntrySchema };
+export { type CallReference, type CreateErrorReport, type DefinitionLocation, type EnrichmentMetadata, type EnrichmentStatus, type ErrorData, type ErrorEntry, type ErrorReportMetrics, type ErrorReportResponse, type FileEnrichment, type FileFailure, type GraphEdge, type GraphEdgeType, type GraphMetadata, type GraphNode, type GraphNodeType, type GraphSummary, type GraphToolResult, type ImportResolution, type ImportResolutionMetadata, type ImportType, type IndexErrorReportStatus, type IndexOutcome, type IndexType, type IndexingResponse, type LogEntry, type LogLevel, type Point, type ProjectInfo, type ProjectListResponse, type ProjectResolveResponse, type ProjectState, type ReferenceLocation, type RelationshipFailure, type RelationshipSummary, type SerializedAST, type SymbolEnrichment, type SyntaxNode, type Tree, type TypeInfo, type UpdateErrorReport, type WarningEntry, callReferenceSchema, createErrorReportSchema, definitionLocationSchema, enrichmentMetadataSchema, enrichmentStatusSchema, errorDataSchema, errorEntrySchema, errorReportMetricsSchema, errorReportResponseSchema, fileEnrichmentSchema, fileFailureSchema, graphEdgeSchema, graphEdgeTypeSchema, graphMetadataSchema, graphNodeSchema, graphNodeTypeSchema, graphSummarySchema, graphToolResultSchema, importResolutionMetadataSchema, importResolutionSchema, importTypeSchema, indexErrorReportStatusSchema, indexOutcomeSchema, indexTypeSchema, indexingResponseSchema, logEntrySchema, logLevelSchema, projectInfoSchema, projectListResponseSchema, projectResolveResponseSchema, projectStateSchema, referenceLocationSchema, relationshipFailureSchema, relationshipSummarySchema, serializedAstSchema, symbolEnrichmentSchema, typeInfoSchema, updateErrorReportSchema, warningEntrySchema };

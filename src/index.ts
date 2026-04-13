@@ -75,6 +75,9 @@ export * from './executors';
 // All indexing schemas (CLI <-> Core)
 export * from './indexing';
 
+// Enrichment schemas (CLI <-> Core LSP enrichment data)
+export * from './enrichment';
+
 // MCP App types (graph visualization + project listing)
 export * from './mcp-app';
 
