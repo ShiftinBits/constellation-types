@@ -1242,6 +1242,95 @@ var projectStateSchema = zod.z.object({
   /** List of programming languages detected in the project */
   languages: zod.z.array(zod.z.string())
 });
+var referenceLocationSchema = zod.z.object({
+  /** POSIX relative path to the file containing the reference */
+  filePath: zod.z.string().min(1),
+  /** 1-based line number of the reference */
+  line: zod.z.number().int().positive(),
+  /** 0-based column offset of the reference */
+  column: zod.z.number().int().nonnegative()
+});
+var callReferenceSchema = zod.z.object({
+  /** Name of the calling/called symbol */
+  name: zod.z.string().min(1),
+  /** POSIX relative path to the file containing the call */
+  filePath: zod.z.string().min(1),
+  /** 1-based line number of the call */
+  line: zod.z.number().int().positive(),
+  /** 0-based column offset of the call */
+  column: zod.z.number().int().nonnegative()
+});
+var typeInfoSchema = zod.z.object({
+  /** The fully resolved type string from LSP */
+  resolvedType: zod.z.string().min(1),
+  /** Return type for function/method symbols */
+  returnType: zod.z.string().optional(),
+  /** Extracted documentation comment */
+  documentation: zod.z.string().optional()
+});
+var definitionLocationSchema = zod.z.object({
+  /** POSIX relative path to the definition file */
+  filePath: zod.z.string().min(1),
+  /** 1-based line number of the definition */
+  line: zod.z.number().int().positive(),
+  /** 0-based column offset of the definition */
+  column: zod.z.number().int().nonnegative(),
+  /** True if the definition is outside the project root (e.g., node_modules) */
+  isExternal: zod.z.boolean()
+});
+var symbolEnrichmentSchema = zod.z.object({
+  /** Symbol name (must match the corresponding graph node) */
+  name: zod.z.string().min(1),
+  /** 1-based line number (must match the corresponding graph node) */
+  line: zod.z.number().int().positive(),
+  /** 0-based column offset */
+  column: zod.z.number().int().nonnegative(),
+  /** Symbol kind (e.g., function, class, variable, interface) */
+  kind: zod.z.string().min(1),
+  /** Resolved type information from LSP hover */
+  typeInfo: typeInfoSchema.optional(),
+  /** Go-to-definition result */
+  definition: definitionLocationSchema.optional(),
+  /** Reference locations where this symbol is used */
+  references: zod.z.object({
+    /** Total number of references found */
+    count: zod.z.number().int().nonnegative(),
+    /** Reference locations (capped at 100) */
+    locations: zod.z.array(referenceLocationSchema).max(100)
+  }).optional(),
+  /** Incoming and outgoing call hierarchy */
+  callHierarchy: zod.z.object({
+    /** Functions/methods that call this symbol (capped at 200) */
+    incomingCalls: zod.z.array(callReferenceSchema).max(200),
+    /** Functions/methods called by this symbol (capped at 200) */
+    outgoingCalls: zod.z.array(callReferenceSchema).max(200)
+  }).optional()
+});
+var fileEnrichmentSchema = zod.z.object({
+  /** POSIX relative path to the source file */
+  filePath: zod.z.string().min(1),
+  /** Programming language identifier (e.g., 'typescript', 'python') */
+  language: zod.z.string().min(1),
+  /** Enriched symbols found in this file */
+  symbols: zod.z.array(symbolEnrichmentSchema)
+});
+var enrichmentMetadataSchema = zod.z.object({
+  /** Project identifier */
+  projectId: zod.z.string().min(1),
+  /** Git branch name */
+  branch: zod.z.string().min(1),
+  /** Full 40-character SHA-1 commit hash */
+  commit: zod.z.string().regex(/^[0-9a-f]{40}$/),
+  /** ISO 8601 timestamp of the enrichment run */
+  timestamp: zod.z.string().datetime()
+});
+var enrichmentStatusSchema = zod.z.enum([
+  "pending",
+  "processing",
+  "completed",
+  "failed",
+  "skipped"
+]);
 var graphNodeTypeSchema = zod.z.enum([
   "function",
   "class",
@@ -1399,6 +1488,7 @@ exports.apiErrorResponseSchema = apiErrorResponseSchema;
 exports.apiResponseSchema = apiResponseSchema;
 exports.breakingChangeRiskSchema = breakingChangeRiskSchema;
 exports.callGraphRootSchema = callGraphRootSchema;
+exports.callReferenceSchema = callReferenceSchema;
 exports.calleeNodeSchema = calleeNodeSchema;
 exports.callerNodeSchema = callerNodeSchema;
 exports.circularDependencyCycleSchema = circularDependencyCycleSchema;
@@ -1407,16 +1497,20 @@ exports.complexityRiskSchema = complexityRiskSchema;
 exports.confidenceScoreSchema = confidenceScoreSchema;
 exports.createErrorReportSchema = createErrorReportSchema;
 exports.dataQualityMetadataSchema = dataQualityMetadataSchema;
+exports.definitionLocationSchema = definitionLocationSchema;
 exports.dependencyMetricsSchema = dependencyMetricsSchema;
 exports.dependencyOverviewSchema = dependencyOverviewSchema;
 exports.dependentMetricsSchema = dependentMetricsSchema;
 exports.directDependencySchema = directDependencySchema;
 exports.directDependentSchema = directDependentSchema;
 exports.directUsageSchema = directUsageSchema;
+exports.enrichmentMetadataSchema = enrichmentMetadataSchema;
+exports.enrichmentStatusSchema = enrichmentStatusSchema;
 exports.errorDataSchema = errorDataSchema;
 exports.errorEntrySchema = errorEntrySchema;
 exports.errorReportMetricsSchema = errorReportMetricsSchema;
 exports.errorReportResponseSchema = errorReportResponseSchema;
+exports.fileEnrichmentSchema = fileEnrichmentSchema;
 exports.fileFailureSchema = fileFailureSchema;
 exports.fileLocationSchema = fileLocationSchema;
 exports.findCircularDependenciesParamsSchema = findCircularDependenciesParamsSchema;
@@ -1474,6 +1568,7 @@ exports.projectMetadataSchema = projectMetadataSchema;
 exports.projectResolveResponseSchema = projectResolveResponseSchema;
 exports.projectStateSchema = projectStateSchema;
 exports.qualityMetricsSchema = qualityMetricsSchema;
+exports.referenceLocationSchema = referenceLocationSchema;
 exports.relationshipDirectionsSchema = relationshipDirectionsSchema;
 exports.relationshipFailureSchema = relationshipFailureSchema;
 exports.relationshipSummarySchema = relationshipSummarySchema;
@@ -1487,6 +1582,7 @@ exports.stringRelationshipDirectionsSchema = stringRelationshipDirectionsSchema;
 exports.structureStatisticsSchema = structureStatisticsSchema;
 exports.symbolDetailsResultSchema = symbolDetailsResultSchema;
 exports.symbolDetailsSchema = symbolDetailsSchema;
+exports.symbolEnrichmentSchema = symbolEnrichmentSchema;
 exports.symbolInfoSchema = symbolInfoSchema;
 exports.symbolKindCategorySchema = symbolKindCategorySchema;
 exports.symbolReferenceSchema = symbolReferenceSchema;
@@ -1498,6 +1594,7 @@ exports.tracedSymbolSchema = tracedSymbolSchema;
 exports.transitiveDependencySchema = transitiveDependencySchema;
 exports.transitiveDependentSchema = transitiveDependentSchema;
 exports.transitiveUsageSchema = transitiveUsageSchema;
+exports.typeInfoSchema = typeInfoSchema;
 exports.updateErrorReportSchema = updateErrorReportSchema;
 exports.warningEntrySchema = warningEntrySchema;
 //# sourceMappingURL=index.js.map
