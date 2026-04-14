@@ -58,3 +58,19 @@ export {
 	type ClassificationMapEntry,
 	type ClassificationMap,
 } from './classification-map.schema';
+
+export {
+	indexAttemptStatusSchema,
+	lockResponseStatusSchema,
+	lockResponseAcquiredSchema,
+	lockResponseCurrentSchema,
+	lockResponseDuplicateSchema,
+	lockResponseSupersededSchema,
+	lockResponseQueuedSchema,
+	lockResponseSchema,
+	queueUploadHeadersSchema,
+	type IndexAttemptStatus,
+	type LockResponseStatus,
+	type LockResponse,
+	type QueueUploadHeaders,
+} from './index-attempt.schema';
