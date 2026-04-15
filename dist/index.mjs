@@ -746,6 +746,8 @@ var tracedSymbolSchema = z.object({
   name: z.string(),
   /** Symbol kind */
   kind: z.string(),
+  /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+  visibility: z.string().optional(),
   /** File where symbol is defined */
   filePath: z.string(),
   /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
@@ -824,6 +826,8 @@ var callGraphRootSchema = z.object({
   symbolId: z.string(),
   /** Symbol name */
   name: z.string(),
+  /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+  visibility: z.string().optional(),
   /** File path */
   filePath: z.string(),
   /** Line number */
@@ -842,6 +846,8 @@ var callerNodeSchema = z.object({
   symbolId: z.string(),
   /** Symbol name */
   name: z.string(),
+  /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+  visibility: z.string().optional(),
   /** File path */
   filePath: z.string(),
   /** Line number */
@@ -862,6 +868,8 @@ var calleeNodeSchema = z.object({
   symbolId: z.string(),
   /** Symbol name */
   name: z.string(),
+  /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+  visibility: z.string().optional(),
   /** File path */
   filePath: z.string(),
   /** Line number */
@@ -920,6 +928,8 @@ var impactedSymbolSchema = fileLocationSchema.extend({
   qualifiedName: z.string(),
   /** Symbol kind (function, class, variable, etc.) */
   kind: z.string(),
+  /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+  visibility: z.string().optional(),
   /** Type of relationship (CALLS, REFERENCES, DEPENDS_ON, etc.) */
   relationshipType: z.string(),
   /** Depth in the dependency chain (1 = direct, 2+ = transitive) */
@@ -974,6 +984,8 @@ var impactAnalysisResultSchema = z.object({
     name: z.string(),
     qualifiedName: z.string(),
     kind: z.string(),
+    /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+    visibility: z.string().optional(),
     filePath: z.string(),
     line: z.number().int().positive(),
     /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
@@ -1030,6 +1042,8 @@ var orphanedSymbolSchema = z.object({
   name: z.string(),
   /** Symbol kind */
   kind: z.string(),
+  /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+  visibility: z.string().optional(),
   /** File path */
   filePath: z.string(),
   /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */

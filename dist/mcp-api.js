@@ -534,6 +534,8 @@ var tracedSymbolSchema = zod.z.object({
   name: zod.z.string(),
   /** Symbol kind */
   kind: zod.z.string(),
+  /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+  visibility: zod.z.string().optional(),
   /** File where symbol is defined */
   filePath: zod.z.string(),
   /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
@@ -612,6 +614,8 @@ var callGraphRootSchema = zod.z.object({
   symbolId: zod.z.string(),
   /** Symbol name */
   name: zod.z.string(),
+  /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+  visibility: zod.z.string().optional(),
   /** File path */
   filePath: zod.z.string(),
   /** Line number */
@@ -630,6 +634,8 @@ var callerNodeSchema = zod.z.object({
   symbolId: zod.z.string(),
   /** Symbol name */
   name: zod.z.string(),
+  /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+  visibility: zod.z.string().optional(),
   /** File path */
   filePath: zod.z.string(),
   /** Line number */
@@ -650,6 +656,8 @@ var calleeNodeSchema = zod.z.object({
   symbolId: zod.z.string(),
   /** Symbol name */
   name: zod.z.string(),
+  /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+  visibility: zod.z.string().optional(),
   /** File path */
   filePath: zod.z.string(),
   /** Line number */
@@ -708,6 +716,8 @@ var impactedSymbolSchema = fileLocationSchema.extend({
   qualifiedName: zod.z.string(),
   /** Symbol kind (function, class, variable, etc.) */
   kind: zod.z.string(),
+  /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+  visibility: zod.z.string().optional(),
   /** Type of relationship (CALLS, REFERENCES, DEPENDS_ON, etc.) */
   relationshipType: zod.z.string(),
   /** Depth in the dependency chain (1 = direct, 2+ = transitive) */
@@ -762,6 +772,8 @@ var impactAnalysisResultSchema = zod.z.object({
     name: zod.z.string(),
     qualifiedName: zod.z.string(),
     kind: zod.z.string(),
+    /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+    visibility: zod.z.string().optional(),
     filePath: zod.z.string(),
     line: zod.z.number().int().positive(),
     /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
@@ -818,6 +830,8 @@ var orphanedSymbolSchema = zod.z.object({
   name: zod.z.string(),
   /** Symbol kind */
   kind: zod.z.string(),
+  /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+  visibility: zod.z.string().optional(),
   /** File path */
   filePath: zod.z.string(),
   /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */

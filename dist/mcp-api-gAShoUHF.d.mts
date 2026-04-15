@@ -2158,6 +2158,8 @@ declare const tracedSymbolSchema: z.ZodObject<{
     name: z.ZodString;
     /** Symbol kind */
     kind: z.ZodString;
+    /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+    visibility: z.ZodOptional<z.ZodString>;
     /** File where symbol is defined */
     filePath: z.ZodString;
     /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
@@ -2200,6 +2202,7 @@ declare const tracedSymbolSchema: z.ZodObject<{
     filePath: string;
     name: string;
     kind: string;
+    visibility?: string | undefined;
     lineEnd?: number | undefined;
     complexity?: {
         cyclomaticComplexity: number;
@@ -2217,6 +2220,7 @@ declare const tracedSymbolSchema: z.ZodObject<{
     filePath: string;
     name: string;
     kind: string;
+    visibility?: string | undefined;
     lineEnd?: number | undefined;
     complexity?: {
         cyclomaticComplexity: number;
@@ -2329,6 +2333,8 @@ declare const traceSymbolUsageResultSchema: z.ZodObject<{
         name: z.ZodString;
         /** Symbol kind */
         kind: z.ZodString;
+        /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+        visibility: z.ZodOptional<z.ZodString>;
         /** File where symbol is defined */
         filePath: z.ZodString;
         /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
@@ -2371,6 +2377,7 @@ declare const traceSymbolUsageResultSchema: z.ZodObject<{
         filePath: string;
         name: string;
         kind: string;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -2388,6 +2395,7 @@ declare const traceSymbolUsageResultSchema: z.ZodObject<{
         filePath: string;
         name: string;
         kind: string;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -2488,6 +2496,7 @@ declare const traceSymbolUsageResultSchema: z.ZodObject<{
         filePath: string;
         name: string;
         kind: string;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -2528,6 +2537,7 @@ declare const traceSymbolUsageResultSchema: z.ZodObject<{
         filePath: string;
         name: string;
         kind: string;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -2625,6 +2635,8 @@ declare const callGraphRootSchema: z.ZodObject<{
     symbolId: z.ZodString;
     /** Symbol name */
     name: z.ZodString;
+    /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+    visibility: z.ZodOptional<z.ZodString>;
     /** File path */
     filePath: z.ZodString;
     /** Line number */
@@ -2673,6 +2685,7 @@ declare const callGraphRootSchema: z.ZodObject<{
     column: number;
     symbolId: string;
     name: string;
+    visibility?: string | undefined;
     lineEnd?: number | undefined;
     complexity?: {
         cyclomaticComplexity: number;
@@ -2692,6 +2705,7 @@ declare const callGraphRootSchema: z.ZodObject<{
     column: number;
     symbolId: string;
     name: string;
+    visibility?: string | undefined;
     lineEnd?: number | undefined;
     complexity?: {
         cyclomaticComplexity: number;
@@ -2715,6 +2729,8 @@ declare const callerNodeSchema: z.ZodObject<{
     symbolId: z.ZodString;
     /** Symbol name */
     name: z.ZodString;
+    /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+    visibility: z.ZodOptional<z.ZodString>;
     /** File path */
     filePath: z.ZodString;
     /** Line number */
@@ -2766,6 +2782,7 @@ declare const callerNodeSchema: z.ZodObject<{
     symbolId: string;
     name: string;
     depth: number;
+    visibility?: string | undefined;
     lineEnd?: number | undefined;
     complexity?: {
         cyclomaticComplexity: number;
@@ -2786,6 +2803,7 @@ declare const callerNodeSchema: z.ZodObject<{
     symbolId: string;
     name: string;
     depth: number;
+    visibility?: string | undefined;
     lineEnd?: number | undefined;
     complexity?: {
         cyclomaticComplexity: number;
@@ -2809,6 +2827,8 @@ declare const calleeNodeSchema: z.ZodObject<{
     symbolId: z.ZodString;
     /** Symbol name */
     name: z.ZodString;
+    /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+    visibility: z.ZodOptional<z.ZodString>;
     /** File path */
     filePath: z.ZodString;
     /** Line number */
@@ -2863,6 +2883,7 @@ declare const calleeNodeSchema: z.ZodObject<{
     name: string;
     depth: number;
     isAsync: boolean;
+    visibility?: string | undefined;
     lineEnd?: number | undefined;
     complexity?: {
         cyclomaticComplexity: number;
@@ -2884,6 +2905,7 @@ declare const calleeNodeSchema: z.ZodObject<{
     name: string;
     depth: number;
     isAsync: boolean;
+    visibility?: string | undefined;
     lineEnd?: number | undefined;
     complexity?: {
         cyclomaticComplexity: number;
@@ -2909,6 +2931,8 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         symbolId: z.ZodString;
         /** Symbol name */
         name: z.ZodString;
+        /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+        visibility: z.ZodOptional<z.ZodString>;
         /** File path */
         filePath: z.ZodString;
         /** Line number */
@@ -2957,6 +2981,7 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         column: number;
         symbolId: string;
         name: string;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -2976,6 +3001,7 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         column: number;
         symbolId: string;
         name: string;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -2996,6 +3022,8 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         symbolId: z.ZodString;
         /** Symbol name */
         name: z.ZodString;
+        /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+        visibility: z.ZodOptional<z.ZodString>;
         /** File path */
         filePath: z.ZodString;
         /** Line number */
@@ -3047,6 +3075,7 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         symbolId: string;
         name: string;
         depth: number;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -3067,6 +3096,7 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         symbolId: string;
         name: string;
         depth: number;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -3087,6 +3117,8 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         symbolId: z.ZodString;
         /** Symbol name */
         name: z.ZodString;
+        /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+        visibility: z.ZodOptional<z.ZodString>;
         /** File path */
         filePath: z.ZodString;
         /** Line number */
@@ -3141,6 +3173,7 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         name: string;
         depth: number;
         isAsync: boolean;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -3162,6 +3195,7 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         name: string;
         depth: number;
         isAsync: boolean;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -3277,6 +3311,7 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         column: number;
         symbolId: string;
         name: string;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -3298,6 +3333,7 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         symbolId: string;
         name: string;
         depth: number;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -3320,6 +3356,7 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         name: string;
         depth: number;
         isAsync: boolean;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -3362,6 +3399,7 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         column: number;
         symbolId: string;
         name: string;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -3383,6 +3421,7 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         symbolId: string;
         name: string;
         depth: number;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -3405,6 +3444,7 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         name: string;
         depth: number;
         isAsync: boolean;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -3515,6 +3555,8 @@ declare const impactedSymbolSchema: z.ZodObject<{
     qualifiedName: z.ZodString;
     /** Symbol kind (function, class, variable, etc.) */
     kind: z.ZodString;
+    /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+    visibility: z.ZodOptional<z.ZodString>;
     /** Type of relationship (CALLS, REFERENCES, DEPENDS_ON, etc.) */
     relationshipType: z.ZodString;
     /** Depth in the dependency chain (1 = direct, 2+ = transitive) */
@@ -3554,6 +3596,7 @@ declare const impactedSymbolSchema: z.ZodObject<{
     kind: string;
     depth: number;
     relationshipType: string;
+    visibility?: string | undefined;
     line?: number | undefined;
     lineStart?: number | undefined;
     lineEnd?: number | undefined;
@@ -3576,6 +3619,7 @@ declare const impactedSymbolSchema: z.ZodObject<{
     kind: string;
     depth: number;
     relationshipType: string;
+    visibility?: string | undefined;
     line?: number | undefined;
     lineStart?: number | undefined;
     lineEnd?: number | undefined;
@@ -3698,6 +3742,8 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         name: z.ZodString;
         qualifiedName: z.ZodString;
         kind: z.ZodString;
+        /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+        visibility: z.ZodOptional<z.ZodString>;
         filePath: z.ZodString;
         line: z.ZodNumber;
         /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
@@ -3735,6 +3781,7 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         name: string;
         qualifiedName: string;
         kind: string;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         isExported?: boolean | undefined;
         languageMetadata?: {
@@ -3753,6 +3800,7 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         name: string;
         qualifiedName: string;
         kind: string;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         isExported?: boolean | undefined;
         languageMetadata?: {
@@ -3780,6 +3828,8 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         qualifiedName: z.ZodString;
         /** Symbol kind (function, class, variable, etc.) */
         kind: z.ZodString;
+        /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+        visibility: z.ZodOptional<z.ZodString>;
         /** Type of relationship (CALLS, REFERENCES, DEPENDS_ON, etc.) */
         relationshipType: z.ZodString;
         /** Depth in the dependency chain (1 = direct, 2+ = transitive) */
@@ -3819,6 +3869,7 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         kind: string;
         depth: number;
         relationshipType: string;
+        visibility?: string | undefined;
         line?: number | undefined;
         lineStart?: number | undefined;
         lineEnd?: number | undefined;
@@ -3841,6 +3892,7 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         kind: string;
         depth: number;
         relationshipType: string;
+        visibility?: string | undefined;
         line?: number | undefined;
         lineStart?: number | undefined;
         lineEnd?: number | undefined;
@@ -3872,6 +3924,8 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         qualifiedName: z.ZodString;
         /** Symbol kind (function, class, variable, etc.) */
         kind: z.ZodString;
+        /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+        visibility: z.ZodOptional<z.ZodString>;
         /** Type of relationship (CALLS, REFERENCES, DEPENDS_ON, etc.) */
         relationshipType: z.ZodString;
         /** Depth in the dependency chain (1 = direct, 2+ = transitive) */
@@ -3911,6 +3965,7 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         kind: string;
         depth: number;
         relationshipType: string;
+        visibility?: string | undefined;
         line?: number | undefined;
         lineStart?: number | undefined;
         lineEnd?: number | undefined;
@@ -3933,6 +3988,7 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         kind: string;
         depth: number;
         relationshipType: string;
+        visibility?: string | undefined;
         line?: number | undefined;
         lineStart?: number | undefined;
         lineEnd?: number | undefined;
@@ -4076,6 +4132,7 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         name: string;
         qualifiedName: string;
         kind: string;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         isExported?: boolean | undefined;
         languageMetadata?: {
@@ -4115,6 +4172,7 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         kind: string;
         depth: number;
         relationshipType: string;
+        visibility?: string | undefined;
         line?: number | undefined;
         lineStart?: number | undefined;
         lineEnd?: number | undefined;
@@ -4138,6 +4196,7 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         kind: string;
         depth: number;
         relationshipType: string;
+        visibility?: string | undefined;
         line?: number | undefined;
         lineStart?: number | undefined;
         lineEnd?: number | undefined;
@@ -4171,6 +4230,7 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         name: string;
         qualifiedName: string;
         kind: string;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         isExported?: boolean | undefined;
         languageMetadata?: {
@@ -4210,6 +4270,7 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         kind: string;
         depth: number;
         relationshipType: string;
+        visibility?: string | undefined;
         line?: number | undefined;
         lineStart?: number | undefined;
         lineEnd?: number | undefined;
@@ -4233,6 +4294,7 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         kind: string;
         depth: number;
         relationshipType: string;
+        visibility?: string | undefined;
         line?: number | undefined;
         lineStart?: number | undefined;
         lineEnd?: number | undefined;
@@ -4313,6 +4375,8 @@ declare const orphanedSymbolSchema: z.ZodObject<{
     name: z.ZodString;
     /** Symbol kind */
     kind: z.ZodString;
+    /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+    visibility: z.ZodOptional<z.ZodString>;
     /** File path */
     filePath: z.ZodString;
     /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
@@ -4354,6 +4418,7 @@ declare const orphanedSymbolSchema: z.ZodObject<{
     kind: string;
     reason: string;
     confidence: number;
+    visibility?: string | undefined;
     lineEnd?: number | undefined;
     languageMetadata?: {
         language: string;
@@ -4371,6 +4436,7 @@ declare const orphanedSymbolSchema: z.ZodObject<{
     kind: string;
     reason: string;
     confidence: number;
+    visibility?: string | undefined;
     lineEnd?: number | undefined;
     languageMetadata?: {
         language: string;
@@ -4418,6 +4484,8 @@ declare const findOrphanedCodeResultSchema: z.ZodObject<{
         name: z.ZodString;
         /** Symbol kind */
         kind: z.ZodString;
+        /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+        visibility: z.ZodOptional<z.ZodString>;
         /** File path */
         filePath: z.ZodString;
         /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
@@ -4459,6 +4527,7 @@ declare const findOrphanedCodeResultSchema: z.ZodObject<{
         kind: string;
         reason: string;
         confidence: number;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         languageMetadata?: {
             language: string;
@@ -4476,6 +4545,7 @@ declare const findOrphanedCodeResultSchema: z.ZodObject<{
         kind: string;
         reason: string;
         confidence: number;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         languageMetadata?: {
             language: string;
@@ -4516,6 +4586,7 @@ declare const findOrphanedCodeResultSchema: z.ZodObject<{
         kind: string;
         reason: string;
         confidence: number;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         languageMetadata?: {
             language: string;
@@ -4541,6 +4612,7 @@ declare const findOrphanedCodeResultSchema: z.ZodObject<{
         kind: string;
         reason: string;
         confidence: number;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         languageMetadata?: {
             language: string;

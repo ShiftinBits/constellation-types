@@ -56,6 +56,9 @@ export const callGraphRootSchema = z.object({
 	/** Symbol name */
 	name: z.string(),
 
+	/** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+	visibility: z.string().optional(),
+
 	/** File path */
 	filePath: z.string(),
 
@@ -86,6 +89,9 @@ export const callerNodeSchema = z.object({
 
 	/** Symbol name */
 	name: z.string(),
+
+	/** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+	visibility: z.string().optional(),
 
 	/** File path */
 	filePath: z.string(),
@@ -120,6 +126,9 @@ export const calleeNodeSchema = z.object({
 
 	/** Symbol name */
 	name: z.string(),
+
+	/** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+	visibility: z.string().optional(),
 
 	/** File path */
 	filePath: z.string(),
