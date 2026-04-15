@@ -614,6 +614,8 @@ var callGraphRootSchema = zod.z.object({
   symbolId: zod.z.string(),
   /** Symbol name */
   name: zod.z.string(),
+  /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+  visibility: zod.z.string().optional(),
   /** File path */
   filePath: zod.z.string(),
   /** Line number */
@@ -632,6 +634,8 @@ var callerNodeSchema = zod.z.object({
   symbolId: zod.z.string(),
   /** Symbol name */
   name: zod.z.string(),
+  /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+  visibility: zod.z.string().optional(),
   /** File path */
   filePath: zod.z.string(),
   /** Line number */
@@ -652,6 +656,8 @@ var calleeNodeSchema = zod.z.object({
   symbolId: zod.z.string(),
   /** Symbol name */
   name: zod.z.string(),
+  /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+  visibility: zod.z.string().optional(),
   /** File path */
   filePath: zod.z.string(),
   /** Line number */

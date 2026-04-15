@@ -612,6 +612,8 @@ var callGraphRootSchema = z.object({
   symbolId: z.string(),
   /** Symbol name */
   name: z.string(),
+  /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+  visibility: z.string().optional(),
   /** File path */
   filePath: z.string(),
   /** Line number */
@@ -630,6 +632,8 @@ var callerNodeSchema = z.object({
   symbolId: z.string(),
   /** Symbol name */
   name: z.string(),
+  /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+  visibility: z.string().optional(),
   /** File path */
   filePath: z.string(),
   /** Line number */
@@ -650,6 +654,8 @@ var calleeNodeSchema = z.object({
   symbolId: z.string(),
   /** Symbol name */
   name: z.string(),
+  /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+  visibility: z.string().optional(),
   /** File path */
   filePath: z.string(),
   /** Line number */

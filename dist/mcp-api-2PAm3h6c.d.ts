@@ -2635,6 +2635,8 @@ declare const callGraphRootSchema: z.ZodObject<{
     symbolId: z.ZodString;
     /** Symbol name */
     name: z.ZodString;
+    /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+    visibility: z.ZodOptional<z.ZodString>;
     /** File path */
     filePath: z.ZodString;
     /** Line number */
@@ -2683,6 +2685,7 @@ declare const callGraphRootSchema: z.ZodObject<{
     column: number;
     symbolId: string;
     name: string;
+    visibility?: string | undefined;
     lineEnd?: number | undefined;
     complexity?: {
         cyclomaticComplexity: number;
@@ -2702,6 +2705,7 @@ declare const callGraphRootSchema: z.ZodObject<{
     column: number;
     symbolId: string;
     name: string;
+    visibility?: string | undefined;
     lineEnd?: number | undefined;
     complexity?: {
         cyclomaticComplexity: number;
@@ -2725,6 +2729,8 @@ declare const callerNodeSchema: z.ZodObject<{
     symbolId: z.ZodString;
     /** Symbol name */
     name: z.ZodString;
+    /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+    visibility: z.ZodOptional<z.ZodString>;
     /** File path */
     filePath: z.ZodString;
     /** Line number */
@@ -2776,6 +2782,7 @@ declare const callerNodeSchema: z.ZodObject<{
     symbolId: string;
     name: string;
     depth: number;
+    visibility?: string | undefined;
     lineEnd?: number | undefined;
     complexity?: {
         cyclomaticComplexity: number;
@@ -2796,6 +2803,7 @@ declare const callerNodeSchema: z.ZodObject<{
     symbolId: string;
     name: string;
     depth: number;
+    visibility?: string | undefined;
     lineEnd?: number | undefined;
     complexity?: {
         cyclomaticComplexity: number;
@@ -2819,6 +2827,8 @@ declare const calleeNodeSchema: z.ZodObject<{
     symbolId: z.ZodString;
     /** Symbol name */
     name: z.ZodString;
+    /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+    visibility: z.ZodOptional<z.ZodString>;
     /** File path */
     filePath: z.ZodString;
     /** Line number */
@@ -2873,6 +2883,7 @@ declare const calleeNodeSchema: z.ZodObject<{
     name: string;
     depth: number;
     isAsync: boolean;
+    visibility?: string | undefined;
     lineEnd?: number | undefined;
     complexity?: {
         cyclomaticComplexity: number;
@@ -2894,6 +2905,7 @@ declare const calleeNodeSchema: z.ZodObject<{
     name: string;
     depth: number;
     isAsync: boolean;
+    visibility?: string | undefined;
     lineEnd?: number | undefined;
     complexity?: {
         cyclomaticComplexity: number;
@@ -2919,6 +2931,8 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         symbolId: z.ZodString;
         /** Symbol name */
         name: z.ZodString;
+        /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+        visibility: z.ZodOptional<z.ZodString>;
         /** File path */
         filePath: z.ZodString;
         /** Line number */
@@ -2967,6 +2981,7 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         column: number;
         symbolId: string;
         name: string;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -2986,6 +3001,7 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         column: number;
         symbolId: string;
         name: string;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -3006,6 +3022,8 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         symbolId: z.ZodString;
         /** Symbol name */
         name: z.ZodString;
+        /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+        visibility: z.ZodOptional<z.ZodString>;
         /** File path */
         filePath: z.ZodString;
         /** Line number */
@@ -3057,6 +3075,7 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         symbolId: string;
         name: string;
         depth: number;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -3077,6 +3096,7 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         symbolId: string;
         name: string;
         depth: number;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -3097,6 +3117,8 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         symbolId: z.ZodString;
         /** Symbol name */
         name: z.ZodString;
+        /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+        visibility: z.ZodOptional<z.ZodString>;
         /** File path */
         filePath: z.ZodString;
         /** Line number */
@@ -3151,6 +3173,7 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         name: string;
         depth: number;
         isAsync: boolean;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -3172,6 +3195,7 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         name: string;
         depth: number;
         isAsync: boolean;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -3287,6 +3311,7 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         column: number;
         symbolId: string;
         name: string;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -3308,6 +3333,7 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         symbolId: string;
         name: string;
         depth: number;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -3330,6 +3356,7 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         name: string;
         depth: number;
         isAsync: boolean;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -3372,6 +3399,7 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         column: number;
         symbolId: string;
         name: string;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -3393,6 +3421,7 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         symbolId: string;
         name: string;
         depth: number;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -3415,6 +3444,7 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         name: string;
         depth: number;
         isAsync: boolean;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
