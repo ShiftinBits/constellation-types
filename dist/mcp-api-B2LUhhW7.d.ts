@@ -214,7 +214,7 @@ declare const fileLocationSchema: z.ZodObject<{
     line: z.ZodOptional<z.ZodNumber>;
     /** Optional line range start */
     lineStart: z.ZodOptional<z.ZodNumber>;
-    /** Optional line range end */
+    /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
     lineEnd: z.ZodOptional<z.ZodNumber>;
     /** Optional column number */
     column: z.ZodOptional<z.ZodNumber>;
@@ -242,7 +242,7 @@ declare const symbolReferenceSchema: z.ZodObject<{
     line: z.ZodOptional<z.ZodNumber>;
     /** Optional line range start */
     lineStart: z.ZodOptional<z.ZodNumber>;
-    /** Optional line range end */
+    /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
     lineEnd: z.ZodOptional<z.ZodNumber>;
     /** Optional column number */
     column: z.ZodOptional<z.ZodNumber>;
@@ -2171,6 +2171,29 @@ declare const tracedSymbolSchema: z.ZodObject<{
         cyclomaticComplexity: number;
         complexityRisk: "low" | "high" | "moderate" | "very_high";
     }>>;
+    /** Language-specific metadata (e.g., language identifier) */
+    languageMetadata: z.ZodOptional<z.ZodObject<{
+        language: z.ZodString;
+        features: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        visibility: z.ZodOptional<z.ZodString>;
+        decorators: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        typeInfo: z.ZodOptional<z.ZodAny>;
+        custom: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
+    }, "strip", z.ZodTypeAny, {
+        language: string;
+        features?: string[] | undefined;
+        visibility?: string | undefined;
+        decorators?: string[] | undefined;
+        typeInfo?: any;
+        custom?: Record<string, any> | undefined;
+    }, {
+        language: string;
+        features?: string[] | undefined;
+        visibility?: string | undefined;
+        decorators?: string[] | undefined;
+        typeInfo?: any;
+        custom?: Record<string, any> | undefined;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     filePath: string;
     name: string;
@@ -2179,6 +2202,14 @@ declare const tracedSymbolSchema: z.ZodObject<{
         cyclomaticComplexity: number;
         complexityRisk: "low" | "high" | "moderate" | "very_high";
     } | undefined;
+    languageMetadata?: {
+        language: string;
+        features?: string[] | undefined;
+        visibility?: string | undefined;
+        decorators?: string[] | undefined;
+        typeInfo?: any;
+        custom?: Record<string, any> | undefined;
+    } | undefined;
 }, {
     filePath: string;
     name: string;
@@ -2186,6 +2217,14 @@ declare const tracedSymbolSchema: z.ZodObject<{
     complexity?: {
         cyclomaticComplexity: number;
         complexityRisk: "low" | "high" | "moderate" | "very_high";
+    } | undefined;
+    languageMetadata?: {
+        language: string;
+        features?: string[] | undefined;
+        visibility?: string | undefined;
+        decorators?: string[] | undefined;
+        typeInfo?: any;
+        custom?: Record<string, any> | undefined;
     } | undefined;
 }>;
 type TracedSymbol = z.infer<typeof tracedSymbolSchema>;
@@ -2299,6 +2338,29 @@ declare const traceSymbolUsageResultSchema: z.ZodObject<{
             cyclomaticComplexity: number;
             complexityRisk: "low" | "high" | "moderate" | "very_high";
         }>>;
+        /** Language-specific metadata (e.g., language identifier) */
+        languageMetadata: z.ZodOptional<z.ZodObject<{
+            language: z.ZodString;
+            features: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            visibility: z.ZodOptional<z.ZodString>;
+            decorators: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            typeInfo: z.ZodOptional<z.ZodAny>;
+            custom: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
+        }, "strip", z.ZodTypeAny, {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        }, {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        }>>;
     }, "strip", z.ZodTypeAny, {
         filePath: string;
         name: string;
@@ -2307,6 +2369,14 @@ declare const traceSymbolUsageResultSchema: z.ZodObject<{
             cyclomaticComplexity: number;
             complexityRisk: "low" | "high" | "moderate" | "very_high";
         } | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        } | undefined;
     }, {
         filePath: string;
         name: string;
@@ -2314,6 +2384,14 @@ declare const traceSymbolUsageResultSchema: z.ZodObject<{
         complexity?: {
             cyclomaticComplexity: number;
             complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
         } | undefined;
     }>;
     /** Direct usages of the symbol */
@@ -2406,6 +2484,14 @@ declare const traceSymbolUsageResultSchema: z.ZodObject<{
             cyclomaticComplexity: number;
             complexityRisk: "low" | "high" | "moderate" | "very_high";
         } | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        } | undefined;
     };
     directUsages: {
         filePath: string;
@@ -2436,6 +2522,14 @@ declare const traceSymbolUsageResultSchema: z.ZodObject<{
         complexity?: {
             cyclomaticComplexity: number;
             complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
         } | undefined;
     };
     directUsages: {
@@ -2538,6 +2632,29 @@ declare const callGraphRootSchema: z.ZodObject<{
         cyclomaticComplexity: number;
         complexityRisk: "low" | "high" | "moderate" | "very_high";
     }>>;
+    /** Language-specific metadata (e.g., language identifier) */
+    languageMetadata: z.ZodOptional<z.ZodObject<{
+        language: z.ZodString;
+        features: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        visibility: z.ZodOptional<z.ZodString>;
+        decorators: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        typeInfo: z.ZodOptional<z.ZodAny>;
+        custom: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
+    }, "strip", z.ZodTypeAny, {
+        language: string;
+        features?: string[] | undefined;
+        visibility?: string | undefined;
+        decorators?: string[] | undefined;
+        typeInfo?: any;
+        custom?: Record<string, any> | undefined;
+    }, {
+        language: string;
+        features?: string[] | undefined;
+        visibility?: string | undefined;
+        decorators?: string[] | undefined;
+        typeInfo?: any;
+        custom?: Record<string, any> | undefined;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     filePath: string;
     line: number;
@@ -2548,6 +2665,14 @@ declare const callGraphRootSchema: z.ZodObject<{
         cyclomaticComplexity: number;
         complexityRisk: "low" | "high" | "moderate" | "very_high";
     } | undefined;
+    languageMetadata?: {
+        language: string;
+        features?: string[] | undefined;
+        visibility?: string | undefined;
+        decorators?: string[] | undefined;
+        typeInfo?: any;
+        custom?: Record<string, any> | undefined;
+    } | undefined;
 }, {
     filePath: string;
     line: number;
@@ -2557,6 +2682,14 @@ declare const callGraphRootSchema: z.ZodObject<{
     complexity?: {
         cyclomaticComplexity: number;
         complexityRisk: "low" | "high" | "moderate" | "very_high";
+    } | undefined;
+    languageMetadata?: {
+        language: string;
+        features?: string[] | undefined;
+        visibility?: string | undefined;
+        decorators?: string[] | undefined;
+        typeInfo?: any;
+        custom?: Record<string, any> | undefined;
     } | undefined;
 }>;
 type CallGraphRoot = z.infer<typeof callGraphRootSchema>;
@@ -2587,6 +2720,29 @@ declare const callerNodeSchema: z.ZodObject<{
         cyclomaticComplexity: number;
         complexityRisk: "low" | "high" | "moderate" | "very_high";
     }>>;
+    /** Language-specific metadata (e.g., language identifier) */
+    languageMetadata: z.ZodOptional<z.ZodObject<{
+        language: z.ZodString;
+        features: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        visibility: z.ZodOptional<z.ZodString>;
+        decorators: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        typeInfo: z.ZodOptional<z.ZodAny>;
+        custom: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
+    }, "strip", z.ZodTypeAny, {
+        language: string;
+        features?: string[] | undefined;
+        visibility?: string | undefined;
+        decorators?: string[] | undefined;
+        typeInfo?: any;
+        custom?: Record<string, any> | undefined;
+    }, {
+        language: string;
+        features?: string[] | undefined;
+        visibility?: string | undefined;
+        decorators?: string[] | undefined;
+        typeInfo?: any;
+        custom?: Record<string, any> | undefined;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     filePath: string;
     line: number;
@@ -2598,6 +2754,14 @@ declare const callerNodeSchema: z.ZodObject<{
         cyclomaticComplexity: number;
         complexityRisk: "low" | "high" | "moderate" | "very_high";
     } | undefined;
+    languageMetadata?: {
+        language: string;
+        features?: string[] | undefined;
+        visibility?: string | undefined;
+        decorators?: string[] | undefined;
+        typeInfo?: any;
+        custom?: Record<string, any> | undefined;
+    } | undefined;
 }, {
     filePath: string;
     line: number;
@@ -2608,6 +2772,14 @@ declare const callerNodeSchema: z.ZodObject<{
     complexity?: {
         cyclomaticComplexity: number;
         complexityRisk: "low" | "high" | "moderate" | "very_high";
+    } | undefined;
+    languageMetadata?: {
+        language: string;
+        features?: string[] | undefined;
+        visibility?: string | undefined;
+        decorators?: string[] | undefined;
+        typeInfo?: any;
+        custom?: Record<string, any> | undefined;
     } | undefined;
 }>;
 type CallerNode = z.infer<typeof callerNodeSchema>;
@@ -2640,6 +2812,29 @@ declare const calleeNodeSchema: z.ZodObject<{
         cyclomaticComplexity: number;
         complexityRisk: "low" | "high" | "moderate" | "very_high";
     }>>;
+    /** Language-specific metadata (e.g., language identifier) */
+    languageMetadata: z.ZodOptional<z.ZodObject<{
+        language: z.ZodString;
+        features: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        visibility: z.ZodOptional<z.ZodString>;
+        decorators: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        typeInfo: z.ZodOptional<z.ZodAny>;
+        custom: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
+    }, "strip", z.ZodTypeAny, {
+        language: string;
+        features?: string[] | undefined;
+        visibility?: string | undefined;
+        decorators?: string[] | undefined;
+        typeInfo?: any;
+        custom?: Record<string, any> | undefined;
+    }, {
+        language: string;
+        features?: string[] | undefined;
+        visibility?: string | undefined;
+        decorators?: string[] | undefined;
+        typeInfo?: any;
+        custom?: Record<string, any> | undefined;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     filePath: string;
     line: number;
@@ -2652,6 +2847,14 @@ declare const calleeNodeSchema: z.ZodObject<{
         cyclomaticComplexity: number;
         complexityRisk: "low" | "high" | "moderate" | "very_high";
     } | undefined;
+    languageMetadata?: {
+        language: string;
+        features?: string[] | undefined;
+        visibility?: string | undefined;
+        decorators?: string[] | undefined;
+        typeInfo?: any;
+        custom?: Record<string, any> | undefined;
+    } | undefined;
 }, {
     filePath: string;
     line: number;
@@ -2663,6 +2866,14 @@ declare const calleeNodeSchema: z.ZodObject<{
     complexity?: {
         cyclomaticComplexity: number;
         complexityRisk: "low" | "high" | "moderate" | "very_high";
+    } | undefined;
+    languageMetadata?: {
+        language: string;
+        features?: string[] | undefined;
+        visibility?: string | undefined;
+        decorators?: string[] | undefined;
+        typeInfo?: any;
+        custom?: Record<string, any> | undefined;
     } | undefined;
 }>;
 type CalleeNode = z.infer<typeof calleeNodeSchema>;
@@ -2693,6 +2904,29 @@ declare const getCallGraphResultSchema: z.ZodObject<{
             cyclomaticComplexity: number;
             complexityRisk: "low" | "high" | "moderate" | "very_high";
         }>>;
+        /** Language-specific metadata (e.g., language identifier) */
+        languageMetadata: z.ZodOptional<z.ZodObject<{
+            language: z.ZodString;
+            features: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            visibility: z.ZodOptional<z.ZodString>;
+            decorators: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            typeInfo: z.ZodOptional<z.ZodAny>;
+            custom: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
+        }, "strip", z.ZodTypeAny, {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        }, {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        }>>;
     }, "strip", z.ZodTypeAny, {
         filePath: string;
         line: number;
@@ -2703,6 +2937,14 @@ declare const getCallGraphResultSchema: z.ZodObject<{
             cyclomaticComplexity: number;
             complexityRisk: "low" | "high" | "moderate" | "very_high";
         } | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        } | undefined;
     }, {
         filePath: string;
         line: number;
@@ -2712,6 +2954,14 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         complexity?: {
             cyclomaticComplexity: number;
             complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
         } | undefined;
     }>;
     /** Functions that call this symbol (if direction includes 'callers') */
@@ -2739,6 +2989,29 @@ declare const getCallGraphResultSchema: z.ZodObject<{
             cyclomaticComplexity: number;
             complexityRisk: "low" | "high" | "moderate" | "very_high";
         }>>;
+        /** Language-specific metadata (e.g., language identifier) */
+        languageMetadata: z.ZodOptional<z.ZodObject<{
+            language: z.ZodString;
+            features: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            visibility: z.ZodOptional<z.ZodString>;
+            decorators: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            typeInfo: z.ZodOptional<z.ZodAny>;
+            custom: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
+        }, "strip", z.ZodTypeAny, {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        }, {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        }>>;
     }, "strip", z.ZodTypeAny, {
         filePath: string;
         line: number;
@@ -2750,6 +3023,14 @@ declare const getCallGraphResultSchema: z.ZodObject<{
             cyclomaticComplexity: number;
             complexityRisk: "low" | "high" | "moderate" | "very_high";
         } | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        } | undefined;
     }, {
         filePath: string;
         line: number;
@@ -2760,6 +3041,14 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         complexity?: {
             cyclomaticComplexity: number;
             complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
         } | undefined;
     }>, "many">>;
     /** Functions this symbol calls (if direction includes 'callees') */
@@ -2789,6 +3078,29 @@ declare const getCallGraphResultSchema: z.ZodObject<{
             cyclomaticComplexity: number;
             complexityRisk: "low" | "high" | "moderate" | "very_high";
         }>>;
+        /** Language-specific metadata (e.g., language identifier) */
+        languageMetadata: z.ZodOptional<z.ZodObject<{
+            language: z.ZodString;
+            features: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            visibility: z.ZodOptional<z.ZodString>;
+            decorators: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            typeInfo: z.ZodOptional<z.ZodAny>;
+            custom: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
+        }, "strip", z.ZodTypeAny, {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        }, {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        }>>;
     }, "strip", z.ZodTypeAny, {
         filePath: string;
         line: number;
@@ -2801,6 +3113,14 @@ declare const getCallGraphResultSchema: z.ZodObject<{
             cyclomaticComplexity: number;
             complexityRisk: "low" | "high" | "moderate" | "very_high";
         } | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        } | undefined;
     }, {
         filePath: string;
         line: number;
@@ -2812,6 +3132,14 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         complexity?: {
             cyclomaticComplexity: number;
             complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
         } | undefined;
     }>, "many">>;
     /** Graph representation (if includeGraph=true) */
@@ -2919,6 +3247,14 @@ declare const getCallGraphResultSchema: z.ZodObject<{
             cyclomaticComplexity: number;
             complexityRisk: "low" | "high" | "moderate" | "very_high";
         } | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        } | undefined;
     };
     callers?: {
         filePath: string;
@@ -2930,6 +3266,14 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         complexity?: {
             cyclomaticComplexity: number;
             complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
         } | undefined;
     }[] | undefined;
     callees?: {
@@ -2943,6 +3287,14 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         complexity?: {
             cyclomaticComplexity: number;
             complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
         } | undefined;
     }[] | undefined;
     graph?: {
@@ -2977,6 +3329,14 @@ declare const getCallGraphResultSchema: z.ZodObject<{
             cyclomaticComplexity: number;
             complexityRisk: "low" | "high" | "moderate" | "very_high";
         } | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        } | undefined;
     };
     callers?: {
         filePath: string;
@@ -2988,6 +3348,14 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         complexity?: {
             cyclomaticComplexity: number;
             complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
         } | undefined;
     }[] | undefined;
     callees?: {
@@ -3001,6 +3369,14 @@ declare const getCallGraphResultSchema: z.ZodObject<{
         complexity?: {
             cyclomaticComplexity: number;
             complexityRisk: "low" | "high" | "moderate" | "very_high";
+        } | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
         } | undefined;
     }[] | undefined;
     graph?: {
@@ -3107,6 +3483,29 @@ declare const impactedSymbolSchema: z.ZodObject<{
     isExported: z.ZodOptional<z.ZodBoolean>;
     /** Number of symbols that depend on this impacted symbol */
     transitiveImpactCount: z.ZodOptional<z.ZodNumber>;
+    /** Language-specific metadata (e.g., language identifier) */
+    languageMetadata: z.ZodOptional<z.ZodObject<{
+        language: z.ZodString;
+        features: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        visibility: z.ZodOptional<z.ZodString>;
+        decorators: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        typeInfo: z.ZodOptional<z.ZodAny>;
+        custom: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
+    }, "strip", z.ZodTypeAny, {
+        language: string;
+        features?: string[] | undefined;
+        visibility?: string | undefined;
+        decorators?: string[] | undefined;
+        typeInfo?: any;
+        custom?: Record<string, any> | undefined;
+    }, {
+        language: string;
+        features?: string[] | undefined;
+        visibility?: string | undefined;
+        decorators?: string[] | undefined;
+        typeInfo?: any;
+        custom?: Record<string, any> | undefined;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     filePath: string;
     id: string;
@@ -3120,6 +3519,14 @@ declare const impactedSymbolSchema: z.ZodObject<{
     lineEnd?: number | undefined;
     column?: number | undefined;
     isExported?: boolean | undefined;
+    languageMetadata?: {
+        language: string;
+        features?: string[] | undefined;
+        visibility?: string | undefined;
+        decorators?: string[] | undefined;
+        typeInfo?: any;
+        custom?: Record<string, any> | undefined;
+    } | undefined;
     transitiveImpactCount?: number | undefined;
 }, {
     filePath: string;
@@ -3134,6 +3541,14 @@ declare const impactedSymbolSchema: z.ZodObject<{
     lineEnd?: number | undefined;
     column?: number | undefined;
     isExported?: boolean | undefined;
+    languageMetadata?: {
+        language: string;
+        features?: string[] | undefined;
+        visibility?: string | undefined;
+        decorators?: string[] | undefined;
+        typeInfo?: any;
+        custom?: Record<string, any> | undefined;
+    } | undefined;
     transitiveImpactCount?: number | undefined;
 }>;
 type ImpactedSymbol = z.infer<typeof impactedSymbolSchema>;
@@ -3247,6 +3662,29 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         line: z.ZodNumber;
         column: z.ZodNumber;
         isExported: z.ZodOptional<z.ZodBoolean>;
+        /** Language-specific metadata (e.g., language identifier) */
+        languageMetadata: z.ZodOptional<z.ZodObject<{
+            language: z.ZodString;
+            features: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            visibility: z.ZodOptional<z.ZodString>;
+            decorators: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            typeInfo: z.ZodOptional<z.ZodAny>;
+            custom: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
+        }, "strip", z.ZodTypeAny, {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        }, {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        }>>;
     }, "strip", z.ZodTypeAny, {
         filePath: string;
         line: number;
@@ -3256,6 +3694,14 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         qualifiedName: string;
         kind: string;
         isExported?: boolean | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        } | undefined;
     }, {
         filePath: string;
         line: number;
@@ -3265,6 +3711,14 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         qualifiedName: string;
         kind: string;
         isExported?: boolean | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        } | undefined;
     }>;
     /** Direct dependents (depth 1) */
     directDependents: z.ZodOptional<z.ZodArray<z.ZodObject<{
@@ -3290,6 +3744,29 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         isExported: z.ZodOptional<z.ZodBoolean>;
         /** Number of symbols that depend on this impacted symbol */
         transitiveImpactCount: z.ZodOptional<z.ZodNumber>;
+        /** Language-specific metadata (e.g., language identifier) */
+        languageMetadata: z.ZodOptional<z.ZodObject<{
+            language: z.ZodString;
+            features: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            visibility: z.ZodOptional<z.ZodString>;
+            decorators: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            typeInfo: z.ZodOptional<z.ZodAny>;
+            custom: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
+        }, "strip", z.ZodTypeAny, {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        }, {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        }>>;
     }, "strip", z.ZodTypeAny, {
         filePath: string;
         id: string;
@@ -3303,6 +3780,14 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         lineEnd?: number | undefined;
         column?: number | undefined;
         isExported?: boolean | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        } | undefined;
         transitiveImpactCount?: number | undefined;
     }, {
         filePath: string;
@@ -3317,6 +3802,14 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         lineEnd?: number | undefined;
         column?: number | undefined;
         isExported?: boolean | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        } | undefined;
         transitiveImpactCount?: number | undefined;
     }>, "many">>;
     /** Transitive dependents (depth 2+) */
@@ -3343,6 +3836,29 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         isExported: z.ZodOptional<z.ZodBoolean>;
         /** Number of symbols that depend on this impacted symbol */
         transitiveImpactCount: z.ZodOptional<z.ZodNumber>;
+        /** Language-specific metadata (e.g., language identifier) */
+        languageMetadata: z.ZodOptional<z.ZodObject<{
+            language: z.ZodString;
+            features: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            visibility: z.ZodOptional<z.ZodString>;
+            decorators: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            typeInfo: z.ZodOptional<z.ZodAny>;
+            custom: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
+        }, "strip", z.ZodTypeAny, {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        }, {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        }>>;
     }, "strip", z.ZodTypeAny, {
         filePath: string;
         id: string;
@@ -3356,6 +3872,14 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         lineEnd?: number | undefined;
         column?: number | undefined;
         isExported?: boolean | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        } | undefined;
         transitiveImpactCount?: number | undefined;
     }, {
         filePath: string;
@@ -3370,6 +3894,14 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         lineEnd?: number | undefined;
         column?: number | undefined;
         isExported?: boolean | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        } | undefined;
         transitiveImpactCount?: number | undefined;
     }>, "many">>;
     /** Files impacted by changes to this symbol */
@@ -3501,6 +4033,14 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         qualifiedName: string;
         kind: string;
         isExported?: boolean | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        } | undefined;
     };
     impactedFiles: {
         filePath: string;
@@ -3535,6 +4075,14 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         lineEnd?: number | undefined;
         column?: number | undefined;
         isExported?: boolean | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        } | undefined;
         transitiveImpactCount?: number | undefined;
     }[] | undefined;
     transitiveDependents?: {
@@ -3550,6 +4098,14 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         lineEnd?: number | undefined;
         column?: number | undefined;
         isExported?: boolean | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        } | undefined;
         transitiveImpactCount?: number | undefined;
     }[] | undefined;
     breakingChangeRisk?: {
@@ -3571,6 +4127,14 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         qualifiedName: string;
         kind: string;
         isExported?: boolean | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        } | undefined;
     };
     impactedFiles: {
         filePath: string;
@@ -3605,6 +4169,14 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         lineEnd?: number | undefined;
         column?: number | undefined;
         isExported?: boolean | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        } | undefined;
         transitiveImpactCount?: number | undefined;
     }[] | undefined;
     transitiveDependents?: {
@@ -3620,6 +4192,14 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         lineEnd?: number | undefined;
         column?: number | undefined;
         isExported?: boolean | undefined;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        } | undefined;
         transitiveImpactCount?: number | undefined;
     }[] | undefined;
     breakingChangeRisk?: {
@@ -3695,6 +4275,29 @@ declare const orphanedSymbolSchema: z.ZodObject<{
     reason: z.ZodString;
     /** Confidence (0-1) */
     confidence: z.ZodNumber;
+    /** Language-specific metadata (e.g., language identifier) */
+    languageMetadata: z.ZodOptional<z.ZodObject<{
+        language: z.ZodString;
+        features: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        visibility: z.ZodOptional<z.ZodString>;
+        decorators: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        typeInfo: z.ZodOptional<z.ZodAny>;
+        custom: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
+    }, "strip", z.ZodTypeAny, {
+        language: string;
+        features?: string[] | undefined;
+        visibility?: string | undefined;
+        decorators?: string[] | undefined;
+        typeInfo?: any;
+        custom?: Record<string, any> | undefined;
+    }, {
+        language: string;
+        features?: string[] | undefined;
+        visibility?: string | undefined;
+        decorators?: string[] | undefined;
+        typeInfo?: any;
+        custom?: Record<string, any> | undefined;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     filePath: string;
     symbolId: string;
@@ -3703,6 +4306,14 @@ declare const orphanedSymbolSchema: z.ZodObject<{
     kind: string;
     reason: string;
     confidence: number;
+    languageMetadata?: {
+        language: string;
+        features?: string[] | undefined;
+        visibility?: string | undefined;
+        decorators?: string[] | undefined;
+        typeInfo?: any;
+        custom?: Record<string, any> | undefined;
+    } | undefined;
 }, {
     filePath: string;
     symbolId: string;
@@ -3711,6 +4322,14 @@ declare const orphanedSymbolSchema: z.ZodObject<{
     kind: string;
     reason: string;
     confidence: number;
+    languageMetadata?: {
+        language: string;
+        features?: string[] | undefined;
+        visibility?: string | undefined;
+        decorators?: string[] | undefined;
+        typeInfo?: any;
+        custom?: Record<string, any> | undefined;
+    } | undefined;
 }>;
 type OrphanedSymbol = z.infer<typeof orphanedSymbolSchema>;
 /**
@@ -3757,6 +4376,29 @@ declare const findOrphanedCodeResultSchema: z.ZodObject<{
         reason: z.ZodString;
         /** Confidence (0-1) */
         confidence: z.ZodNumber;
+        /** Language-specific metadata (e.g., language identifier) */
+        languageMetadata: z.ZodOptional<z.ZodObject<{
+            language: z.ZodString;
+            features: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            visibility: z.ZodOptional<z.ZodString>;
+            decorators: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            typeInfo: z.ZodOptional<z.ZodAny>;
+            custom: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
+        }, "strip", z.ZodTypeAny, {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        }, {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        }>>;
     }, "strip", z.ZodTypeAny, {
         filePath: string;
         symbolId: string;
@@ -3765,6 +4407,14 @@ declare const findOrphanedCodeResultSchema: z.ZodObject<{
         kind: string;
         reason: string;
         confidence: number;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        } | undefined;
     }, {
         filePath: string;
         symbolId: string;
@@ -3773,6 +4423,14 @@ declare const findOrphanedCodeResultSchema: z.ZodObject<{
         kind: string;
         reason: string;
         confidence: number;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        } | undefined;
     }>, "many">;
     /** Orphaned files */
     orphanedFiles: z.ZodArray<z.ZodObject<{
@@ -3804,6 +4462,14 @@ declare const findOrphanedCodeResultSchema: z.ZodObject<{
         kind: string;
         reason: string;
         confidence: number;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        } | undefined;
     }[];
     orphanedFiles: {
         lastUpdated: string;
@@ -3820,6 +4486,14 @@ declare const findOrphanedCodeResultSchema: z.ZodObject<{
         kind: string;
         reason: string;
         confidence: number;
+        languageMetadata?: {
+            language: string;
+            features?: string[] | undefined;
+            visibility?: string | undefined;
+            decorators?: string[] | undefined;
+            typeInfo?: any;
+            custom?: Record<string, any> | undefined;
+        } | undefined;
     }[];
     orphanedFiles: {
         lastUpdated: string;

@@ -9,6 +9,7 @@ import { z } from 'zod';
 import {
 	graphRepresentationSchema,
 	complexityMetricsSchema,
+	languageMetadataSchema,
 } from '../common.schema';
 
 /**
@@ -66,6 +67,9 @@ export const callGraphRootSchema = z.object({
 
 	/** Cyclomatic complexity metrics (present on function/method symbols) */
 	complexity: complexityMetricsSchema.optional(),
+
+	/** Language-specific metadata (e.g., language identifier) */
+	languageMetadata: languageMetadataSchema.optional(),
 });
 
 export type CallGraphRoot = z.infer<typeof callGraphRootSchema>;
@@ -94,6 +98,9 @@ export const callerNodeSchema = z.object({
 
 	/** Cyclomatic complexity metrics (present on function/method symbols) */
 	complexity: complexityMetricsSchema.optional(),
+
+	/** Language-specific metadata (e.g., language identifier) */
+	languageMetadata: languageMetadataSchema.optional(),
 });
 
 export type CallerNode = z.infer<typeof callerNodeSchema>;
@@ -125,6 +132,9 @@ export const calleeNodeSchema = z.object({
 
 	/** Cyclomatic complexity metrics (present on function/method symbols) */
 	complexity: complexityMetricsSchema.optional(),
+
+	/** Language-specific metadata (e.g., language identifier) */
+	languageMetadata: languageMetadataSchema.optional(),
 });
 
 export type CalleeNode = z.infer<typeof calleeNodeSchema>;

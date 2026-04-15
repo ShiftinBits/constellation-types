@@ -5,7 +5,11 @@
  */
 
 import { z } from 'zod';
-import { fileLocationSchema, riskLevelSchema } from '../common.schema';
+import {
+	fileLocationSchema,
+	languageMetadataSchema,
+	riskLevelSchema,
+} from '../common.schema';
 
 /**
  * Input parameters schema for impact analysis
@@ -71,6 +75,9 @@ export const impactedSymbolSchema = fileLocationSchema.extend({
 
 	/** Number of symbols that depend on this impacted symbol */
 	transitiveImpactCount: z.number().int().nonnegative().optional(),
+
+	/** Language-specific metadata (e.g., language identifier) */
+	languageMetadata: languageMetadataSchema.optional(),
 });
 
 export type ImpactedSymbol = z.infer<typeof impactedSymbolSchema>;
@@ -145,6 +152,8 @@ export const impactAnalysisResultSchema = z.object({
 		line: z.number().int().positive(),
 		column: z.number().int().nonnegative(),
 		isExported: z.boolean().optional(),
+		/** Language-specific metadata (e.g., language identifier) */
+		languageMetadata: languageMetadataSchema.optional(),
 	}),
 
 	/** Direct dependents (depth 1) */
