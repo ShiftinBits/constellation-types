@@ -1282,6 +1282,52 @@ var projectStateSchema = zod.z.object({
   /** List of programming languages detected in the project */
   languages: zod.z.array(zod.z.string())
 });
+var referenceTypeSchema = zod.z.enum([
+  "call",
+  // function call: f() or obj.f()
+  "read",
+  // identifier read in expression
+  "write",
+  // assignment target
+  "type",
+  // used in type position
+  "instantiate",
+  // new Foo()
+  "import-use"
+  // reference resolved through an import; set by resolver, not extractor
+]);
+var extractorReferenceTypeSchema = referenceTypeSchema.exclude([
+  "import-use"
+]);
+var importSpecifierSchema = zod.z.object({
+  local: zod.z.string(),
+  original: zod.z.string().optional(),
+  isDefault: zod.z.boolean(),
+  isNamespace: zod.z.boolean()
+});
+var importSchema = zod.z.object({
+  source: zod.z.string(),
+  specifiers: zod.z.array(importSpecifierSchema),
+  isType: zod.z.boolean(),
+  isDynamic: zod.z.boolean(),
+  isConditional: zod.z.boolean().optional(),
+  isLazy: zod.z.boolean().optional(),
+  isWildcard: zod.z.boolean().optional(),
+  line: zod.z.number(),
+  column: zod.z.number()
+});
+var extractorReferenceSchema = zod.z.object({
+  referencerId: zod.z.string(),
+  referencedName: zod.z.string(),
+  referenceType: extractorReferenceTypeSchema,
+  line: zod.z.number(),
+  column: zod.z.number(),
+  /** Parent symbolId hash */
+  scope: zod.z.string().optional(),
+  /** For `a.b.c`, holds 'a.b' */
+  objectContext: zod.z.string().optional(),
+  language: zod.z.string().optional()
+});
 var referenceLocationSchema = zod.z.object({
   /** POSIX relative path to the file containing the reference */
   filePath: zod.z.string().min(1),
@@ -1544,6 +1590,8 @@ exports.errorDataSchema = errorDataSchema;
 exports.errorEntrySchema = errorEntrySchema;
 exports.errorReportMetricsSchema = errorReportMetricsSchema;
 exports.errorReportResponseSchema = errorReportResponseSchema;
+exports.extractorReferenceSchema = extractorReferenceSchema;
+exports.extractorReferenceTypeSchema = extractorReferenceTypeSchema;
 exports.fileEnrichmentSchema = fileEnrichmentSchema;
 exports.fileFailureSchema = fileFailureSchema;
 exports.fileLocationSchema = fileLocationSchema;
@@ -1576,6 +1624,8 @@ exports.impactedFileSchema = impactedFileSchema;
 exports.impactedSymbolSchema = impactedSymbolSchema;
 exports.importResolutionMetadataSchema = importResolutionMetadataSchema;
 exports.importResolutionSchema = importResolutionSchema;
+exports.importSchema = importSchema;
+exports.importSpecifierSchema = importSpecifierSchema;
 exports.importTypeSchema = importTypeSchema;
 exports.indexErrorReportStatusSchema = indexErrorReportStatusSchema;
 exports.indexOutcomeSchema = indexOutcomeSchema;
@@ -1603,6 +1653,7 @@ exports.projectResolveResponseSchema = projectResolveResponseSchema;
 exports.projectStateSchema = projectStateSchema;
 exports.qualityMetricsSchema = qualityMetricsSchema;
 exports.referenceLocationSchema = referenceLocationSchema;
+exports.referenceTypeSchema = referenceTypeSchema;
 exports.relationshipDirectionsSchema = relationshipDirectionsSchema;
 exports.relationshipFailureSchema = relationshipFailureSchema;
 exports.relationshipSummarySchema = relationshipSummarySchema;
