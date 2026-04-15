@@ -4353,6 +4353,8 @@ declare const orphanedSymbolSchema: z.ZodObject<{
     name: z.ZodString;
     /** Symbol kind */
     kind: z.ZodString;
+    /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+    visibility: z.ZodOptional<z.ZodString>;
     /** File path */
     filePath: z.ZodString;
     /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
@@ -4394,6 +4396,7 @@ declare const orphanedSymbolSchema: z.ZodObject<{
     kind: string;
     reason: string;
     confidence: number;
+    visibility?: string | undefined;
     lineEnd?: number | undefined;
     languageMetadata?: {
         language: string;
@@ -4411,6 +4414,7 @@ declare const orphanedSymbolSchema: z.ZodObject<{
     kind: string;
     reason: string;
     confidence: number;
+    visibility?: string | undefined;
     lineEnd?: number | undefined;
     languageMetadata?: {
         language: string;
@@ -4458,6 +4462,8 @@ declare const findOrphanedCodeResultSchema: z.ZodObject<{
         name: z.ZodString;
         /** Symbol kind */
         kind: z.ZodString;
+        /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+        visibility: z.ZodOptional<z.ZodString>;
         /** File path */
         filePath: z.ZodString;
         /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
@@ -4499,6 +4505,7 @@ declare const findOrphanedCodeResultSchema: z.ZodObject<{
         kind: string;
         reason: string;
         confidence: number;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         languageMetadata?: {
             language: string;
@@ -4516,6 +4523,7 @@ declare const findOrphanedCodeResultSchema: z.ZodObject<{
         kind: string;
         reason: string;
         confidence: number;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         languageMetadata?: {
             language: string;
@@ -4556,6 +4564,7 @@ declare const findOrphanedCodeResultSchema: z.ZodObject<{
         kind: string;
         reason: string;
         confidence: number;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         languageMetadata?: {
             language: string;
@@ -4581,6 +4590,7 @@ declare const findOrphanedCodeResultSchema: z.ZodObject<{
         kind: string;
         reason: string;
         confidence: number;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         languageMetadata?: {
             language: string;
