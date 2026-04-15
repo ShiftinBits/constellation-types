@@ -532,6 +532,8 @@ var tracedSymbolSchema = z.object({
   name: z.string(),
   /** Symbol kind */
   kind: z.string(),
+  /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+  visibility: z.string().optional(),
   /** File where symbol is defined */
   filePath: z.string(),
   /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */

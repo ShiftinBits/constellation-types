@@ -2158,6 +2158,8 @@ declare const tracedSymbolSchema: z.ZodObject<{
     name: z.ZodString;
     /** Symbol kind */
     kind: z.ZodString;
+    /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+    visibility: z.ZodOptional<z.ZodString>;
     /** File where symbol is defined */
     filePath: z.ZodString;
     /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
@@ -2200,6 +2202,7 @@ declare const tracedSymbolSchema: z.ZodObject<{
     filePath: string;
     name: string;
     kind: string;
+    visibility?: string | undefined;
     lineEnd?: number | undefined;
     complexity?: {
         cyclomaticComplexity: number;
@@ -2217,6 +2220,7 @@ declare const tracedSymbolSchema: z.ZodObject<{
     filePath: string;
     name: string;
     kind: string;
+    visibility?: string | undefined;
     lineEnd?: number | undefined;
     complexity?: {
         cyclomaticComplexity: number;
@@ -2329,6 +2333,8 @@ declare const traceSymbolUsageResultSchema: z.ZodObject<{
         name: z.ZodString;
         /** Symbol kind */
         kind: z.ZodString;
+        /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+        visibility: z.ZodOptional<z.ZodString>;
         /** File where symbol is defined */
         filePath: z.ZodString;
         /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
@@ -2371,6 +2377,7 @@ declare const traceSymbolUsageResultSchema: z.ZodObject<{
         filePath: string;
         name: string;
         kind: string;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -2388,6 +2395,7 @@ declare const traceSymbolUsageResultSchema: z.ZodObject<{
         filePath: string;
         name: string;
         kind: string;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -2488,6 +2496,7 @@ declare const traceSymbolUsageResultSchema: z.ZodObject<{
         filePath: string;
         name: string;
         kind: string;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
@@ -2528,6 +2537,7 @@ declare const traceSymbolUsageResultSchema: z.ZodObject<{
         filePath: string;
         name: string;
         kind: string;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         complexity?: {
             cyclomaticComplexity: number;
