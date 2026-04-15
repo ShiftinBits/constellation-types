@@ -105,7 +105,7 @@ var fileLocationSchema = z.object({
   line: z.number().int().positive().optional(),
   /** Optional line range start */
   lineStart: z.number().int().positive().optional(),
-  /** Optional line range end */
+  /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
   lineEnd: z.number().int().positive().optional(),
   /** Optional column number */
   column: z.number().int().nonnegative().optional()
@@ -748,8 +748,12 @@ var tracedSymbolSchema = z.object({
   kind: z.string(),
   /** File where symbol is defined */
   filePath: z.string(),
+  /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
+  lineEnd: z.number().int().positive().optional(),
   /** Cyclomatic complexity metrics (present on function/method symbols) */
-  complexity: complexityMetricsSchema.optional()
+  complexity: complexityMetricsSchema.optional(),
+  /** Language-specific metadata (e.g., language identifier) */
+  languageMetadata: languageMetadataSchema.optional()
 });
 var directUsageSchema = z.object({
   /** File path where symbol is used */
@@ -824,10 +828,14 @@ var callGraphRootSchema = z.object({
   filePath: z.string(),
   /** Line number */
   line: z.number().int().positive(),
+  /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
+  lineEnd: z.number().int().positive().optional(),
   /** Column number */
   column: z.number().int().nonnegative(),
   /** Cyclomatic complexity metrics (present on function/method symbols) */
-  complexity: complexityMetricsSchema.optional()
+  complexity: complexityMetricsSchema.optional(),
+  /** Language-specific metadata (e.g., language identifier) */
+  languageMetadata: languageMetadataSchema.optional()
 });
 var callerNodeSchema = z.object({
   /** Symbol ID */
@@ -838,12 +846,16 @@ var callerNodeSchema = z.object({
   filePath: z.string(),
   /** Line number */
   line: z.number().int().positive(),
+  /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
+  lineEnd: z.number().int().positive().optional(),
   /** Column number */
   column: z.number().int().nonnegative(),
   /** Depth from root */
   depth: z.number().int().nonnegative(),
   /** Cyclomatic complexity metrics (present on function/method symbols) */
-  complexity: complexityMetricsSchema.optional()
+  complexity: complexityMetricsSchema.optional(),
+  /** Language-specific metadata (e.g., language identifier) */
+  languageMetadata: languageMetadataSchema.optional()
 });
 var calleeNodeSchema = z.object({
   /** Symbol ID */
@@ -854,6 +866,8 @@ var calleeNodeSchema = z.object({
   filePath: z.string(),
   /** Line number */
   line: z.number().int().positive(),
+  /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
+  lineEnd: z.number().int().positive().optional(),
   /** Column number */
   column: z.number().int().nonnegative(),
   /** Whether call is async */
@@ -861,7 +875,9 @@ var calleeNodeSchema = z.object({
   /** Depth from root */
   depth: z.number().int().nonnegative(),
   /** Cyclomatic complexity metrics (present on function/method symbols) */
-  complexity: complexityMetricsSchema.optional()
+  complexity: complexityMetricsSchema.optional(),
+  /** Language-specific metadata (e.g., language identifier) */
+  languageMetadata: languageMetadataSchema.optional()
 });
 var getCallGraphResultSchema = z.object({
   /** Root symbol */
@@ -911,7 +927,9 @@ var impactedSymbolSchema = fileLocationSchema.extend({
   /** Whether this symbol is exported (potential breaking change risk) */
   isExported: z.boolean().optional(),
   /** Number of symbols that depend on this impacted symbol */
-  transitiveImpactCount: z.number().int().nonnegative().optional()
+  transitiveImpactCount: z.number().int().nonnegative().optional(),
+  /** Language-specific metadata (e.g., language identifier) */
+  languageMetadata: languageMetadataSchema.optional()
 });
 var impactedFileSchema = z.object({
   /** File path */
@@ -958,8 +976,12 @@ var impactAnalysisResultSchema = z.object({
     kind: z.string(),
     filePath: z.string(),
     line: z.number().int().positive(),
+    /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
+    lineEnd: z.number().int().positive().optional(),
     column: z.number().int().nonnegative(),
-    isExported: z.boolean().optional()
+    isExported: z.boolean().optional(),
+    /** Language-specific metadata (e.g., language identifier) */
+    languageMetadata: languageMetadataSchema.optional()
   }),
   /** Direct dependents (depth 1) */
   directDependents: z.array(impactedSymbolSchema).optional(),
@@ -1010,12 +1032,16 @@ var orphanedSymbolSchema = z.object({
   kind: z.string(),
   /** File path */
   filePath: z.string(),
+  /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
+  lineEnd: z.number().int().positive().optional(),
   /** Whether symbol is exported */
   isExported: z.boolean(),
   /** Reason for being orphaned */
   reason: z.string(),
   /** Confidence (0-1) */
-  confidence: z.number().min(0).max(1)
+  confidence: z.number().min(0).max(1),
+  /** Language-specific metadata (e.g., language identifier) */
+  languageMetadata: languageMetadataSchema.optional()
 });
 var orphanedFileSchema = z.object({
   /** File path */

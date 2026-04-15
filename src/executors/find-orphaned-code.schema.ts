@@ -6,6 +6,7 @@
  */
 
 import { z } from 'zod';
+import { languageMetadataSchema } from '../common.schema';
 
 /**
  * Input parameters schema for finding orphaned code
@@ -53,6 +54,9 @@ export const orphanedSymbolSchema = z.object({
 	/** File path */
 	filePath: z.string(),
 
+	/** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
+	lineEnd: z.number().int().positive().optional(),
+
 	/** Whether symbol is exported */
 	isExported: z.boolean(),
 
@@ -61,6 +65,9 @@ export const orphanedSymbolSchema = z.object({
 
 	/** Confidence (0-1) */
 	confidence: z.number().min(0).max(1),
+
+	/** Language-specific metadata (e.g., language identifier) */
+	languageMetadata: languageMetadataSchema.optional(),
 });
 
 export type OrphanedSymbol = z.infer<typeof orphanedSymbolSchema>;

@@ -229,7 +229,7 @@ export const fileLocationSchema = z.object({
 	/** Optional line range start */
 	lineStart: z.number().int().positive().optional(),
 
-	/** Optional line range end */
+	/** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
 	lineEnd: z.number().int().positive().optional(),
 
 	/** Optional column number */
