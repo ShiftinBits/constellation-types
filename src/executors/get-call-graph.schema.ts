@@ -62,6 +62,9 @@ export const callGraphRootSchema = z.object({
 	/** Line number */
 	line: z.number().int().positive(),
 
+	/** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
+	lineEnd: z.number().int().positive().optional(),
+
 	/** Column number */
 	column: z.number().int().nonnegative(),
 
@@ -89,6 +92,9 @@ export const callerNodeSchema = z.object({
 
 	/** Line number */
 	line: z.number().int().positive(),
+
+	/** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
+	lineEnd: z.number().int().positive().optional(),
 
 	/** Column number */
 	column: z.number().int().nonnegative(),
@@ -120,6 +126,9 @@ export const calleeNodeSchema = z.object({
 
 	/** Line number */
 	line: z.number().int().positive(),
+
+	/** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
+	lineEnd: z.number().int().positive().optional(),
 
 	/** Column number */
 	column: z.number().int().nonnegative(),

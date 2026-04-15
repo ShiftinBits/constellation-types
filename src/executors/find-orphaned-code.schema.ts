@@ -54,6 +54,9 @@ export const orphanedSymbolSchema = z.object({
 	/** File path */
 	filePath: z.string(),
 
+	/** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
+	lineEnd: z.number().int().positive().optional(),
+
 	/** Whether symbol is exported */
 	isExported: z.boolean(),
 

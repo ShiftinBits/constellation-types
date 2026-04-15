@@ -748,6 +748,8 @@ var tracedSymbolSchema = z.object({
   kind: z.string(),
   /** File where symbol is defined */
   filePath: z.string(),
+  /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
+  lineEnd: z.number().int().positive().optional(),
   /** Cyclomatic complexity metrics (present on function/method symbols) */
   complexity: complexityMetricsSchema.optional(),
   /** Language-specific metadata (e.g., language identifier) */
@@ -826,6 +828,8 @@ var callGraphRootSchema = z.object({
   filePath: z.string(),
   /** Line number */
   line: z.number().int().positive(),
+  /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
+  lineEnd: z.number().int().positive().optional(),
   /** Column number */
   column: z.number().int().nonnegative(),
   /** Cyclomatic complexity metrics (present on function/method symbols) */
@@ -842,6 +846,8 @@ var callerNodeSchema = z.object({
   filePath: z.string(),
   /** Line number */
   line: z.number().int().positive(),
+  /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
+  lineEnd: z.number().int().positive().optional(),
   /** Column number */
   column: z.number().int().nonnegative(),
   /** Depth from root */
@@ -860,6 +866,8 @@ var calleeNodeSchema = z.object({
   filePath: z.string(),
   /** Line number */
   line: z.number().int().positive(),
+  /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
+  lineEnd: z.number().int().positive().optional(),
   /** Column number */
   column: z.number().int().nonnegative(),
   /** Whether call is async */
@@ -968,6 +976,8 @@ var impactAnalysisResultSchema = z.object({
     kind: z.string(),
     filePath: z.string(),
     line: z.number().int().positive(),
+    /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
+    lineEnd: z.number().int().positive().optional(),
     column: z.number().int().nonnegative(),
     isExported: z.boolean().optional(),
     /** Language-specific metadata (e.g., language identifier) */
@@ -1022,6 +1032,8 @@ var orphanedSymbolSchema = z.object({
   kind: z.string(),
   /** File path */
   filePath: z.string(),
+  /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
+  lineEnd: z.number().int().positive().optional(),
   /** Whether symbol is exported */
   isExported: z.boolean(),
   /** Reason for being orphaned */

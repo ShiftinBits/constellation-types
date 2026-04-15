@@ -69,6 +69,9 @@ export const tracedSymbolSchema = z.object({
 	/** File where symbol is defined */
 	filePath: z.string(),
 
+	/** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
+	lineEnd: z.number().int().positive().optional(),
+
 	/** Cyclomatic complexity metrics (present on function/method symbols) */
 	complexity: complexityMetricsSchema.optional(),
 
