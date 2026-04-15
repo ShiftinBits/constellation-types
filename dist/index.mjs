@@ -928,6 +928,8 @@ var impactedSymbolSchema = fileLocationSchema.extend({
   qualifiedName: z.string(),
   /** Symbol kind (function, class, variable, etc.) */
   kind: z.string(),
+  /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+  visibility: z.string().optional(),
   /** Type of relationship (CALLS, REFERENCES, DEPENDS_ON, etc.) */
   relationshipType: z.string(),
   /** Depth in the dependency chain (1 = direct, 2+ = transitive) */
@@ -982,6 +984,8 @@ var impactAnalysisResultSchema = z.object({
     name: z.string(),
     qualifiedName: z.string(),
     kind: z.string(),
+    /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+    visibility: z.string().optional(),
     filePath: z.string(),
     line: z.number().int().positive(),
     /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */

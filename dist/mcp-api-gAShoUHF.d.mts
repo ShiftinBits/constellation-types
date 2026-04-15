@@ -3555,6 +3555,8 @@ declare const impactedSymbolSchema: z.ZodObject<{
     qualifiedName: z.ZodString;
     /** Symbol kind (function, class, variable, etc.) */
     kind: z.ZodString;
+    /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+    visibility: z.ZodOptional<z.ZodString>;
     /** Type of relationship (CALLS, REFERENCES, DEPENDS_ON, etc.) */
     relationshipType: z.ZodString;
     /** Depth in the dependency chain (1 = direct, 2+ = transitive) */
@@ -3594,6 +3596,7 @@ declare const impactedSymbolSchema: z.ZodObject<{
     kind: string;
     depth: number;
     relationshipType: string;
+    visibility?: string | undefined;
     line?: number | undefined;
     lineStart?: number | undefined;
     lineEnd?: number | undefined;
@@ -3616,6 +3619,7 @@ declare const impactedSymbolSchema: z.ZodObject<{
     kind: string;
     depth: number;
     relationshipType: string;
+    visibility?: string | undefined;
     line?: number | undefined;
     lineStart?: number | undefined;
     lineEnd?: number | undefined;
@@ -3738,6 +3742,8 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         name: z.ZodString;
         qualifiedName: z.ZodString;
         kind: z.ZodString;
+        /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+        visibility: z.ZodOptional<z.ZodString>;
         filePath: z.ZodString;
         line: z.ZodNumber;
         /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
@@ -3775,6 +3781,7 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         name: string;
         qualifiedName: string;
         kind: string;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         isExported?: boolean | undefined;
         languageMetadata?: {
@@ -3793,6 +3800,7 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         name: string;
         qualifiedName: string;
         kind: string;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         isExported?: boolean | undefined;
         languageMetadata?: {
@@ -3820,6 +3828,8 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         qualifiedName: z.ZodString;
         /** Symbol kind (function, class, variable, etc.) */
         kind: z.ZodString;
+        /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+        visibility: z.ZodOptional<z.ZodString>;
         /** Type of relationship (CALLS, REFERENCES, DEPENDS_ON, etc.) */
         relationshipType: z.ZodString;
         /** Depth in the dependency chain (1 = direct, 2+ = transitive) */
@@ -3859,6 +3869,7 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         kind: string;
         depth: number;
         relationshipType: string;
+        visibility?: string | undefined;
         line?: number | undefined;
         lineStart?: number | undefined;
         lineEnd?: number | undefined;
@@ -3881,6 +3892,7 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         kind: string;
         depth: number;
         relationshipType: string;
+        visibility?: string | undefined;
         line?: number | undefined;
         lineStart?: number | undefined;
         lineEnd?: number | undefined;
@@ -3912,6 +3924,8 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         qualifiedName: z.ZodString;
         /** Symbol kind (function, class, variable, etc.) */
         kind: z.ZodString;
+        /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+        visibility: z.ZodOptional<z.ZodString>;
         /** Type of relationship (CALLS, REFERENCES, DEPENDS_ON, etc.) */
         relationshipType: z.ZodString;
         /** Depth in the dependency chain (1 = direct, 2+ = transitive) */
@@ -3951,6 +3965,7 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         kind: string;
         depth: number;
         relationshipType: string;
+        visibility?: string | undefined;
         line?: number | undefined;
         lineStart?: number | undefined;
         lineEnd?: number | undefined;
@@ -3973,6 +3988,7 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         kind: string;
         depth: number;
         relationshipType: string;
+        visibility?: string | undefined;
         line?: number | undefined;
         lineStart?: number | undefined;
         lineEnd?: number | undefined;
@@ -4116,6 +4132,7 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         name: string;
         qualifiedName: string;
         kind: string;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         isExported?: boolean | undefined;
         languageMetadata?: {
@@ -4155,6 +4172,7 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         kind: string;
         depth: number;
         relationshipType: string;
+        visibility?: string | undefined;
         line?: number | undefined;
         lineStart?: number | undefined;
         lineEnd?: number | undefined;
@@ -4178,6 +4196,7 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         kind: string;
         depth: number;
         relationshipType: string;
+        visibility?: string | undefined;
         line?: number | undefined;
         lineStart?: number | undefined;
         lineEnd?: number | undefined;
@@ -4211,6 +4230,7 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         name: string;
         qualifiedName: string;
         kind: string;
+        visibility?: string | undefined;
         lineEnd?: number | undefined;
         isExported?: boolean | undefined;
         languageMetadata?: {
@@ -4250,6 +4270,7 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         kind: string;
         depth: number;
         relationshipType: string;
+        visibility?: string | undefined;
         line?: number | undefined;
         lineStart?: number | undefined;
         lineEnd?: number | undefined;
@@ -4273,6 +4294,7 @@ declare const impactAnalysisResultSchema: z.ZodObject<{
         kind: string;
         depth: number;
         relationshipType: string;
+        visibility?: string | undefined;
         line?: number | undefined;
         lineStart?: number | undefined;
         lineEnd?: number | undefined;
