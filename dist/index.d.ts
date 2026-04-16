@@ -136,7 +136,7 @@ declare const serializedAstSchema: z.ZodObject<{
         }[];
         filePath: string;
     }>>;
-}, "strip", z.ZodTypeAny, {
+}, "strict", z.ZodTypeAny, {
     language: string;
     ast: string;
     file: string;

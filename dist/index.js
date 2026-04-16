@@ -1259,7 +1259,7 @@ var serializedAstSchema = zod.z.object({
   importResolutions: importResolutionMetadataSchema.optional(),
   /** Per-position reference classifications computed by CLI during parse */
   classificationMap: classificationMapSchema.optional()
-});
+}).strict();
 var fileFailureSchema = zod.z.object({
   /** Relative file path */
   file: zod.z.string(),

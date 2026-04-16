@@ -1257,7 +1257,7 @@ var serializedAstSchema = z.object({
   importResolutions: importResolutionMetadataSchema.optional(),
   /** Per-position reference classifications computed by CLI during parse */
   classificationMap: classificationMapSchema.optional()
-});
+}).strict();
 var fileFailureSchema = z.object({
   /** Relative file path */
   file: z.string(),
