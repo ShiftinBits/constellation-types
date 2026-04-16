@@ -51,3 +51,10 @@ export {
 	extractorReferenceSchema,
 	type ExtractorReference,
 } from './symbol-reference.schema';
+
+export {
+	classificationMapEntrySchema,
+	classificationMapSchema,
+	type ClassificationMapEntry,
+	type ClassificationMap,
+} from './classification-map.schema';

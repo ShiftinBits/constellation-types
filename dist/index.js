@@ -1328,6 +1328,15 @@ var extractorReferenceSchema = zod.z.object({
   objectContext: zod.z.string().optional(),
   language: zod.z.string().optional()
 });
+var classificationMapEntrySchema = zod.z.object({
+  line: zod.z.number().int().nonnegative(),
+  column: zod.z.number().int().nonnegative(),
+  referenceType: referenceTypeSchema
+}).strict();
+var classificationMapSchema = zod.z.object({
+  filePath: zod.z.string().min(1),
+  entries: zod.z.array(classificationMapEntrySchema)
+}).strict();
 var referenceLocationSchema = zod.z.object({
   /** POSIX relative path to the file containing the reference */
   filePath: zod.z.string().min(1),
@@ -1335,7 +1344,7 @@ var referenceLocationSchema = zod.z.object({
   line: zod.z.number().int().positive(),
   /** 0-based column offset of the reference */
   column: zod.z.number().int().nonnegative()
-});
+}).strict();
 var callReferenceSchema = referenceLocationSchema.extend({
   /** Name of the calling/called symbol */
   name: zod.z.string().min(1)
@@ -1347,7 +1356,7 @@ var typeInfoSchema = zod.z.object({
   returnType: zod.z.string().optional(),
   /** Extracted documentation comment */
   documentation: zod.z.string().optional()
-});
+}).strict();
 var definitionLocationSchema = zod.z.object({
   /** POSIX relative path to the definition file */
   filePath: zod.z.string().min(1),
@@ -1357,7 +1366,7 @@ var definitionLocationSchema = zod.z.object({
   column: zod.z.number().int().nonnegative(),
   /** True if the definition is outside the project root (e.g., node_modules) */
   isExternal: zod.z.boolean()
-});
+}).strict();
 var symbolEnrichmentSchema = zod.z.object({
   /** Symbol name (must match the corresponding graph node) */
   name: zod.z.string().min(1),
@@ -1385,7 +1394,7 @@ var symbolEnrichmentSchema = zod.z.object({
     /** Functions/methods called by this symbol (capped at 200) */
     outgoingCalls: zod.z.array(callReferenceSchema).max(200)
   }).optional()
-});
+}).strict();
 var fileEnrichmentSchema = zod.z.object({
   /** POSIX relative path to the source file */
   filePath: zod.z.string().min(1),
@@ -1393,7 +1402,7 @@ var fileEnrichmentSchema = zod.z.object({
   language: zod.z.string().min(1),
   /** Enriched symbols found in this file */
   symbols: zod.z.array(symbolEnrichmentSchema)
-});
+}).strict();
 var enrichmentMetadataSchema = zod.z.object({
   /** Project identifier */
   projectId: zod.z.string().min(1),
@@ -1403,7 +1412,7 @@ var enrichmentMetadataSchema = zod.z.object({
   commit: zod.z.string().regex(/^[0-9a-f]{40}$/),
   /** ISO 8601 timestamp of the enrichment run */
   timestamp: zod.z.string().datetime()
-});
+}).strict();
 var enrichmentStatusSchema = zod.z.enum([
   "pending",
   "processing",
@@ -1572,6 +1581,8 @@ exports.callReferenceSchema = callReferenceSchema;
 exports.calleeNodeSchema = calleeNodeSchema;
 exports.callerNodeSchema = callerNodeSchema;
 exports.circularDependencyCycleSchema = circularDependencyCycleSchema;
+exports.classificationMapEntrySchema = classificationMapEntrySchema;
+exports.classificationMapSchema = classificationMapSchema;
 exports.complexityMetricsSchema = complexityMetricsSchema;
 exports.complexityRiskSchema = complexityRiskSchema;
 exports.confidenceScoreSchema = confidenceScoreSchema;

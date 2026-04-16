@@ -1326,6 +1326,15 @@ var extractorReferenceSchema = z.object({
   objectContext: z.string().optional(),
   language: z.string().optional()
 });
+var classificationMapEntrySchema = z.object({
+  line: z.number().int().nonnegative(),
+  column: z.number().int().nonnegative(),
+  referenceType: referenceTypeSchema
+}).strict();
+var classificationMapSchema = z.object({
+  filePath: z.string().min(1),
+  entries: z.array(classificationMapEntrySchema)
+}).strict();
 var referenceLocationSchema = z.object({
   /** POSIX relative path to the file containing the reference */
   filePath: z.string().min(1),
@@ -1333,7 +1342,7 @@ var referenceLocationSchema = z.object({
   line: z.number().int().positive(),
   /** 0-based column offset of the reference */
   column: z.number().int().nonnegative()
-});
+}).strict();
 var callReferenceSchema = referenceLocationSchema.extend({
   /** Name of the calling/called symbol */
   name: z.string().min(1)
@@ -1345,7 +1354,7 @@ var typeInfoSchema = z.object({
   returnType: z.string().optional(),
   /** Extracted documentation comment */
   documentation: z.string().optional()
-});
+}).strict();
 var definitionLocationSchema = z.object({
   /** POSIX relative path to the definition file */
   filePath: z.string().min(1),
@@ -1355,7 +1364,7 @@ var definitionLocationSchema = z.object({
   column: z.number().int().nonnegative(),
   /** True if the definition is outside the project root (e.g., node_modules) */
   isExternal: z.boolean()
-});
+}).strict();
 var symbolEnrichmentSchema = z.object({
   /** Symbol name (must match the corresponding graph node) */
   name: z.string().min(1),
@@ -1383,7 +1392,7 @@ var symbolEnrichmentSchema = z.object({
     /** Functions/methods called by this symbol (capped at 200) */
     outgoingCalls: z.array(callReferenceSchema).max(200)
   }).optional()
-});
+}).strict();
 var fileEnrichmentSchema = z.object({
   /** POSIX relative path to the source file */
   filePath: z.string().min(1),
@@ -1391,7 +1400,7 @@ var fileEnrichmentSchema = z.object({
   language: z.string().min(1),
   /** Enriched symbols found in this file */
   symbols: z.array(symbolEnrichmentSchema)
-});
+}).strict();
 var enrichmentMetadataSchema = z.object({
   /** Project identifier */
   projectId: z.string().min(1),
@@ -1401,7 +1410,7 @@ var enrichmentMetadataSchema = z.object({
   commit: z.string().regex(/^[0-9a-f]{40}$/),
   /** ISO 8601 timestamp of the enrichment run */
   timestamp: z.string().datetime()
-});
+}).strict();
 var enrichmentStatusSchema = z.enum([
   "pending",
   "processing",
@@ -1559,6 +1568,6 @@ var errorReportMetricsSchema = z.object({
   affectedOrgCount: z.number()
 });
 
-export { ENTRY_POINT_PATTERNS, PYTHON_STDLIB_MODULES, TEST_PATTERNS, apiErrorResponseSchema, apiResponseSchema, breakingChangeRiskSchema, callGraphRootSchema, callReferenceSchema, calleeNodeSchema, callerNodeSchema, circularDependencyCycleSchema, complexityMetricsSchema, complexityRiskSchema, confidenceScoreSchema, createErrorReportSchema, dataQualityMetadataSchema, definitionLocationSchema, dependencyMetricsSchema, dependencyOverviewSchema, dependentMetricsSchema, directDependencySchema, directDependentSchema, directUsageSchema, enrichmentMetadataSchema, enrichmentStatusSchema, errorDataSchema, errorEntrySchema, errorReportMetricsSchema, errorReportResponseSchema, extractorReferenceSchema, extractorReferenceTypeSchema, fileEnrichmentSchema, fileFailureSchema, fileLocationSchema, findCircularDependenciesParamsSchema, findCircularDependenciesResultSchema, findOrphanedCodeParamsSchema, findOrphanedCodeResultSchema, frameworkInfoSchema, getArchitectureOverviewParamsSchema, getArchitectureOverviewResultSchema, getCallGraphParamsSchema, getCallGraphResultSchema, getDependenciesParamsSchema, getDependenciesResultSchema, getDependentsParamsSchema, getDependentsResultSchema, getSymbolDetailsParamsSchema, graphEdgeSchema, graphEdgeTypeSchema, graphMetadataSchema, graphNodeSchema, graphNodeTypeSchema, graphRepresentationSchema, graphSummarySchema, graphToolResultSchema, impactAnalysisParamsSchema, impactAnalysisResultSchema, impactScoreSchema, impactedFileSchema, impactedSymbolSchema, importResolutionMetadataSchema, importResolutionSchema, importSchema, importSpecifierSchema, importTypeSchema, indexErrorReportStatusSchema, indexOutcomeSchema, indexTypeSchema, indexingResponseSchema, isErrorResponse, isSuccessResponse, languageInfoSchema, languageMetadataSchema, logEntrySchema, logLevelSchema, moduleGraphEdgeSchema, moduleGraphNodeSchema, moduleGraphSchema, orphanedFileSchema, orphanedSymbolSchema, packageDependencySchema, paginationMetadataSchema, pingParamsSchema, pingResultSchema, projectInfoSchema, projectListResponseSchema, projectMetadataSchema, projectResolveResponseSchema, projectStateSchema, qualityMetricsSchema, referenceLocationSchema, referenceTypeSchema, relationshipDirectionsSchema, relationshipFailureSchema, relationshipSummarySchema, riskLevelSchema, searchSymbolsParamsSchema, searchSymbolsResultSchema, serializedAstSchema, standardGraphEdgeSchema, standardGraphNodeSchema, stringRelationshipDirectionsSchema, structureStatisticsSchema, symbolDetailsResultSchema, symbolDetailsSchema, symbolEnrichmentSchema, symbolInfoSchema, symbolKindCategorySchema, symbolReferenceSchema, symbolRelationshipsSchema, symbolUsageReferenceSchema, traceSymbolUsageParamsSchema, traceSymbolUsageResultSchema, tracedSymbolSchema, transitiveDependencySchema, transitiveDependentSchema, transitiveUsageSchema, typeInfoSchema, updateErrorReportSchema, warningEntrySchema };
+export { ENTRY_POINT_PATTERNS, PYTHON_STDLIB_MODULES, TEST_PATTERNS, apiErrorResponseSchema, apiResponseSchema, breakingChangeRiskSchema, callGraphRootSchema, callReferenceSchema, calleeNodeSchema, callerNodeSchema, circularDependencyCycleSchema, classificationMapEntrySchema, classificationMapSchema, complexityMetricsSchema, complexityRiskSchema, confidenceScoreSchema, createErrorReportSchema, dataQualityMetadataSchema, definitionLocationSchema, dependencyMetricsSchema, dependencyOverviewSchema, dependentMetricsSchema, directDependencySchema, directDependentSchema, directUsageSchema, enrichmentMetadataSchema, enrichmentStatusSchema, errorDataSchema, errorEntrySchema, errorReportMetricsSchema, errorReportResponseSchema, extractorReferenceSchema, extractorReferenceTypeSchema, fileEnrichmentSchema, fileFailureSchema, fileLocationSchema, findCircularDependenciesParamsSchema, findCircularDependenciesResultSchema, findOrphanedCodeParamsSchema, findOrphanedCodeResultSchema, frameworkInfoSchema, getArchitectureOverviewParamsSchema, getArchitectureOverviewResultSchema, getCallGraphParamsSchema, getCallGraphResultSchema, getDependenciesParamsSchema, getDependenciesResultSchema, getDependentsParamsSchema, getDependentsResultSchema, getSymbolDetailsParamsSchema, graphEdgeSchema, graphEdgeTypeSchema, graphMetadataSchema, graphNodeSchema, graphNodeTypeSchema, graphRepresentationSchema, graphSummarySchema, graphToolResultSchema, impactAnalysisParamsSchema, impactAnalysisResultSchema, impactScoreSchema, impactedFileSchema, impactedSymbolSchema, importResolutionMetadataSchema, importResolutionSchema, importSchema, importSpecifierSchema, importTypeSchema, indexErrorReportStatusSchema, indexOutcomeSchema, indexTypeSchema, indexingResponseSchema, isErrorResponse, isSuccessResponse, languageInfoSchema, languageMetadataSchema, logEntrySchema, logLevelSchema, moduleGraphEdgeSchema, moduleGraphNodeSchema, moduleGraphSchema, orphanedFileSchema, orphanedSymbolSchema, packageDependencySchema, paginationMetadataSchema, pingParamsSchema, pingResultSchema, projectInfoSchema, projectListResponseSchema, projectMetadataSchema, projectResolveResponseSchema, projectStateSchema, qualityMetricsSchema, referenceLocationSchema, referenceTypeSchema, relationshipDirectionsSchema, relationshipFailureSchema, relationshipSummarySchema, riskLevelSchema, searchSymbolsParamsSchema, searchSymbolsResultSchema, serializedAstSchema, standardGraphEdgeSchema, standardGraphNodeSchema, stringRelationshipDirectionsSchema, structureStatisticsSchema, symbolDetailsResultSchema, symbolDetailsSchema, symbolEnrichmentSchema, symbolInfoSchema, symbolKindCategorySchema, symbolReferenceSchema, symbolRelationshipsSchema, symbolUsageReferenceSchema, traceSymbolUsageParamsSchema, traceSymbolUsageResultSchema, tracedSymbolSchema, transitiveDependencySchema, transitiveDependentSchema, transitiveUsageSchema, typeInfoSchema, updateErrorReportSchema, warningEntrySchema };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

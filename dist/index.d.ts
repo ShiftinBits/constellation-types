@@ -629,6 +629,59 @@ declare const extractorReferenceSchema: z.ZodObject<{
 type ExtractorReference = z.infer<typeof extractorReferenceSchema>;
 
 /**
+ * Classification Map Schema
+ *
+ * Zod schema for code classification maps produced by the LSP classification tool.
+ * Maps line:column locations in a file to their reference types.
+ */
+
+declare const classificationMapEntrySchema: z.ZodObject<{
+    line: z.ZodNumber;
+    column: z.ZodNumber;
+    referenceType: z.ZodEnum<["call", "read", "write", "type", "instantiate", "import-use"]>;
+}, "strict", z.ZodTypeAny, {
+    line: number;
+    column: number;
+    referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use";
+}, {
+    line: number;
+    column: number;
+    referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use";
+}>;
+type ClassificationMapEntry = z.infer<typeof classificationMapEntrySchema>;
+declare const classificationMapSchema: z.ZodObject<{
+    filePath: z.ZodString;
+    entries: z.ZodArray<z.ZodObject<{
+        line: z.ZodNumber;
+        column: z.ZodNumber;
+        referenceType: z.ZodEnum<["call", "read", "write", "type", "instantiate", "import-use"]>;
+    }, "strict", z.ZodTypeAny, {
+        line: number;
+        column: number;
+        referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use";
+    }, {
+        line: number;
+        column: number;
+        referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use";
+    }>, "many">;
+}, "strict", z.ZodTypeAny, {
+    entries: {
+        line: number;
+        column: number;
+        referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use";
+    }[];
+    filePath: string;
+}, {
+    entries: {
+        line: number;
+        column: number;
+        referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use";
+    }[];
+    filePath: string;
+}>;
+type ClassificationMap = z.infer<typeof classificationMapSchema>;
+
+/**
  * Enrichment Schemas
  *
  * Zod schemas for LSP enrichment data sent from CLI to Core.
@@ -646,7 +699,7 @@ declare const referenceLocationSchema: z.ZodObject<{
     line: z.ZodNumber;
     /** 0-based column offset of the reference */
     column: z.ZodNumber;
-}, "strip", z.ZodTypeAny, {
+}, "strict", z.ZodTypeAny, {
     filePath: string;
     line: number;
     column: number;
@@ -670,7 +723,7 @@ declare const callReferenceSchema: z.ZodObject<{
 } & {
     /** Name of the calling/called symbol */
     name: z.ZodString;
-}, "strip", z.ZodTypeAny, {
+}, "strict", z.ZodTypeAny, {
     filePath: string;
     line: number;
     column: number;
@@ -692,7 +745,7 @@ declare const typeInfoSchema: z.ZodObject<{
     returnType: z.ZodOptional<z.ZodString>;
     /** Extracted documentation comment */
     documentation: z.ZodOptional<z.ZodString>;
-}, "strip", z.ZodTypeAny, {
+}, "strict", z.ZodTypeAny, {
     resolvedType: string;
     documentation?: string | undefined;
     returnType?: string | undefined;
@@ -714,7 +767,7 @@ declare const definitionLocationSchema: z.ZodObject<{
     column: z.ZodNumber;
     /** True if the definition is outside the project root (e.g., node_modules) */
     isExternal: z.ZodBoolean;
-}, "strip", z.ZodTypeAny, {
+}, "strict", z.ZodTypeAny, {
     filePath: string;
     line: number;
     column: number;
@@ -747,7 +800,7 @@ declare const symbolEnrichmentSchema: z.ZodObject<{
         returnType: z.ZodOptional<z.ZodString>;
         /** Extracted documentation comment */
         documentation: z.ZodOptional<z.ZodString>;
-    }, "strip", z.ZodTypeAny, {
+    }, "strict", z.ZodTypeAny, {
         resolvedType: string;
         documentation?: string | undefined;
         returnType?: string | undefined;
@@ -766,7 +819,7 @@ declare const symbolEnrichmentSchema: z.ZodObject<{
         column: z.ZodNumber;
         /** True if the definition is outside the project root (e.g., node_modules) */
         isExternal: z.ZodBoolean;
-    }, "strip", z.ZodTypeAny, {
+    }, "strict", z.ZodTypeAny, {
         filePath: string;
         line: number;
         column: number;
@@ -789,7 +842,7 @@ declare const symbolEnrichmentSchema: z.ZodObject<{
             line: z.ZodNumber;
             /** 0-based column offset of the reference */
             column: z.ZodNumber;
-        }, "strip", z.ZodTypeAny, {
+        }, "strict", z.ZodTypeAny, {
             filePath: string;
             line: number;
             column: number;
@@ -826,7 +879,7 @@ declare const symbolEnrichmentSchema: z.ZodObject<{
         } & {
             /** Name of the calling/called symbol */
             name: z.ZodString;
-        }, "strip", z.ZodTypeAny, {
+        }, "strict", z.ZodTypeAny, {
             filePath: string;
             line: number;
             column: number;
@@ -848,7 +901,7 @@ declare const symbolEnrichmentSchema: z.ZodObject<{
         } & {
             /** Name of the calling/called symbol */
             name: z.ZodString;
-        }, "strip", z.ZodTypeAny, {
+        }, "strict", z.ZodTypeAny, {
             filePath: string;
             line: number;
             column: number;
@@ -886,7 +939,7 @@ declare const symbolEnrichmentSchema: z.ZodObject<{
             name: string;
         }[];
     }>>;
-}, "strip", z.ZodTypeAny, {
+}, "strict", z.ZodTypeAny, {
     line: number;
     column: number;
     name: string;
@@ -991,7 +1044,7 @@ declare const fileEnrichmentSchema: z.ZodObject<{
             returnType: z.ZodOptional<z.ZodString>;
             /** Extracted documentation comment */
             documentation: z.ZodOptional<z.ZodString>;
-        }, "strip", z.ZodTypeAny, {
+        }, "strict", z.ZodTypeAny, {
             resolvedType: string;
             documentation?: string | undefined;
             returnType?: string | undefined;
@@ -1010,7 +1063,7 @@ declare const fileEnrichmentSchema: z.ZodObject<{
             column: z.ZodNumber;
             /** True if the definition is outside the project root (e.g., node_modules) */
             isExternal: z.ZodBoolean;
-        }, "strip", z.ZodTypeAny, {
+        }, "strict", z.ZodTypeAny, {
             filePath: string;
             line: number;
             column: number;
@@ -1033,7 +1086,7 @@ declare const fileEnrichmentSchema: z.ZodObject<{
                 line: z.ZodNumber;
                 /** 0-based column offset of the reference */
                 column: z.ZodNumber;
-            }, "strip", z.ZodTypeAny, {
+            }, "strict", z.ZodTypeAny, {
                 filePath: string;
                 line: number;
                 column: number;
@@ -1070,7 +1123,7 @@ declare const fileEnrichmentSchema: z.ZodObject<{
             } & {
                 /** Name of the calling/called symbol */
                 name: z.ZodString;
-            }, "strip", z.ZodTypeAny, {
+            }, "strict", z.ZodTypeAny, {
                 filePath: string;
                 line: number;
                 column: number;
@@ -1092,7 +1145,7 @@ declare const fileEnrichmentSchema: z.ZodObject<{
             } & {
                 /** Name of the calling/called symbol */
                 name: z.ZodString;
-            }, "strip", z.ZodTypeAny, {
+            }, "strict", z.ZodTypeAny, {
                 filePath: string;
                 line: number;
                 column: number;
@@ -1130,7 +1183,7 @@ declare const fileEnrichmentSchema: z.ZodObject<{
                 name: string;
             }[];
         }>>;
-    }, "strip", z.ZodTypeAny, {
+    }, "strict", z.ZodTypeAny, {
         line: number;
         column: number;
         name: string;
@@ -1207,7 +1260,7 @@ declare const fileEnrichmentSchema: z.ZodObject<{
             }[];
         } | undefined;
     }>, "many">;
-}, "strip", z.ZodTypeAny, {
+}, "strict", z.ZodTypeAny, {
     language: string;
     filePath: string;
     symbols: {
@@ -1305,7 +1358,7 @@ declare const enrichmentMetadataSchema: z.ZodObject<{
     commit: z.ZodString;
     /** ISO 8601 timestamp of the enrichment run */
     timestamp: z.ZodString;
-}, "strip", z.ZodTypeAny, {
+}, "strict", z.ZodTypeAny, {
     commit: string;
     timestamp: string;
     projectId: string;
@@ -2157,4 +2210,4 @@ declare const errorReportMetricsSchema: z.ZodObject<{
 }>;
 type ErrorReportMetrics = z.infer<typeof errorReportMetricsSchema>;
 
-export { type CallReference, type CreateErrorReport, type DefinitionLocation, type EnrichmentMetadata, type EnrichmentStatus, type ErrorData, type ErrorEntry, type ErrorReportMetrics, type ErrorReportResponse, type ExtractorReference, type ExtractorReferenceType, type FileEnrichment, type FileFailure, type GraphEdge, type GraphEdgeType, type GraphMetadata, type GraphNode, type GraphNodeType, type GraphSummary, type GraphToolResult, type Import, type ImportResolution, type ImportResolutionMetadata, type ImportSpecifier, type ImportType, type IndexErrorReportStatus, type IndexOutcome, type IndexType, type IndexingResponse, type LogEntry, type LogLevel, type Point, type ProjectInfo, type ProjectListResponse, type ProjectResolveResponse, type ProjectState, type ReferenceLocation, type ReferenceType, type RelationshipFailure, type RelationshipSummary, type SerializedAST, type SymbolEnrichment, type SyntaxNode, type Tree, type TypeInfo, type UpdateErrorReport, type WarningEntry, callReferenceSchema, createErrorReportSchema, definitionLocationSchema, enrichmentMetadataSchema, enrichmentStatusSchema, errorDataSchema, errorEntrySchema, errorReportMetricsSchema, errorReportResponseSchema, extractorReferenceSchema, extractorReferenceTypeSchema, fileEnrichmentSchema, fileFailureSchema, graphEdgeSchema, graphEdgeTypeSchema, graphMetadataSchema, graphNodeSchema, graphNodeTypeSchema, graphSummarySchema, graphToolResultSchema, importResolutionMetadataSchema, importResolutionSchema, importSchema, importSpecifierSchema, importTypeSchema, indexErrorReportStatusSchema, indexOutcomeSchema, indexTypeSchema, indexingResponseSchema, logEntrySchema, logLevelSchema, projectInfoSchema, projectListResponseSchema, projectResolveResponseSchema, projectStateSchema, referenceLocationSchema, referenceTypeSchema, relationshipFailureSchema, relationshipSummarySchema, serializedAstSchema, symbolEnrichmentSchema, typeInfoSchema, updateErrorReportSchema, warningEntrySchema };
+export { type CallReference, type ClassificationMap, type ClassificationMapEntry, type CreateErrorReport, type DefinitionLocation, type EnrichmentMetadata, type EnrichmentStatus, type ErrorData, type ErrorEntry, type ErrorReportMetrics, type ErrorReportResponse, type ExtractorReference, type ExtractorReferenceType, type FileEnrichment, type FileFailure, type GraphEdge, type GraphEdgeType, type GraphMetadata, type GraphNode, type GraphNodeType, type GraphSummary, type GraphToolResult, type Import, type ImportResolution, type ImportResolutionMetadata, type ImportSpecifier, type ImportType, type IndexErrorReportStatus, type IndexOutcome, type IndexType, type IndexingResponse, type LogEntry, type LogLevel, type Point, type ProjectInfo, type ProjectListResponse, type ProjectResolveResponse, type ProjectState, type ReferenceLocation, type ReferenceType, type RelationshipFailure, type RelationshipSummary, type SerializedAST, type SymbolEnrichment, type SyntaxNode, type Tree, type TypeInfo, type UpdateErrorReport, type WarningEntry, callReferenceSchema, classificationMapEntrySchema, classificationMapSchema, createErrorReportSchema, definitionLocationSchema, enrichmentMetadataSchema, enrichmentStatusSchema, errorDataSchema, errorEntrySchema, errorReportMetricsSchema, errorReportResponseSchema, extractorReferenceSchema, extractorReferenceTypeSchema, fileEnrichmentSchema, fileFailureSchema, graphEdgeSchema, graphEdgeTypeSchema, graphMetadataSchema, graphNodeSchema, graphNodeTypeSchema, graphSummarySchema, graphToolResultSchema, importResolutionMetadataSchema, importResolutionSchema, importSchema, importSpecifierSchema, importTypeSchema, indexErrorReportStatusSchema, indexOutcomeSchema, indexTypeSchema, indexingResponseSchema, logEntrySchema, logLevelSchema, projectInfoSchema, projectListResponseSchema, projectResolveResponseSchema, projectStateSchema, referenceLocationSchema, referenceTypeSchema, relationshipFailureSchema, relationshipSummarySchema, serializedAstSchema, symbolEnrichmentSchema, typeInfoSchema, updateErrorReportSchema, warningEntrySchema };
