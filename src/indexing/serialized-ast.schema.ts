@@ -7,6 +7,7 @@
 
 import { z } from 'zod';
 import { importResolutionMetadataSchema } from './import-resolution.schema';
+import { classificationMapSchema } from './classification-map.schema';
 
 /**
  * Represents a serialized Abstract Syntax Tree ready for transmission to the API.
@@ -30,6 +31,9 @@ export const serializedAstSchema = z.object({
 
 	/** CLI-resolved import paths (only CLI has tsconfig/jsconfig access) */
 	importResolutions: importResolutionMetadataSchema.optional(),
+
+	/** Per-position reference classifications computed by CLI during parse */
+	classificationMap: classificationMapSchema.optional(),
 });
 
 export type SerializedAST = z.infer<typeof serializedAstSchema>;

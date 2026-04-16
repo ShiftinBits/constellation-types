@@ -105,6 +105,37 @@ declare const serializedAstSchema: z.ZodObject<{
         importType: "external" | "relative" | "workspace" | "alias" | "builtin";
         resolvedPath?: string | undefined;
     }>>>;
+    /** Per-position reference classifications computed by CLI during parse */
+    classificationMap: z.ZodOptional<z.ZodObject<{
+        filePath: z.ZodString;
+        entries: z.ZodArray<z.ZodObject<{
+            line: z.ZodNumber;
+            column: z.ZodNumber;
+            referenceType: z.ZodEnum<["call", "read", "write", "type", "instantiate", "import-use"]>;
+        }, "strict", z.ZodTypeAny, {
+            line: number;
+            column: number;
+            referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use";
+        }, {
+            line: number;
+            column: number;
+            referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use";
+        }>, "many">;
+    }, "strict", z.ZodTypeAny, {
+        entries: {
+            line: number;
+            column: number;
+            referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use";
+        }[];
+        filePath: string;
+    }, {
+        entries: {
+            line: number;
+            column: number;
+            referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use";
+        }[];
+        filePath: string;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     language: string;
     ast: string;
@@ -117,6 +148,14 @@ declare const serializedAstSchema: z.ZodObject<{
         importType: "external" | "relative" | "workspace" | "alias" | "builtin";
         resolvedPath?: string | undefined;
     }> | undefined;
+    classificationMap?: {
+        entries: {
+            line: number;
+            column: number;
+            referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use";
+        }[];
+        filePath: string;
+    } | undefined;
 }, {
     language: string;
     ast: string;
@@ -129,6 +168,14 @@ declare const serializedAstSchema: z.ZodObject<{
         importType: "external" | "relative" | "workspace" | "alias" | "builtin";
         resolvedPath?: string | undefined;
     }> | undefined;
+    classificationMap?: {
+        entries: {
+            line: number;
+            column: number;
+            referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use";
+        }[];
+        filePath: string;
+    } | undefined;
 }>;
 type SerializedAST = z.infer<typeof serializedAstSchema>;
 
@@ -610,18 +657,18 @@ declare const extractorReferenceSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     line: number;
     column: number;
+    referenceType: "type" | "call" | "read" | "write" | "instantiate";
     referencerId: string;
     referencedName: string;
-    referenceType: "type" | "call" | "read" | "write" | "instantiate";
     language?: string | undefined;
     scope?: string | undefined;
     objectContext?: string | undefined;
 }, {
     line: number;
     column: number;
+    referenceType: "type" | "call" | "read" | "write" | "instantiate";
     referencerId: string;
     referencedName: string;
-    referenceType: "type" | "call" | "read" | "write" | "instantiate";
     language?: string | undefined;
     scope?: string | undefined;
     objectContext?: string | undefined;

@@ -1212,6 +1212,36 @@ var importResolutionMetadataSchema = z.record(
   z.string(),
   importResolutionSchema
 );
+var referenceTypeSchema = z.enum([
+  "call",
+  // function call: f() or obj.f()
+  "read",
+  // identifier read in expression
+  "write",
+  // assignment target
+  "type",
+  // used in type position
+  "instantiate",
+  // new Foo()
+  "import-use"
+  // reference resolved through an import; set by resolver, not extractor
+]);
+var extractorReferenceTypeSchema = referenceTypeSchema.exclude([
+  "import-use"
+]);
+
+// src/indexing/classification-map.schema.ts
+var classificationMapEntrySchema = z.object({
+  line: z.number().int().nonnegative(),
+  column: z.number().int().nonnegative(),
+  referenceType: referenceTypeSchema
+}).strict();
+var classificationMapSchema = z.object({
+  filePath: z.string().min(1),
+  entries: z.array(classificationMapEntrySchema)
+}).strict();
+
+// src/indexing/serialized-ast.schema.ts
 var serializedAstSchema = z.object({
   /** Relative path to the source file from project root */
   file: z.string().min(1),
@@ -1224,7 +1254,9 @@ var serializedAstSchema = z.object({
   /** Base64-encoded, gzip-compressed AST structure (no source code) */
   ast: z.string().min(1),
   /** CLI-resolved import paths (only CLI has tsconfig/jsconfig access) */
-  importResolutions: importResolutionMetadataSchema.optional()
+  importResolutions: importResolutionMetadataSchema.optional(),
+  /** Per-position reference classifications computed by CLI during parse */
+  classificationMap: classificationMapSchema.optional()
 });
 var fileFailureSchema = z.object({
   /** Relative file path */
@@ -1280,23 +1312,6 @@ var projectStateSchema = z.object({
   /** List of programming languages detected in the project */
   languages: z.array(z.string())
 });
-var referenceTypeSchema = z.enum([
-  "call",
-  // function call: f() or obj.f()
-  "read",
-  // identifier read in expression
-  "write",
-  // assignment target
-  "type",
-  // used in type position
-  "instantiate",
-  // new Foo()
-  "import-use"
-  // reference resolved through an import; set by resolver, not extractor
-]);
-var extractorReferenceTypeSchema = referenceTypeSchema.exclude([
-  "import-use"
-]);
 var importSpecifierSchema = z.object({
   local: z.string(),
   original: z.string().optional(),
@@ -1326,15 +1341,6 @@ var extractorReferenceSchema = z.object({
   objectContext: z.string().optional(),
   language: z.string().optional()
 });
-var classificationMapEntrySchema = z.object({
-  line: z.number().int().nonnegative(),
-  column: z.number().int().nonnegative(),
-  referenceType: referenceTypeSchema
-}).strict();
-var classificationMapSchema = z.object({
-  filePath: z.string().min(1),
-  entries: z.array(classificationMapEntrySchema)
-}).strict();
 var referenceLocationSchema = z.object({
   /** POSIX relative path to the file containing the reference */
   filePath: z.string().min(1),

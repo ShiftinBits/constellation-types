@@ -1214,6 +1214,36 @@ var importResolutionMetadataSchema = zod.z.record(
   zod.z.string(),
   importResolutionSchema
 );
+var referenceTypeSchema = zod.z.enum([
+  "call",
+  // function call: f() or obj.f()
+  "read",
+  // identifier read in expression
+  "write",
+  // assignment target
+  "type",
+  // used in type position
+  "instantiate",
+  // new Foo()
+  "import-use"
+  // reference resolved through an import; set by resolver, not extractor
+]);
+var extractorReferenceTypeSchema = referenceTypeSchema.exclude([
+  "import-use"
+]);
+
+// src/indexing/classification-map.schema.ts
+var classificationMapEntrySchema = zod.z.object({
+  line: zod.z.number().int().nonnegative(),
+  column: zod.z.number().int().nonnegative(),
+  referenceType: referenceTypeSchema
+}).strict();
+var classificationMapSchema = zod.z.object({
+  filePath: zod.z.string().min(1),
+  entries: zod.z.array(classificationMapEntrySchema)
+}).strict();
+
+// src/indexing/serialized-ast.schema.ts
 var serializedAstSchema = zod.z.object({
   /** Relative path to the source file from project root */
   file: zod.z.string().min(1),
@@ -1226,7 +1256,9 @@ var serializedAstSchema = zod.z.object({
   /** Base64-encoded, gzip-compressed AST structure (no source code) */
   ast: zod.z.string().min(1),
   /** CLI-resolved import paths (only CLI has tsconfig/jsconfig access) */
-  importResolutions: importResolutionMetadataSchema.optional()
+  importResolutions: importResolutionMetadataSchema.optional(),
+  /** Per-position reference classifications computed by CLI during parse */
+  classificationMap: classificationMapSchema.optional()
 });
 var fileFailureSchema = zod.z.object({
   /** Relative file path */
@@ -1282,23 +1314,6 @@ var projectStateSchema = zod.z.object({
   /** List of programming languages detected in the project */
   languages: zod.z.array(zod.z.string())
 });
-var referenceTypeSchema = zod.z.enum([
-  "call",
-  // function call: f() or obj.f()
-  "read",
-  // identifier read in expression
-  "write",
-  // assignment target
-  "type",
-  // used in type position
-  "instantiate",
-  // new Foo()
-  "import-use"
-  // reference resolved through an import; set by resolver, not extractor
-]);
-var extractorReferenceTypeSchema = referenceTypeSchema.exclude([
-  "import-use"
-]);
 var importSpecifierSchema = zod.z.object({
   local: zod.z.string(),
   original: zod.z.string().optional(),
@@ -1328,15 +1343,6 @@ var extractorReferenceSchema = zod.z.object({
   objectContext: zod.z.string().optional(),
   language: zod.z.string().optional()
 });
-var classificationMapEntrySchema = zod.z.object({
-  line: zod.z.number().int().nonnegative(),
-  column: zod.z.number().int().nonnegative(),
-  referenceType: referenceTypeSchema
-}).strict();
-var classificationMapSchema = zod.z.object({
-  filePath: zod.z.string().min(1),
-  entries: zod.z.array(classificationMapEntrySchema)
-}).strict();
 var referenceLocationSchema = zod.z.object({
   /** POSIX relative path to the file containing the reference */
   filePath: zod.z.string().min(1),
