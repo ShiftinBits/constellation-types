@@ -19,7 +19,7 @@
  *
  * **Pass 3 (Synchronous)**: Cross-File Symbol Resolution
  * - Resolves UnresolvedSymbol/UnresolvedCall nodes to actual targets
- * - Creates cross-file CALLS, REFERENCES, and USES_SYMBOL relationships
+ * - Creates cross-file CALLS and REFERENCES relationships
  * - Failures are logged but don't fail the overall operation
  *
  * All three passes complete before the API response is sent.
