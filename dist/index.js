@@ -1366,16 +1366,6 @@ var typeInfoSchema = zod.z.object({
   /** Extracted documentation comment */
   documentation: zod.z.string().optional()
 }).strict();
-var definitionLocationSchema = zod.z.object({
-  /** POSIX relative path to the definition file */
-  filePath: zod.z.string().min(1),
-  /** 1-based line number of the definition */
-  line: zod.z.number().int().positive(),
-  /** 0-based column offset of the definition */
-  column: zod.z.number().int().nonnegative(),
-  /** True if the definition is outside the project root (e.g., node_modules) */
-  isExternal: zod.z.boolean()
-}).strict();
 var symbolEnrichmentSchema = zod.z.object({
   /** Symbol name (must match the corresponding graph node) */
   name: zod.z.string().min(1),
@@ -1387,8 +1377,6 @@ var symbolEnrichmentSchema = zod.z.object({
   kind: zod.z.string().min(1),
   /** Resolved type information from LSP hover */
   typeInfo: typeInfoSchema.optional(),
-  /** Go-to-definition result */
-  definition: definitionLocationSchema.optional(),
   /** Reference locations where this symbol is used */
   references: zod.z.object({
     /** Total number of references found */
@@ -1597,7 +1585,6 @@ exports.complexityRiskSchema = complexityRiskSchema;
 exports.confidenceScoreSchema = confidenceScoreSchema;
 exports.createErrorReportSchema = createErrorReportSchema;
 exports.dataQualityMetadataSchema = dataQualityMetadataSchema;
-exports.definitionLocationSchema = definitionLocationSchema;
 exports.dependencyMetricsSchema = dependencyMetricsSchema;
 exports.dependencyOverviewSchema = dependencyOverviewSchema;
 exports.dependentMetricsSchema = dependentMetricsSchema;

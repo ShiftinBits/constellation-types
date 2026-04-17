@@ -2,8 +2,8 @@
  * Enrichment Schemas
  *
  * Zod schemas for LSP enrichment data sent from CLI to Core.
- * Defines the contract for type info, references, call hierarchy,
- * and definition locations gathered via LSP during indexing.
+ * Defines the contract for type info, references, and call hierarchy
+ * gathered via LSP during indexing.
  *
  * COORDINATE CONVENTIONS
  * ----------------------
@@ -70,29 +70,8 @@ export const typeInfoSchema = z
 export type TypeInfo = z.infer<typeof typeInfoSchema>;
 
 /**
- * Go-to-definition result pointing to a symbol's declaration.
- */
-export const definitionLocationSchema = z
-	.object({
-		/** POSIX relative path to the definition file */
-		filePath: z.string().min(1),
-
-		/** 1-based line number of the definition */
-		line: z.number().int().positive(),
-
-		/** 0-based column offset of the definition */
-		column: z.number().int().nonnegative(),
-
-		/** True if the definition is outside the project root (e.g., node_modules) */
-		isExternal: z.boolean(),
-	})
-	.strict();
-
-export type DefinitionLocation = z.infer<typeof definitionLocationSchema>;
-
-/**
- * Per-symbol LSP enrichment data aggregating type info, definition,
- * references, and call hierarchy for a single symbol.
+ * Per-symbol LSP enrichment data aggregating type info, references,
+ * and call hierarchy for a single symbol.
  */
 export const symbolEnrichmentSchema = z
 	.object({
@@ -110,9 +89,6 @@ export const symbolEnrichmentSchema = z
 
 		/** Resolved type information from LSP hover */
 		typeInfo: typeInfoSchema.optional(),
-
-		/** Go-to-definition result */
-		definition: definitionLocationSchema.optional(),
 
 		/** Reference locations where this symbol is used */
 		references: z
