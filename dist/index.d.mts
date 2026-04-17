@@ -153,7 +153,7 @@ type SerializedAST = z.infer<typeof serializedAstSchema>;
  *
  * **Pass 3 (Synchronous)**: Cross-File Symbol Resolution
  * - Resolves UnresolvedSymbol/UnresolvedCall nodes to actual targets
- * - Creates cross-file CALLS, REFERENCES, and USES_SYMBOL relationships
+ * - Creates cross-file CALLS and REFERENCES relationships
  * - Failures are logged but don't fail the overall operation
  *
  * All three passes complete before the API response is sent.
@@ -460,6 +460,173 @@ declare const projectStateSchema: z.ZodObject<{
     lastIndexedAt: string | null;
 }>;
 type ProjectState = z.infer<typeof projectStateSchema>;
+
+/**
+ * Reference Type Schemas
+ *
+ * Zod schemas for the types of references emitted in the code graph's :REFERENCES edges.
+ */
+
+/**
+ * Reference types emitted in the code graph's :REFERENCES edges.
+ *
+ * Extractor emits: call | read | write | type | instantiate
+ * Cross-file resolver stamps: import-use (when reference resolves through an import)
+ */
+declare const referenceTypeSchema: z.ZodEnum<["call", "read", "write", "type", "instantiate", "import-use"]>;
+type ReferenceType = z.infer<typeof referenceTypeSchema>;
+/**
+ * Subset of ReferenceType that extractors may emit directly.
+ * `import-use` is excluded because it can only be determined at resolution time.
+ */
+declare const extractorReferenceTypeSchema: z.ZodEnum<["call", "read", "write", "type", "instantiate"]>;
+type ExtractorReferenceType = z.infer<typeof extractorReferenceTypeSchema>;
+
+/**
+ * Import Schemas
+ *
+ * Zod schemas for per-specifier import metadata emitted by extractors.
+ * Replaces legacy parallel-arrays shape with structured per-specifier objects.
+ */
+
+/**
+ * A single import specifier — one name bound into the importing file's scope.
+ *
+ * | Import form                   | Emitted specifier                                                          |
+ * |-------------------------------|----------------------------------------------------------------------------|
+ * | import Foo from './x'         | { local:'Foo', original:'default', isDefault:true, isNamespace:false }     |
+ * | import { a } from './x'       | { local:'a', original:'a', isDefault:false, isNamespace:false }            |
+ * | import { a as B }             | { local:'B', original:'a', isDefault:false, isNamespace:false }            |
+ * | import { default as Foo }     | { local:'Foo', original:'default', isDefault:true, isNamespace:false }     |
+ * | import * as ns                | { local:'ns', original:undefined, isDefault:false, isNamespace:true }      |
+ * | Python: import foo.bar.baz    | { local:'foo', original:'foo.bar.baz', isDefault:false, isNamespace:false }|
+ */
+declare const importSpecifierSchema: z.ZodObject<{
+    local: z.ZodString;
+    original: z.ZodOptional<z.ZodString>;
+    isDefault: z.ZodBoolean;
+    isNamespace: z.ZodBoolean;
+}, "strip", z.ZodTypeAny, {
+    isDefault: boolean;
+    isNamespace: boolean;
+    local: string;
+    original?: string | undefined;
+}, {
+    isDefault: boolean;
+    isNamespace: boolean;
+    local: string;
+    original?: string | undefined;
+}>;
+type ImportSpecifier = z.infer<typeof importSpecifierSchema>;
+/**
+ * A single import statement's emitted metadata.
+ * Per-specifier `isDefault`/`isNamespace` supports combined forms like `import Foo, { a, b } from './x'`.
+ */
+declare const importSchema: z.ZodObject<{
+    source: z.ZodString;
+    specifiers: z.ZodArray<z.ZodObject<{
+        local: z.ZodString;
+        original: z.ZodOptional<z.ZodString>;
+        isDefault: z.ZodBoolean;
+        isNamespace: z.ZodBoolean;
+    }, "strip", z.ZodTypeAny, {
+        isDefault: boolean;
+        isNamespace: boolean;
+        local: string;
+        original?: string | undefined;
+    }, {
+        isDefault: boolean;
+        isNamespace: boolean;
+        local: string;
+        original?: string | undefined;
+    }>, "many">;
+    isType: z.ZodBoolean;
+    isDynamic: z.ZodBoolean;
+    isConditional: z.ZodOptional<z.ZodBoolean>;
+    isLazy: z.ZodOptional<z.ZodBoolean>;
+    isWildcard: z.ZodOptional<z.ZodBoolean>;
+    line: z.ZodNumber;
+    column: z.ZodNumber;
+}, "strip", z.ZodTypeAny, {
+    line: number;
+    column: number;
+    source: string;
+    specifiers: {
+        isDefault: boolean;
+        isNamespace: boolean;
+        local: string;
+        original?: string | undefined;
+    }[];
+    isType: boolean;
+    isDynamic: boolean;
+    isConditional?: boolean | undefined;
+    isLazy?: boolean | undefined;
+    isWildcard?: boolean | undefined;
+}, {
+    line: number;
+    column: number;
+    source: string;
+    specifiers: {
+        isDefault: boolean;
+        isNamespace: boolean;
+        local: string;
+        original?: string | undefined;
+    }[];
+    isType: boolean;
+    isDynamic: boolean;
+    isConditional?: boolean | undefined;
+    isLazy?: boolean | undefined;
+    isWildcard?: boolean | undefined;
+}>;
+type Import = z.infer<typeof importSchema>;
+
+/**
+ * Extractor Reference Schema
+ *
+ * Zod schema for extractor-emitted references between symbols.
+ *
+ * NOTE: Named `ExtractorReference` (not `SymbolReference`) to avoid collision with
+ * `symbolReferenceSchema` / `SymbolReference` in common.schema.ts, which is an
+ * unrelated MCP executor response shape (a FileLocation-extended type).
+ */
+
+/**
+ * An extractor-emitted reference to a symbol.
+ *
+ * Named `ExtractorReference` to avoid collision with `SymbolReference` in common.schema.ts
+ * (which is an unrelated MCP executor response shape).
+ */
+declare const extractorReferenceSchema: z.ZodObject<{
+    referencerId: z.ZodString;
+    referencedName: z.ZodString;
+    referenceType: z.ZodEnum<["call", "read", "write", "type", "instantiate"]>;
+    line: z.ZodNumber;
+    column: z.ZodNumber;
+    /** Parent symbolId hash */
+    scope: z.ZodOptional<z.ZodString>;
+    /** For `a.b.c`, holds 'a.b' */
+    objectContext: z.ZodOptional<z.ZodString>;
+    language: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    line: number;
+    column: number;
+    referencerId: string;
+    referencedName: string;
+    referenceType: "type" | "call" | "read" | "write" | "instantiate";
+    language?: string | undefined;
+    scope?: string | undefined;
+    objectContext?: string | undefined;
+}, {
+    line: number;
+    column: number;
+    referencerId: string;
+    referencedName: string;
+    referenceType: "type" | "call" | "read" | "write" | "instantiate";
+    language?: string | undefined;
+    scope?: string | undefined;
+    objectContext?: string | undefined;
+}>;
+type ExtractorReference = z.infer<typeof extractorReferenceSchema>;
 
 /**
  * Enrichment Schemas
@@ -1990,4 +2157,4 @@ declare const errorReportMetricsSchema: z.ZodObject<{
 }>;
 type ErrorReportMetrics = z.infer<typeof errorReportMetricsSchema>;
 
-export { type CallReference, type CreateErrorReport, type DefinitionLocation, type EnrichmentMetadata, type EnrichmentStatus, type ErrorData, type ErrorEntry, type ErrorReportMetrics, type ErrorReportResponse, type FileEnrichment, type FileFailure, type GraphEdge, type GraphEdgeType, type GraphMetadata, type GraphNode, type GraphNodeType, type GraphSummary, type GraphToolResult, type ImportResolution, type ImportResolutionMetadata, type ImportType, type IndexErrorReportStatus, type IndexOutcome, type IndexType, type IndexingResponse, type LogEntry, type LogLevel, type Point, type ProjectInfo, type ProjectListResponse, type ProjectResolveResponse, type ProjectState, type ReferenceLocation, type RelationshipFailure, type RelationshipSummary, type SerializedAST, type SymbolEnrichment, type SyntaxNode, type Tree, type TypeInfo, type UpdateErrorReport, type WarningEntry, callReferenceSchema, createErrorReportSchema, definitionLocationSchema, enrichmentMetadataSchema, enrichmentStatusSchema, errorDataSchema, errorEntrySchema, errorReportMetricsSchema, errorReportResponseSchema, fileEnrichmentSchema, fileFailureSchema, graphEdgeSchema, graphEdgeTypeSchema, graphMetadataSchema, graphNodeSchema, graphNodeTypeSchema, graphSummarySchema, graphToolResultSchema, importResolutionMetadataSchema, importResolutionSchema, importTypeSchema, indexErrorReportStatusSchema, indexOutcomeSchema, indexTypeSchema, indexingResponseSchema, logEntrySchema, logLevelSchema, projectInfoSchema, projectListResponseSchema, projectResolveResponseSchema, projectStateSchema, referenceLocationSchema, relationshipFailureSchema, relationshipSummarySchema, serializedAstSchema, symbolEnrichmentSchema, typeInfoSchema, updateErrorReportSchema, warningEntrySchema };
+export { type CallReference, type CreateErrorReport, type DefinitionLocation, type EnrichmentMetadata, type EnrichmentStatus, type ErrorData, type ErrorEntry, type ErrorReportMetrics, type ErrorReportResponse, type ExtractorReference, type ExtractorReferenceType, type FileEnrichment, type FileFailure, type GraphEdge, type GraphEdgeType, type GraphMetadata, type GraphNode, type GraphNodeType, type GraphSummary, type GraphToolResult, type Import, type ImportResolution, type ImportResolutionMetadata, type ImportSpecifier, type ImportType, type IndexErrorReportStatus, type IndexOutcome, type IndexType, type IndexingResponse, type LogEntry, type LogLevel, type Point, type ProjectInfo, type ProjectListResponse, type ProjectResolveResponse, type ProjectState, type ReferenceLocation, type ReferenceType, type RelationshipFailure, type RelationshipSummary, type SerializedAST, type SymbolEnrichment, type SyntaxNode, type Tree, type TypeInfo, type UpdateErrorReport, type WarningEntry, callReferenceSchema, createErrorReportSchema, definitionLocationSchema, enrichmentMetadataSchema, enrichmentStatusSchema, errorDataSchema, errorEntrySchema, errorReportMetricsSchema, errorReportResponseSchema, extractorReferenceSchema, extractorReferenceTypeSchema, fileEnrichmentSchema, fileFailureSchema, graphEdgeSchema, graphEdgeTypeSchema, graphMetadataSchema, graphNodeSchema, graphNodeTypeSchema, graphSummarySchema, graphToolResultSchema, importResolutionMetadataSchema, importResolutionSchema, importSchema, importSpecifierSchema, importTypeSchema, indexErrorReportStatusSchema, indexOutcomeSchema, indexTypeSchema, indexingResponseSchema, logEntrySchema, logLevelSchema, projectInfoSchema, projectListResponseSchema, projectResolveResponseSchema, projectStateSchema, referenceLocationSchema, referenceTypeSchema, relationshipFailureSchema, relationshipSummarySchema, serializedAstSchema, symbolEnrichmentSchema, typeInfoSchema, updateErrorReportSchema, warningEntrySchema };
