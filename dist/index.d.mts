@@ -105,7 +105,38 @@ declare const serializedAstSchema: z.ZodObject<{
         importType: "external" | "relative" | "workspace" | "alias" | "builtin";
         resolvedPath?: string | undefined;
     }>>>;
-}, "strip", z.ZodTypeAny, {
+    /** Per-position reference classifications computed by CLI during parse */
+    classificationMap: z.ZodOptional<z.ZodObject<{
+        filePath: z.ZodString;
+        entries: z.ZodArray<z.ZodObject<{
+            line: z.ZodNumber;
+            column: z.ZodNumber;
+            referenceType: z.ZodEnum<["call", "read", "write", "type", "instantiate", "import-use", "declaration"]>;
+        }, "strict", z.ZodTypeAny, {
+            line: number;
+            column: number;
+            referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use" | "declaration";
+        }, {
+            line: number;
+            column: number;
+            referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use" | "declaration";
+        }>, "many">;
+    }, "strict", z.ZodTypeAny, {
+        entries: {
+            line: number;
+            column: number;
+            referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use" | "declaration";
+        }[];
+        filePath: string;
+    }, {
+        entries: {
+            line: number;
+            column: number;
+            referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use" | "declaration";
+        }[];
+        filePath: string;
+    }>>;
+}, "strict", z.ZodTypeAny, {
     language: string;
     ast: string;
     file: string;
@@ -117,6 +148,14 @@ declare const serializedAstSchema: z.ZodObject<{
         importType: "external" | "relative" | "workspace" | "alias" | "builtin";
         resolvedPath?: string | undefined;
     }> | undefined;
+    classificationMap?: {
+        entries: {
+            line: number;
+            column: number;
+            referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use" | "declaration";
+        }[];
+        filePath: string;
+    } | undefined;
 }, {
     language: string;
     ast: string;
@@ -129,6 +168,14 @@ declare const serializedAstSchema: z.ZodObject<{
         importType: "external" | "relative" | "workspace" | "alias" | "builtin";
         resolvedPath?: string | undefined;
     }> | undefined;
+    classificationMap?: {
+        entries: {
+            line: number;
+            column: number;
+            referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use" | "declaration";
+        }[];
+        filePath: string;
+    } | undefined;
 }>;
 type SerializedAST = z.infer<typeof serializedAstSchema>;
 
@@ -472,12 +519,23 @@ type ProjectState = z.infer<typeof projectStateSchema>;
  *
  * Extractor emits: call | read | write | type | instantiate
  * Cross-file resolver stamps: import-use (when reference resolves through an import)
+ * Classification map + LSP enrichment stamps: declaration (at declaration
+ *   sites where LSP's find-all-references returns structural cross-refs —
+ *   import specifiers, method/property declarations, class/interface names,
+ *   function and variable declarators, parameters, etc. The classifier
+ *   emits `declaration` at these positions so LSP-written edges carry a
+ *   meaningful kind rather than null. The extractor never writes
+ *   `declaration` directly: declaration sites emit DEFINES/DECLARES, not
+ *   REFERENCES, in the extractor path.)
  */
-declare const referenceTypeSchema: z.ZodEnum<["call", "read", "write", "type", "instantiate", "import-use"]>;
+declare const referenceTypeSchema: z.ZodEnum<["call", "read", "write", "type", "instantiate", "import-use", "declaration"]>;
 type ReferenceType = z.infer<typeof referenceTypeSchema>;
 /**
  * Subset of ReferenceType that extractors may emit directly.
  * `import-use` is excluded because it can only be determined at resolution time.
+ * `declaration` is excluded because declaration sites emit DEFINES/DECLARES
+ *   not REFERENCES in the extractor path; only the classificationMap +
+ *   LSP enrichment path writes this kind.
  */
 declare const extractorReferenceTypeSchema: z.ZodEnum<["call", "read", "write", "type", "instantiate"]>;
 type ExtractorReferenceType = z.infer<typeof extractorReferenceTypeSchema>;
@@ -610,18 +668,18 @@ declare const extractorReferenceSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     line: number;
     column: number;
+    referenceType: "type" | "call" | "read" | "write" | "instantiate";
     referencerId: string;
     referencedName: string;
-    referenceType: "type" | "call" | "read" | "write" | "instantiate";
     language?: string | undefined;
     scope?: string | undefined;
     objectContext?: string | undefined;
 }, {
     line: number;
     column: number;
+    referenceType: "type" | "call" | "read" | "write" | "instantiate";
     referencerId: string;
     referencedName: string;
-    referenceType: "type" | "call" | "read" | "write" | "instantiate";
     language?: string | undefined;
     scope?: string | undefined;
     objectContext?: string | undefined;
@@ -629,24 +687,91 @@ declare const extractorReferenceSchema: z.ZodObject<{
 type ExtractorReference = z.infer<typeof extractorReferenceSchema>;
 
 /**
+ * Classification Map Schema
+ *
+ * Zod schema for code classification maps produced by the LSP classification tool.
+ * Maps line:column locations in a file to their reference types.
+ */
+
+declare const classificationMapEntrySchema: z.ZodObject<{
+    line: z.ZodNumber;
+    column: z.ZodNumber;
+    referenceType: z.ZodEnum<["call", "read", "write", "type", "instantiate", "import-use", "declaration"]>;
+}, "strict", z.ZodTypeAny, {
+    line: number;
+    column: number;
+    referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use" | "declaration";
+}, {
+    line: number;
+    column: number;
+    referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use" | "declaration";
+}>;
+type ClassificationMapEntry = z.infer<typeof classificationMapEntrySchema>;
+declare const classificationMapSchema: z.ZodObject<{
+    filePath: z.ZodString;
+    entries: z.ZodArray<z.ZodObject<{
+        line: z.ZodNumber;
+        column: z.ZodNumber;
+        referenceType: z.ZodEnum<["call", "read", "write", "type", "instantiate", "import-use", "declaration"]>;
+    }, "strict", z.ZodTypeAny, {
+        line: number;
+        column: number;
+        referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use" | "declaration";
+    }, {
+        line: number;
+        column: number;
+        referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use" | "declaration";
+    }>, "many">;
+}, "strict", z.ZodTypeAny, {
+    entries: {
+        line: number;
+        column: number;
+        referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use" | "declaration";
+    }[];
+    filePath: string;
+}, {
+    entries: {
+        line: number;
+        column: number;
+        referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use" | "declaration";
+    }[];
+    filePath: string;
+}>;
+type ClassificationMap = z.infer<typeof classificationMapSchema>;
+
+/**
  * Enrichment Schemas
  *
  * Zod schemas for LSP enrichment data sent from CLI to Core.
  * Defines the contract for type info, references, call hierarchy,
  * and definition locations gathered via LSP during indexing.
+ *
+ * COORDINATE CONVENTIONS
+ * ----------------------
+ * LSP native format is used on the wire: `line` is 1-based, `column` is
+ * 0-based. The Core enrichment processor normalizes `line` to 0-based at
+ * ingress so that every internal consumer (classificationMap lookup keys,
+ * Symbol node `line` storage, extractor-written :REFERENCES edge `line`)
+ * speaks tree-sitter's 0-based row convention. Producers MUST send values
+ * in LSP's convention; consumers reading graph properties downstream MUST
+ * expect 0-based rows.
  */
 
 /**
  * A reference location pointing to where a symbol is used.
+ *
+ * Wire format is LSP-native: 1-based line, 0-based column. Core normalizes
+ * `line` to 0-based before classificationMap lookup and MERGE, so the
+ * edge stored on the graph carries a 0-based row.
  */
 declare const referenceLocationSchema: z.ZodObject<{
     /** POSIX relative path to the file containing the reference */
     filePath: z.ZodString;
-    /** 1-based line number of the reference */
+    /** 1-based line number of the reference (LSP convention) */
     line: z.ZodNumber;
     /** 0-based column offset of the reference */
     column: z.ZodNumber;
-}, "strip", z.ZodTypeAny, {
+}, "strict", z.ZodTypeAny, {
     filePath: string;
     line: number;
     column: number;
@@ -663,14 +788,14 @@ type ReferenceLocation = z.infer<typeof referenceLocationSchema>;
 declare const callReferenceSchema: z.ZodObject<{
     /** POSIX relative path to the file containing the reference */
     filePath: z.ZodString;
-    /** 1-based line number of the reference */
+    /** 1-based line number of the reference (LSP convention) */
     line: z.ZodNumber;
     /** 0-based column offset of the reference */
     column: z.ZodNumber;
 } & {
     /** Name of the calling/called symbol */
     name: z.ZodString;
-}, "strip", z.ZodTypeAny, {
+}, "strict", z.ZodTypeAny, {
     filePath: string;
     line: number;
     column: number;
@@ -692,7 +817,7 @@ declare const typeInfoSchema: z.ZodObject<{
     returnType: z.ZodOptional<z.ZodString>;
     /** Extracted documentation comment */
     documentation: z.ZodOptional<z.ZodString>;
-}, "strip", z.ZodTypeAny, {
+}, "strict", z.ZodTypeAny, {
     resolvedType: string;
     documentation?: string | undefined;
     returnType?: string | undefined;
@@ -714,7 +839,7 @@ declare const definitionLocationSchema: z.ZodObject<{
     column: z.ZodNumber;
     /** True if the definition is outside the project root (e.g., node_modules) */
     isExternal: z.ZodBoolean;
-}, "strip", z.ZodTypeAny, {
+}, "strict", z.ZodTypeAny, {
     filePath: string;
     line: number;
     column: number;
@@ -747,7 +872,7 @@ declare const symbolEnrichmentSchema: z.ZodObject<{
         returnType: z.ZodOptional<z.ZodString>;
         /** Extracted documentation comment */
         documentation: z.ZodOptional<z.ZodString>;
-    }, "strip", z.ZodTypeAny, {
+    }, "strict", z.ZodTypeAny, {
         resolvedType: string;
         documentation?: string | undefined;
         returnType?: string | undefined;
@@ -766,7 +891,7 @@ declare const symbolEnrichmentSchema: z.ZodObject<{
         column: z.ZodNumber;
         /** True if the definition is outside the project root (e.g., node_modules) */
         isExternal: z.ZodBoolean;
-    }, "strip", z.ZodTypeAny, {
+    }, "strict", z.ZodTypeAny, {
         filePath: string;
         line: number;
         column: number;
@@ -785,11 +910,11 @@ declare const symbolEnrichmentSchema: z.ZodObject<{
         locations: z.ZodArray<z.ZodObject<{
             /** POSIX relative path to the file containing the reference */
             filePath: z.ZodString;
-            /** 1-based line number of the reference */
+            /** 1-based line number of the reference (LSP convention) */
             line: z.ZodNumber;
             /** 0-based column offset of the reference */
             column: z.ZodNumber;
-        }, "strip", z.ZodTypeAny, {
+        }, "strict", z.ZodTypeAny, {
             filePath: string;
             line: number;
             column: number;
@@ -819,14 +944,14 @@ declare const symbolEnrichmentSchema: z.ZodObject<{
         incomingCalls: z.ZodArray<z.ZodObject<{
             /** POSIX relative path to the file containing the reference */
             filePath: z.ZodString;
-            /** 1-based line number of the reference */
+            /** 1-based line number of the reference (LSP convention) */
             line: z.ZodNumber;
             /** 0-based column offset of the reference */
             column: z.ZodNumber;
         } & {
             /** Name of the calling/called symbol */
             name: z.ZodString;
-        }, "strip", z.ZodTypeAny, {
+        }, "strict", z.ZodTypeAny, {
             filePath: string;
             line: number;
             column: number;
@@ -841,14 +966,14 @@ declare const symbolEnrichmentSchema: z.ZodObject<{
         outgoingCalls: z.ZodArray<z.ZodObject<{
             /** POSIX relative path to the file containing the reference */
             filePath: z.ZodString;
-            /** 1-based line number of the reference */
+            /** 1-based line number of the reference (LSP convention) */
             line: z.ZodNumber;
             /** 0-based column offset of the reference */
             column: z.ZodNumber;
         } & {
             /** Name of the calling/called symbol */
             name: z.ZodString;
-        }, "strip", z.ZodTypeAny, {
+        }, "strict", z.ZodTypeAny, {
             filePath: string;
             line: number;
             column: number;
@@ -886,7 +1011,7 @@ declare const symbolEnrichmentSchema: z.ZodObject<{
             name: string;
         }[];
     }>>;
-}, "strip", z.ZodTypeAny, {
+}, "strict", z.ZodTypeAny, {
     line: number;
     column: number;
     name: string;
@@ -991,7 +1116,7 @@ declare const fileEnrichmentSchema: z.ZodObject<{
             returnType: z.ZodOptional<z.ZodString>;
             /** Extracted documentation comment */
             documentation: z.ZodOptional<z.ZodString>;
-        }, "strip", z.ZodTypeAny, {
+        }, "strict", z.ZodTypeAny, {
             resolvedType: string;
             documentation?: string | undefined;
             returnType?: string | undefined;
@@ -1010,7 +1135,7 @@ declare const fileEnrichmentSchema: z.ZodObject<{
             column: z.ZodNumber;
             /** True if the definition is outside the project root (e.g., node_modules) */
             isExternal: z.ZodBoolean;
-        }, "strip", z.ZodTypeAny, {
+        }, "strict", z.ZodTypeAny, {
             filePath: string;
             line: number;
             column: number;
@@ -1029,11 +1154,11 @@ declare const fileEnrichmentSchema: z.ZodObject<{
             locations: z.ZodArray<z.ZodObject<{
                 /** POSIX relative path to the file containing the reference */
                 filePath: z.ZodString;
-                /** 1-based line number of the reference */
+                /** 1-based line number of the reference (LSP convention) */
                 line: z.ZodNumber;
                 /** 0-based column offset of the reference */
                 column: z.ZodNumber;
-            }, "strip", z.ZodTypeAny, {
+            }, "strict", z.ZodTypeAny, {
                 filePath: string;
                 line: number;
                 column: number;
@@ -1063,14 +1188,14 @@ declare const fileEnrichmentSchema: z.ZodObject<{
             incomingCalls: z.ZodArray<z.ZodObject<{
                 /** POSIX relative path to the file containing the reference */
                 filePath: z.ZodString;
-                /** 1-based line number of the reference */
+                /** 1-based line number of the reference (LSP convention) */
                 line: z.ZodNumber;
                 /** 0-based column offset of the reference */
                 column: z.ZodNumber;
             } & {
                 /** Name of the calling/called symbol */
                 name: z.ZodString;
-            }, "strip", z.ZodTypeAny, {
+            }, "strict", z.ZodTypeAny, {
                 filePath: string;
                 line: number;
                 column: number;
@@ -1085,14 +1210,14 @@ declare const fileEnrichmentSchema: z.ZodObject<{
             outgoingCalls: z.ZodArray<z.ZodObject<{
                 /** POSIX relative path to the file containing the reference */
                 filePath: z.ZodString;
-                /** 1-based line number of the reference */
+                /** 1-based line number of the reference (LSP convention) */
                 line: z.ZodNumber;
                 /** 0-based column offset of the reference */
                 column: z.ZodNumber;
             } & {
                 /** Name of the calling/called symbol */
                 name: z.ZodString;
-            }, "strip", z.ZodTypeAny, {
+            }, "strict", z.ZodTypeAny, {
                 filePath: string;
                 line: number;
                 column: number;
@@ -1130,7 +1255,7 @@ declare const fileEnrichmentSchema: z.ZodObject<{
                 name: string;
             }[];
         }>>;
-    }, "strip", z.ZodTypeAny, {
+    }, "strict", z.ZodTypeAny, {
         line: number;
         column: number;
         name: string;
@@ -1207,7 +1332,7 @@ declare const fileEnrichmentSchema: z.ZodObject<{
             }[];
         } | undefined;
     }>, "many">;
-}, "strip", z.ZodTypeAny, {
+}, "strict", z.ZodTypeAny, {
     language: string;
     filePath: string;
     symbols: {
@@ -1305,7 +1430,7 @@ declare const enrichmentMetadataSchema: z.ZodObject<{
     commit: z.ZodString;
     /** ISO 8601 timestamp of the enrichment run */
     timestamp: z.ZodString;
-}, "strip", z.ZodTypeAny, {
+}, "strict", z.ZodTypeAny, {
     commit: string;
     timestamp: string;
     projectId: string;
@@ -2157,4 +2282,4 @@ declare const errorReportMetricsSchema: z.ZodObject<{
 }>;
 type ErrorReportMetrics = z.infer<typeof errorReportMetricsSchema>;
 
-export { type CallReference, type CreateErrorReport, type DefinitionLocation, type EnrichmentMetadata, type EnrichmentStatus, type ErrorData, type ErrorEntry, type ErrorReportMetrics, type ErrorReportResponse, type ExtractorReference, type ExtractorReferenceType, type FileEnrichment, type FileFailure, type GraphEdge, type GraphEdgeType, type GraphMetadata, type GraphNode, type GraphNodeType, type GraphSummary, type GraphToolResult, type Import, type ImportResolution, type ImportResolutionMetadata, type ImportSpecifier, type ImportType, type IndexErrorReportStatus, type IndexOutcome, type IndexType, type IndexingResponse, type LogEntry, type LogLevel, type Point, type ProjectInfo, type ProjectListResponse, type ProjectResolveResponse, type ProjectState, type ReferenceLocation, type ReferenceType, type RelationshipFailure, type RelationshipSummary, type SerializedAST, type SymbolEnrichment, type SyntaxNode, type Tree, type TypeInfo, type UpdateErrorReport, type WarningEntry, callReferenceSchema, createErrorReportSchema, definitionLocationSchema, enrichmentMetadataSchema, enrichmentStatusSchema, errorDataSchema, errorEntrySchema, errorReportMetricsSchema, errorReportResponseSchema, extractorReferenceSchema, extractorReferenceTypeSchema, fileEnrichmentSchema, fileFailureSchema, graphEdgeSchema, graphEdgeTypeSchema, graphMetadataSchema, graphNodeSchema, graphNodeTypeSchema, graphSummarySchema, graphToolResultSchema, importResolutionMetadataSchema, importResolutionSchema, importSchema, importSpecifierSchema, importTypeSchema, indexErrorReportStatusSchema, indexOutcomeSchema, indexTypeSchema, indexingResponseSchema, logEntrySchema, logLevelSchema, projectInfoSchema, projectListResponseSchema, projectResolveResponseSchema, projectStateSchema, referenceLocationSchema, referenceTypeSchema, relationshipFailureSchema, relationshipSummarySchema, serializedAstSchema, symbolEnrichmentSchema, typeInfoSchema, updateErrorReportSchema, warningEntrySchema };
+export { type CallReference, type ClassificationMap, type ClassificationMapEntry, type CreateErrorReport, type DefinitionLocation, type EnrichmentMetadata, type EnrichmentStatus, type ErrorData, type ErrorEntry, type ErrorReportMetrics, type ErrorReportResponse, type ExtractorReference, type ExtractorReferenceType, type FileEnrichment, type FileFailure, type GraphEdge, type GraphEdgeType, type GraphMetadata, type GraphNode, type GraphNodeType, type GraphSummary, type GraphToolResult, type Import, type ImportResolution, type ImportResolutionMetadata, type ImportSpecifier, type ImportType, type IndexErrorReportStatus, type IndexOutcome, type IndexType, type IndexingResponse, type LogEntry, type LogLevel, type Point, type ProjectInfo, type ProjectListResponse, type ProjectResolveResponse, type ProjectState, type ReferenceLocation, type ReferenceType, type RelationshipFailure, type RelationshipSummary, type SerializedAST, type SymbolEnrichment, type SyntaxNode, type Tree, type TypeInfo, type UpdateErrorReport, type WarningEntry, callReferenceSchema, classificationMapEntrySchema, classificationMapSchema, createErrorReportSchema, definitionLocationSchema, enrichmentMetadataSchema, enrichmentStatusSchema, errorDataSchema, errorEntrySchema, errorReportMetricsSchema, errorReportResponseSchema, extractorReferenceSchema, extractorReferenceTypeSchema, fileEnrichmentSchema, fileFailureSchema, graphEdgeSchema, graphEdgeTypeSchema, graphMetadataSchema, graphNodeSchema, graphNodeTypeSchema, graphSummarySchema, graphToolResultSchema, importResolutionMetadataSchema, importResolutionSchema, importSchema, importSpecifierSchema, importTypeSchema, indexErrorReportStatusSchema, indexOutcomeSchema, indexTypeSchema, indexingResponseSchema, logEntrySchema, logLevelSchema, projectInfoSchema, projectListResponseSchema, projectResolveResponseSchema, projectStateSchema, referenceLocationSchema, referenceTypeSchema, relationshipFailureSchema, relationshipSummarySchema, serializedAstSchema, symbolEnrichmentSchema, typeInfoSchema, updateErrorReportSchema, warningEntrySchema };
