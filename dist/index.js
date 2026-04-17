@@ -1225,11 +1225,14 @@ var referenceTypeSchema = zod.z.enum([
   // used in type position
   "instantiate",
   // new Foo()
-  "import-use"
+  "import-use",
   // reference resolved through an import; set by resolver, not extractor
+  "declaration"
+  // declaration-site cross-reference (LSP structural typing)
 ]);
 var extractorReferenceTypeSchema = referenceTypeSchema.exclude([
-  "import-use"
+  "import-use",
+  "declaration"
 ]);
 
 // src/indexing/classification-map.schema.ts

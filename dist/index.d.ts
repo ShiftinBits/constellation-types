@@ -111,28 +111,28 @@ declare const serializedAstSchema: z.ZodObject<{
         entries: z.ZodArray<z.ZodObject<{
             line: z.ZodNumber;
             column: z.ZodNumber;
-            referenceType: z.ZodEnum<["call", "read", "write", "type", "instantiate", "import-use"]>;
+            referenceType: z.ZodEnum<["call", "read", "write", "type", "instantiate", "import-use", "declaration"]>;
         }, "strict", z.ZodTypeAny, {
             line: number;
             column: number;
-            referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use";
+            referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use" | "declaration";
         }, {
             line: number;
             column: number;
-            referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use";
+            referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use" | "declaration";
         }>, "many">;
     }, "strict", z.ZodTypeAny, {
         entries: {
             line: number;
             column: number;
-            referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use";
+            referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use" | "declaration";
         }[];
         filePath: string;
     }, {
         entries: {
             line: number;
             column: number;
-            referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use";
+            referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use" | "declaration";
         }[];
         filePath: string;
     }>>;
@@ -152,7 +152,7 @@ declare const serializedAstSchema: z.ZodObject<{
         entries: {
             line: number;
             column: number;
-            referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use";
+            referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use" | "declaration";
         }[];
         filePath: string;
     } | undefined;
@@ -172,7 +172,7 @@ declare const serializedAstSchema: z.ZodObject<{
         entries: {
             line: number;
             column: number;
-            referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use";
+            referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use" | "declaration";
         }[];
         filePath: string;
     } | undefined;
@@ -519,12 +519,23 @@ type ProjectState = z.infer<typeof projectStateSchema>;
  *
  * Extractor emits: call | read | write | type | instantiate
  * Cross-file resolver stamps: import-use (when reference resolves through an import)
+ * Classification map + LSP enrichment stamps: declaration (at declaration
+ *   sites where LSP's find-all-references returns structural cross-refs —
+ *   import specifiers, method/property declarations, class/interface names,
+ *   function and variable declarators, parameters, etc. The classifier
+ *   emits `declaration` at these positions so LSP-written edges carry a
+ *   meaningful kind rather than null. The extractor never writes
+ *   `declaration` directly: declaration sites emit DEFINES/DECLARES, not
+ *   REFERENCES, in the extractor path.)
  */
-declare const referenceTypeSchema: z.ZodEnum<["call", "read", "write", "type", "instantiate", "import-use"]>;
+declare const referenceTypeSchema: z.ZodEnum<["call", "read", "write", "type", "instantiate", "import-use", "declaration"]>;
 type ReferenceType = z.infer<typeof referenceTypeSchema>;
 /**
  * Subset of ReferenceType that extractors may emit directly.
  * `import-use` is excluded because it can only be determined at resolution time.
+ * `declaration` is excluded because declaration sites emit DEFINES/DECLARES
+ *   not REFERENCES in the extractor path; only the classificationMap +
+ *   LSP enrichment path writes this kind.
  */
 declare const extractorReferenceTypeSchema: z.ZodEnum<["call", "read", "write", "type", "instantiate"]>;
 type ExtractorReferenceType = z.infer<typeof extractorReferenceTypeSchema>;
@@ -685,15 +696,15 @@ type ExtractorReference = z.infer<typeof extractorReferenceSchema>;
 declare const classificationMapEntrySchema: z.ZodObject<{
     line: z.ZodNumber;
     column: z.ZodNumber;
-    referenceType: z.ZodEnum<["call", "read", "write", "type", "instantiate", "import-use"]>;
+    referenceType: z.ZodEnum<["call", "read", "write", "type", "instantiate", "import-use", "declaration"]>;
 }, "strict", z.ZodTypeAny, {
     line: number;
     column: number;
-    referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use";
+    referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use" | "declaration";
 }, {
     line: number;
     column: number;
-    referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use";
+    referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use" | "declaration";
 }>;
 type ClassificationMapEntry = z.infer<typeof classificationMapEntrySchema>;
 declare const classificationMapSchema: z.ZodObject<{
@@ -701,28 +712,28 @@ declare const classificationMapSchema: z.ZodObject<{
     entries: z.ZodArray<z.ZodObject<{
         line: z.ZodNumber;
         column: z.ZodNumber;
-        referenceType: z.ZodEnum<["call", "read", "write", "type", "instantiate", "import-use"]>;
+        referenceType: z.ZodEnum<["call", "read", "write", "type", "instantiate", "import-use", "declaration"]>;
     }, "strict", z.ZodTypeAny, {
         line: number;
         column: number;
-        referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use";
+        referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use" | "declaration";
     }, {
         line: number;
         column: number;
-        referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use";
+        referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use" | "declaration";
     }>, "many">;
 }, "strict", z.ZodTypeAny, {
     entries: {
         line: number;
         column: number;
-        referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use";
+        referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use" | "declaration";
     }[];
     filePath: string;
 }, {
     entries: {
         line: number;
         column: number;
-        referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use";
+        referenceType: "type" | "call" | "read" | "write" | "instantiate" | "import-use" | "declaration";
     }[];
     filePath: string;
 }>;
