@@ -4,19 +4,33 @@
  * Zod schemas for LSP enrichment data sent from CLI to Core.
  * Defines the contract for type info, references, call hierarchy,
  * and definition locations gathered via LSP during indexing.
+ *
+ * COORDINATE CONVENTIONS
+ * ----------------------
+ * LSP native format is used on the wire: `line` is 1-based, `column` is
+ * 0-based. The Core enrichment processor normalizes `line` to 0-based at
+ * ingress so that every internal consumer (classificationMap lookup keys,
+ * Symbol node `line` storage, extractor-written :REFERENCES edge `line`)
+ * speaks tree-sitter's 0-based row convention. Producers MUST send values
+ * in LSP's convention; consumers reading graph properties downstream MUST
+ * expect 0-based rows.
  */
 
 import { z } from 'zod';
 
 /**
  * A reference location pointing to where a symbol is used.
+ *
+ * Wire format is LSP-native: 1-based line, 0-based column. Core normalizes
+ * `line` to 0-based before classificationMap lookup and MERGE, so the
+ * edge stored on the graph carries a 0-based row.
  */
 export const referenceLocationSchema = z
 	.object({
 		/** POSIX relative path to the file containing the reference */
 		filePath: z.string().min(1),
 
-		/** 1-based line number of the reference */
+		/** 1-based line number of the reference (LSP convention) */
 		line: z.number().int().positive(),
 
 		/** 0-based column offset of the reference */

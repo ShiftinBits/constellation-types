@@ -1346,7 +1346,7 @@ var extractorReferenceSchema = zod.z.object({
 var referenceLocationSchema = zod.z.object({
   /** POSIX relative path to the file containing the reference */
   filePath: zod.z.string().min(1),
-  /** 1-based line number of the reference */
+  /** 1-based line number of the reference (LSP convention) */
   line: zod.z.number().int().positive(),
   /** 0-based column offset of the reference */
   column: zod.z.number().int().nonnegative()
