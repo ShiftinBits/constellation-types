@@ -44,10 +44,12 @@ export type ReferenceLocation = z.infer<typeof referenceLocationSchema>;
  * A call hierarchy entry representing an incoming or outgoing call.
  * Extends referenceLocationSchema with a symbol name.
  */
-export const callReferenceSchema = referenceLocationSchema.extend({
-	/** Name of the calling/called symbol */
-	name: z.string().min(1),
-});
+export const callReferenceSchema = referenceLocationSchema
+	.extend({
+		/** Name of the calling/called symbol */
+		name: z.string().min(1),
+	})
+	.strict();
 
 export type CallReference = z.infer<typeof callReferenceSchema>;
 

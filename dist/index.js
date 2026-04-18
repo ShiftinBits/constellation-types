@@ -1357,7 +1357,7 @@ var referenceLocationSchema = zod.z.object({
 var callReferenceSchema = referenceLocationSchema.extend({
   /** Name of the calling/called symbol */
   name: zod.z.string().min(1)
-});
+}).strict();
 var typeInfoSchema = zod.z.object({
   /** The fully resolved type string from LSP */
   resolvedType: zod.z.string().min(1),

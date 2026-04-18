@@ -1355,7 +1355,7 @@ var referenceLocationSchema = z.object({
 var callReferenceSchema = referenceLocationSchema.extend({
   /** Name of the calling/called symbol */
   name: z.string().min(1)
-});
+}).strict();
 var typeInfoSchema = z.object({
   /** The fully resolved type string from LSP */
   resolvedType: z.string().min(1),
