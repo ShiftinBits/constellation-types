@@ -5,7 +5,11 @@
  */
 
 import { z } from 'zod';
-import { fileLocationSchema, riskLevelSchema } from '../common.schema';
+import {
+	fileLocationSchema,
+	languageMetadataSchema,
+	riskLevelSchema,
+} from '../common.schema';
 
 /**
  * Input parameters schema for impact analysis
@@ -60,6 +64,9 @@ export const impactedSymbolSchema = fileLocationSchema.extend({
 	/** Symbol kind (function, class, variable, etc.) */
 	kind: z.string(),
 
+	/** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+	visibility: z.string().optional(),
+
 	/** Type of relationship (CALLS, REFERENCES, DEPENDS_ON, etc.) */
 	relationshipType: z.string(),
 
@@ -71,6 +78,9 @@ export const impactedSymbolSchema = fileLocationSchema.extend({
 
 	/** Number of symbols that depend on this impacted symbol */
 	transitiveImpactCount: z.number().int().nonnegative().optional(),
+
+	/** Language-specific metadata (e.g., language identifier) */
+	languageMetadata: languageMetadataSchema.optional(),
 });
 
 export type ImpactedSymbol = z.infer<typeof impactedSymbolSchema>;
@@ -141,10 +151,16 @@ export const impactAnalysisResultSchema = z.object({
 		name: z.string(),
 		qualifiedName: z.string(),
 		kind: z.string(),
+		/** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+		visibility: z.string().optional(),
 		filePath: z.string(),
 		line: z.number().int().positive(),
+		/** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
+		lineEnd: z.number().int().positive().optional(),
 		column: z.number().int().nonnegative(),
 		isExported: z.boolean().optional(),
+		/** Language-specific metadata (e.g., language identifier) */
+		languageMetadata: languageMetadataSchema.optional(),
 	}),
 
 	/** Direct dependents (depth 1) */

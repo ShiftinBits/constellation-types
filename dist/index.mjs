@@ -105,7 +105,7 @@ var fileLocationSchema = z.object({
   line: z.number().int().positive().optional(),
   /** Optional line range start */
   lineStart: z.number().int().positive().optional(),
-  /** Optional line range end */
+  /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
   lineEnd: z.number().int().positive().optional(),
   /** Optional column number */
   column: z.number().int().nonnegative().optional()
@@ -746,10 +746,16 @@ var tracedSymbolSchema = z.object({
   name: z.string(),
   /** Symbol kind */
   kind: z.string(),
+  /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+  visibility: z.string().optional(),
   /** File where symbol is defined */
   filePath: z.string(),
+  /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
+  lineEnd: z.number().int().positive().optional(),
   /** Cyclomatic complexity metrics (present on function/method symbols) */
-  complexity: complexityMetricsSchema.optional()
+  complexity: complexityMetricsSchema.optional(),
+  /** Language-specific metadata (e.g., language identifier) */
+  languageMetadata: languageMetadataSchema.optional()
 });
 var directUsageSchema = z.object({
   /** File path where symbol is used */
@@ -820,40 +826,56 @@ var callGraphRootSchema = z.object({
   symbolId: z.string(),
   /** Symbol name */
   name: z.string(),
+  /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+  visibility: z.string().optional(),
   /** File path */
   filePath: z.string(),
   /** Line number */
   line: z.number().int().positive(),
+  /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
+  lineEnd: z.number().int().positive().optional(),
   /** Column number */
   column: z.number().int().nonnegative(),
   /** Cyclomatic complexity metrics (present on function/method symbols) */
-  complexity: complexityMetricsSchema.optional()
+  complexity: complexityMetricsSchema.optional(),
+  /** Language-specific metadata (e.g., language identifier) */
+  languageMetadata: languageMetadataSchema.optional()
 });
 var callerNodeSchema = z.object({
   /** Symbol ID */
   symbolId: z.string(),
   /** Symbol name */
   name: z.string(),
+  /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+  visibility: z.string().optional(),
   /** File path */
   filePath: z.string(),
   /** Line number */
   line: z.number().int().positive(),
+  /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
+  lineEnd: z.number().int().positive().optional(),
   /** Column number */
   column: z.number().int().nonnegative(),
   /** Depth from root */
   depth: z.number().int().nonnegative(),
   /** Cyclomatic complexity metrics (present on function/method symbols) */
-  complexity: complexityMetricsSchema.optional()
+  complexity: complexityMetricsSchema.optional(),
+  /** Language-specific metadata (e.g., language identifier) */
+  languageMetadata: languageMetadataSchema.optional()
 });
 var calleeNodeSchema = z.object({
   /** Symbol ID */
   symbolId: z.string(),
   /** Symbol name */
   name: z.string(),
+  /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+  visibility: z.string().optional(),
   /** File path */
   filePath: z.string(),
   /** Line number */
   line: z.number().int().positive(),
+  /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
+  lineEnd: z.number().int().positive().optional(),
   /** Column number */
   column: z.number().int().nonnegative(),
   /** Whether call is async */
@@ -861,7 +883,9 @@ var calleeNodeSchema = z.object({
   /** Depth from root */
   depth: z.number().int().nonnegative(),
   /** Cyclomatic complexity metrics (present on function/method symbols) */
-  complexity: complexityMetricsSchema.optional()
+  complexity: complexityMetricsSchema.optional(),
+  /** Language-specific metadata (e.g., language identifier) */
+  languageMetadata: languageMetadataSchema.optional()
 });
 var getCallGraphResultSchema = z.object({
   /** Root symbol */
@@ -904,6 +928,8 @@ var impactedSymbolSchema = fileLocationSchema.extend({
   qualifiedName: z.string(),
   /** Symbol kind (function, class, variable, etc.) */
   kind: z.string(),
+  /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+  visibility: z.string().optional(),
   /** Type of relationship (CALLS, REFERENCES, DEPENDS_ON, etc.) */
   relationshipType: z.string(),
   /** Depth in the dependency chain (1 = direct, 2+ = transitive) */
@@ -911,7 +937,9 @@ var impactedSymbolSchema = fileLocationSchema.extend({
   /** Whether this symbol is exported (potential breaking change risk) */
   isExported: z.boolean().optional(),
   /** Number of symbols that depend on this impacted symbol */
-  transitiveImpactCount: z.number().int().nonnegative().optional()
+  transitiveImpactCount: z.number().int().nonnegative().optional(),
+  /** Language-specific metadata (e.g., language identifier) */
+  languageMetadata: languageMetadataSchema.optional()
 });
 var impactedFileSchema = z.object({
   /** File path */
@@ -956,10 +984,16 @@ var impactAnalysisResultSchema = z.object({
     name: z.string(),
     qualifiedName: z.string(),
     kind: z.string(),
+    /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+    visibility: z.string().optional(),
     filePath: z.string(),
     line: z.number().int().positive(),
+    /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
+    lineEnd: z.number().int().positive().optional(),
     column: z.number().int().nonnegative(),
-    isExported: z.boolean().optional()
+    isExported: z.boolean().optional(),
+    /** Language-specific metadata (e.g., language identifier) */
+    languageMetadata: languageMetadataSchema.optional()
   }),
   /** Direct dependents (depth 1) */
   directDependents: z.array(impactedSymbolSchema).optional(),
@@ -1008,14 +1042,20 @@ var orphanedSymbolSchema = z.object({
   name: z.string(),
   /** Symbol kind */
   kind: z.string(),
+  /** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+  visibility: z.string().optional(),
   /** File path */
   filePath: z.string(),
+  /** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
+  lineEnd: z.number().int().positive().optional(),
   /** Whether symbol is exported */
   isExported: z.boolean(),
   /** Reason for being orphaned */
   reason: z.string(),
   /** Confidence (0-1) */
-  confidence: z.number().min(0).max(1)
+  confidence: z.number().min(0).max(1),
+  /** Language-specific metadata (e.g., language identifier) */
+  languageMetadata: languageMetadataSchema.optional()
 });
 var orphanedFileSchema = z.object({
   /** File path */
@@ -1172,6 +1212,39 @@ var importResolutionMetadataSchema = z.record(
   z.string(),
   importResolutionSchema
 );
+var referenceTypeSchema = z.enum([
+  "call",
+  // function call: f() or obj.f()
+  "read",
+  // identifier read in expression
+  "write",
+  // assignment target
+  "type",
+  // used in type position
+  "instantiate",
+  // new Foo()
+  "import-use",
+  // reference resolved through an import; set by resolver, not extractor
+  "declaration"
+  // declaration-site cross-reference (LSP structural typing)
+]);
+var extractorReferenceTypeSchema = referenceTypeSchema.exclude([
+  "import-use",
+  "declaration"
+]);
+
+// src/indexing/classification-map.schema.ts
+var classificationMapEntrySchema = z.object({
+  line: z.number().int().nonnegative(),
+  column: z.number().int().nonnegative(),
+  referenceType: referenceTypeSchema
+}).strict();
+var classificationMapSchema = z.object({
+  filePath: z.string().min(1),
+  entries: z.array(classificationMapEntrySchema)
+}).strict();
+
+// src/indexing/serialized-ast.schema.ts
 var serializedAstSchema = z.object({
   /** Relative path to the source file from project root */
   file: z.string().min(1),
@@ -1184,8 +1257,10 @@ var serializedAstSchema = z.object({
   /** Base64-encoded, gzip-compressed AST structure (no source code) */
   ast: z.string().min(1),
   /** CLI-resolved import paths (only CLI has tsconfig/jsconfig access) */
-  importResolutions: importResolutionMetadataSchema.optional()
-});
+  importResolutions: importResolutionMetadataSchema.optional(),
+  /** Per-position reference classifications computed by CLI during parse */
+  classificationMap: classificationMapSchema.optional()
+}).strict();
 var fileFailureSchema = z.object({
   /** Relative file path */
   file: z.string(),
@@ -1240,18 +1315,47 @@ var projectStateSchema = z.object({
   /** List of programming languages detected in the project */
   languages: z.array(z.string())
 });
+var importSpecifierSchema = z.object({
+  local: z.string(),
+  original: z.string().optional(),
+  isDefault: z.boolean(),
+  isNamespace: z.boolean()
+});
+var importSchema = z.object({
+  source: z.string(),
+  specifiers: z.array(importSpecifierSchema),
+  isType: z.boolean(),
+  isDynamic: z.boolean(),
+  isConditional: z.boolean().optional(),
+  isLazy: z.boolean().optional(),
+  isWildcard: z.boolean().optional(),
+  line: z.number(),
+  column: z.number()
+});
+var extractorReferenceSchema = z.object({
+  referencerId: z.string(),
+  referencedName: z.string(),
+  referenceType: extractorReferenceTypeSchema,
+  line: z.number(),
+  column: z.number(),
+  /** Parent symbolId hash */
+  scope: z.string().optional(),
+  /** For `a.b.c`, holds 'a.b' */
+  objectContext: z.string().optional(),
+  language: z.string().optional()
+});
 var referenceLocationSchema = z.object({
   /** POSIX relative path to the file containing the reference */
   filePath: z.string().min(1),
-  /** 1-based line number of the reference */
+  /** 1-based line number of the reference (LSP convention) */
   line: z.number().int().positive(),
   /** 0-based column offset of the reference */
   column: z.number().int().nonnegative()
-});
+}).strict();
 var callReferenceSchema = referenceLocationSchema.extend({
   /** Name of the calling/called symbol */
   name: z.string().min(1)
-});
+}).strict();
 var typeInfoSchema = z.object({
   /** The fully resolved type string from LSP */
   resolvedType: z.string().min(1),
@@ -1259,17 +1363,7 @@ var typeInfoSchema = z.object({
   returnType: z.string().optional(),
   /** Extracted documentation comment */
   documentation: z.string().optional()
-});
-var definitionLocationSchema = z.object({
-  /** POSIX relative path to the definition file */
-  filePath: z.string().min(1),
-  /** 1-based line number of the definition */
-  line: z.number().int().positive(),
-  /** 0-based column offset of the definition */
-  column: z.number().int().nonnegative(),
-  /** True if the definition is outside the project root (e.g., node_modules) */
-  isExternal: z.boolean()
-});
+}).strict();
 var symbolEnrichmentSchema = z.object({
   /** Symbol name (must match the corresponding graph node) */
   name: z.string().min(1),
@@ -1281,8 +1375,6 @@ var symbolEnrichmentSchema = z.object({
   kind: z.string().min(1),
   /** Resolved type information from LSP hover */
   typeInfo: typeInfoSchema.optional(),
-  /** Go-to-definition result */
-  definition: definitionLocationSchema.optional(),
   /** Reference locations where this symbol is used */
   references: z.object({
     /** Total number of references found */
@@ -1297,7 +1389,7 @@ var symbolEnrichmentSchema = z.object({
     /** Functions/methods called by this symbol (capped at 200) */
     outgoingCalls: z.array(callReferenceSchema).max(200)
   }).optional()
-});
+}).strict();
 var fileEnrichmentSchema = z.object({
   /** POSIX relative path to the source file */
   filePath: z.string().min(1),
@@ -1305,7 +1397,7 @@ var fileEnrichmentSchema = z.object({
   language: z.string().min(1),
   /** Enriched symbols found in this file */
   symbols: z.array(symbolEnrichmentSchema)
-});
+}).strict();
 var enrichmentMetadataSchema = z.object({
   /** Project identifier */
   projectId: z.string().min(1),
@@ -1315,7 +1407,7 @@ var enrichmentMetadataSchema = z.object({
   commit: z.string().regex(/^[0-9a-f]{40}$/),
   /** ISO 8601 timestamp of the enrichment run */
   timestamp: z.string().datetime()
-});
+}).strict();
 var enrichmentStatusSchema = z.enum([
   "pending",
   "processing",
@@ -1473,6 +1565,6 @@ var errorReportMetricsSchema = z.object({
   affectedOrgCount: z.number()
 });
 
-export { ENTRY_POINT_PATTERNS, PYTHON_STDLIB_MODULES, TEST_PATTERNS, apiErrorResponseSchema, apiResponseSchema, breakingChangeRiskSchema, callGraphRootSchema, callReferenceSchema, calleeNodeSchema, callerNodeSchema, circularDependencyCycleSchema, complexityMetricsSchema, complexityRiskSchema, confidenceScoreSchema, createErrorReportSchema, dataQualityMetadataSchema, definitionLocationSchema, dependencyMetricsSchema, dependencyOverviewSchema, dependentMetricsSchema, directDependencySchema, directDependentSchema, directUsageSchema, enrichmentMetadataSchema, enrichmentStatusSchema, errorDataSchema, errorEntrySchema, errorReportMetricsSchema, errorReportResponseSchema, fileEnrichmentSchema, fileFailureSchema, fileLocationSchema, findCircularDependenciesParamsSchema, findCircularDependenciesResultSchema, findOrphanedCodeParamsSchema, findOrphanedCodeResultSchema, frameworkInfoSchema, getArchitectureOverviewParamsSchema, getArchitectureOverviewResultSchema, getCallGraphParamsSchema, getCallGraphResultSchema, getDependenciesParamsSchema, getDependenciesResultSchema, getDependentsParamsSchema, getDependentsResultSchema, getSymbolDetailsParamsSchema, graphEdgeSchema, graphEdgeTypeSchema, graphMetadataSchema, graphNodeSchema, graphNodeTypeSchema, graphRepresentationSchema, graphSummarySchema, graphToolResultSchema, impactAnalysisParamsSchema, impactAnalysisResultSchema, impactScoreSchema, impactedFileSchema, impactedSymbolSchema, importResolutionMetadataSchema, importResolutionSchema, importTypeSchema, indexErrorReportStatusSchema, indexOutcomeSchema, indexTypeSchema, indexingResponseSchema, isErrorResponse, isSuccessResponse, languageInfoSchema, languageMetadataSchema, logEntrySchema, logLevelSchema, moduleGraphEdgeSchema, moduleGraphNodeSchema, moduleGraphSchema, orphanedFileSchema, orphanedSymbolSchema, packageDependencySchema, paginationMetadataSchema, pingParamsSchema, pingResultSchema, projectInfoSchema, projectListResponseSchema, projectMetadataSchema, projectResolveResponseSchema, projectStateSchema, qualityMetricsSchema, referenceLocationSchema, relationshipDirectionsSchema, relationshipFailureSchema, relationshipSummarySchema, riskLevelSchema, searchSymbolsParamsSchema, searchSymbolsResultSchema, serializedAstSchema, standardGraphEdgeSchema, standardGraphNodeSchema, stringRelationshipDirectionsSchema, structureStatisticsSchema, symbolDetailsResultSchema, symbolDetailsSchema, symbolEnrichmentSchema, symbolInfoSchema, symbolKindCategorySchema, symbolReferenceSchema, symbolRelationshipsSchema, symbolUsageReferenceSchema, traceSymbolUsageParamsSchema, traceSymbolUsageResultSchema, tracedSymbolSchema, transitiveDependencySchema, transitiveDependentSchema, transitiveUsageSchema, typeInfoSchema, updateErrorReportSchema, warningEntrySchema };
+export { ENTRY_POINT_PATTERNS, PYTHON_STDLIB_MODULES, TEST_PATTERNS, apiErrorResponseSchema, apiResponseSchema, breakingChangeRiskSchema, callGraphRootSchema, callReferenceSchema, calleeNodeSchema, callerNodeSchema, circularDependencyCycleSchema, classificationMapEntrySchema, classificationMapSchema, complexityMetricsSchema, complexityRiskSchema, confidenceScoreSchema, createErrorReportSchema, dataQualityMetadataSchema, dependencyMetricsSchema, dependencyOverviewSchema, dependentMetricsSchema, directDependencySchema, directDependentSchema, directUsageSchema, enrichmentMetadataSchema, enrichmentStatusSchema, errorDataSchema, errorEntrySchema, errorReportMetricsSchema, errorReportResponseSchema, extractorReferenceSchema, extractorReferenceTypeSchema, fileEnrichmentSchema, fileFailureSchema, fileLocationSchema, findCircularDependenciesParamsSchema, findCircularDependenciesResultSchema, findOrphanedCodeParamsSchema, findOrphanedCodeResultSchema, frameworkInfoSchema, getArchitectureOverviewParamsSchema, getArchitectureOverviewResultSchema, getCallGraphParamsSchema, getCallGraphResultSchema, getDependenciesParamsSchema, getDependenciesResultSchema, getDependentsParamsSchema, getDependentsResultSchema, getSymbolDetailsParamsSchema, graphEdgeSchema, graphEdgeTypeSchema, graphMetadataSchema, graphNodeSchema, graphNodeTypeSchema, graphRepresentationSchema, graphSummarySchema, graphToolResultSchema, impactAnalysisParamsSchema, impactAnalysisResultSchema, impactScoreSchema, impactedFileSchema, impactedSymbolSchema, importResolutionMetadataSchema, importResolutionSchema, importSchema, importSpecifierSchema, importTypeSchema, indexErrorReportStatusSchema, indexOutcomeSchema, indexTypeSchema, indexingResponseSchema, isErrorResponse, isSuccessResponse, languageInfoSchema, languageMetadataSchema, logEntrySchema, logLevelSchema, moduleGraphEdgeSchema, moduleGraphNodeSchema, moduleGraphSchema, orphanedFileSchema, orphanedSymbolSchema, packageDependencySchema, paginationMetadataSchema, pingParamsSchema, pingResultSchema, projectInfoSchema, projectListResponseSchema, projectMetadataSchema, projectResolveResponseSchema, projectStateSchema, qualityMetricsSchema, referenceLocationSchema, referenceTypeSchema, relationshipDirectionsSchema, relationshipFailureSchema, relationshipSummarySchema, riskLevelSchema, searchSymbolsParamsSchema, searchSymbolsResultSchema, serializedAstSchema, standardGraphEdgeSchema, standardGraphNodeSchema, stringRelationshipDirectionsSchema, structureStatisticsSchema, symbolDetailsResultSchema, symbolDetailsSchema, symbolEnrichmentSchema, symbolInfoSchema, symbolKindCategorySchema, symbolReferenceSchema, symbolRelationshipsSchema, symbolUsageReferenceSchema, traceSymbolUsageParamsSchema, traceSymbolUsageResultSchema, tracedSymbolSchema, transitiveDependencySchema, transitiveDependentSchema, transitiveUsageSchema, typeInfoSchema, updateErrorReportSchema, warningEntrySchema };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

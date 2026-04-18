@@ -32,3 +32,29 @@ export {
 export * from './tree-sitter';
 
 export { projectStateSchema, type ProjectState } from './project-state.schema';
+
+export {
+	referenceTypeSchema,
+	extractorReferenceTypeSchema,
+	type ReferenceType,
+	type ExtractorReferenceType,
+} from './reference-type.schema';
+
+export {
+	importSpecifierSchema,
+	importSchema,
+	type ImportSpecifier,
+	type Import,
+} from './import.schema';
+
+export {
+	extractorReferenceSchema,
+	type ExtractorReference,
+} from './symbol-reference.schema';
+
+export {
+	classificationMapEntrySchema,
+	classificationMapSchema,
+	type ClassificationMapEntry,
+	type ClassificationMap,
+} from './classification-map.schema';

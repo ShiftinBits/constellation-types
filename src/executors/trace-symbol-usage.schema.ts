@@ -6,7 +6,10 @@
  */
 
 import { z } from 'zod';
-import { complexityMetricsSchema } from '../common.schema';
+import {
+	complexityMetricsSchema,
+	languageMetadataSchema,
+} from '../common.schema';
 
 /**
  * Input parameters schema for tracing symbol usage
@@ -63,11 +66,20 @@ export const tracedSymbolSchema = z.object({
 	/** Symbol kind */
 	kind: z.string(),
 
+	/** Access modifier (public/private/protected) for class members. Omitted for module-level symbols and interface members. */
+	visibility: z.string().optional(),
+
 	/** File where symbol is defined */
 	filePath: z.string(),
 
+	/** Optional line range end. Persisted as `endLine` on Neo4j `:Symbol`. */
+	lineEnd: z.number().int().positive().optional(),
+
 	/** Cyclomatic complexity metrics (present on function/method symbols) */
 	complexity: complexityMetricsSchema.optional(),
+
+	/** Language-specific metadata (e.g., language identifier) */
+	languageMetadata: languageMetadataSchema.optional(),
 });
 
 export type TracedSymbol = z.infer<typeof tracedSymbolSchema>;

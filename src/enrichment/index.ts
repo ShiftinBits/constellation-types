@@ -11,8 +11,6 @@ export {
 	type CallReference,
 	typeInfoSchema,
 	type TypeInfo,
-	definitionLocationSchema,
-	type DefinitionLocation,
 	symbolEnrichmentSchema,
 	type SymbolEnrichment,
 	fileEnrichmentSchema,
