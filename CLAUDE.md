@@ -19,6 +19,18 @@ There is no test suite in this project. Validation happens via `type-check` and 
 - `dist/` is committed to git (pre-commit hook runs build + `git add dist/`) so GitHub installs include pre-built files
 - Post-build auto-runs `npm link` for local development (not in CI)
 
+## Publishing
+
+Published to **GitHub Packages** as a private npm package on each GitHub release.
+
+- **Registry**: `https://npm.pkg.github.com`
+- **Workflow**: `.github/workflows/publish.yml` triggers on `release: published`
+- **Version**: Driven by the release tag (e.g., tag `v1.2.0` publishes version `1.2.0`)
+- **Auth**: Uses built-in `GITHUB_TOKEN` (no additional secrets)
+- **Scope mapping**: The `@constellationdev` npm scope is mapped to GitHub Packages via `.npmrc` in this repo and all consumer repos
+
+Consumers reference the package via semver (e.g., `"@constellationdev/types": "^1.0.0"`). Version bumps in consumers are manual.
+
 ## Architecture
 
 ### Two Build Entry Points

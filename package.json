@@ -38,6 +38,9 @@
 		"url": "https://github.com/ShiftinBits/constellation-types/issues"
 	},
 	"homepage": "https://github.com/ShiftinBits/constellation-types#readme",
+	"publishConfig": {
+		"registry": "https://npm.pkg.github.com"
+	},
 	"dependencies": {
 		"zod": "^3.24.1"
 	},

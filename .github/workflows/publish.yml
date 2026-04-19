@@ -1,7 +1,8 @@
-name: Publish 🚀
+name: Publish
 permissions:
   id-token: write
   contents: write
+  packages: write
 on:
   release:
     types: [published]
@@ -15,7 +16,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
-          registry-url: "https://registry.npmjs.org"
+          registry-url: "https://npm.pkg.github.com"
       - name: Update version from release tag
         env:
           TAG_NAME: ${{ github.event.release.tag_name }}
@@ -32,9 +33,13 @@ jobs:
           git add package.json package-lock.json
           git commit -m "chore: bumped version to $VERSION for release"
           git push origin main
-      - name: Install Dependencies ⤵️
+      - name: Install Dependencies
         run: npm ci
-      - name: Build 🏗️
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build
         run: npm run build
-      - name: Publish 🚀
-        run: npm publish
+      - name: Publish
+        run: npm publish --access restricted
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
