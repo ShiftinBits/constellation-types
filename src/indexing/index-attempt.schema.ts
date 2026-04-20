@@ -37,11 +37,29 @@ export const lockResponseStatusSchema = z.enum([
 export type LockResponseStatus = z.infer<typeof lockResponseStatusSchema>;
 
 /**
+ * Branch-related fields added to every lock-response variant when the
+ * server applies the --dirty default-branch override. Fields are optional
+ * for backward compatibility with older intel-api versions that omit them.
+ *
+ * - branchName: the EFFECTIVE branch (after resolution) the request was
+ *   recorded against. May differ from the transmitted x-branch-name when
+ *   --dirty causes the server to remap to project.defaultBranch.
+ * - effectiveBranchName: explicit alias of branchName for clarity.
+ * - remapped: true iff the resolver returned remapped=true on the server.
+ */
+const lockResponseBranchFields = {
+	branchName: z.string().optional(),
+	effectiveBranchName: z.string().optional(),
+	remapped: z.boolean().optional(),
+};
+
+/**
  * Lock acquired — the caller should proceed with indexing.
  */
 export const lockResponseAcquiredSchema = z.object({
 	status: z.literal('acquired'),
 	attemptId: z.string().uuid(),
+	...lockResponseBranchFields,
 });
 
 /**
@@ -49,6 +67,7 @@ export const lockResponseAcquiredSchema = z.object({
  */
 export const lockResponseCurrentSchema = z.object({
 	status: z.literal('current'),
+	...lockResponseBranchFields,
 });
 
 /**
@@ -56,6 +75,7 @@ export const lockResponseCurrentSchema = z.object({
  */
 export const lockResponseDuplicateSchema = z.object({
 	status: z.literal('duplicate'),
+	...lockResponseBranchFields,
 });
 
 /**
@@ -64,6 +84,7 @@ export const lockResponseDuplicateSchema = z.object({
 export const lockResponseSupersededSchema = z.object({
 	status: z.literal('superseded'),
 	activeCommit: z.string().optional(),
+	...lockResponseBranchFields,
 });
 
 /**
@@ -72,6 +93,7 @@ export const lockResponseSupersededSchema = z.object({
 export const lockResponseQueuedSchema = z.object({
 	status: z.literal('queued'),
 	queuedAttemptId: z.string().uuid(),
+	...lockResponseBranchFields,
 });
 
 /**
@@ -89,12 +111,18 @@ export type LockResponse = z.infer<typeof lockResponseSchema>;
 
 /**
  * Required headers for queue-based AST upload requests.
+ *
+ * x-constellation-dirty is OPTIONAL — when "true", the server applies the
+ * default-branch override to the queued payload's effective branch.
  */
 export const queueUploadHeadersSchema = z.object({
 	'x-attempt-id': z.string().uuid(),
 	'x-project-id': z.string(),
 	'x-branch-name': z.string(),
 	'x-commit-hash': z.string().length(40),
+	'x-constellation-dirty': z
+		.union([z.literal('true'), z.literal('false')])
+		.optional(),
 });
 
 export type QueueUploadHeaders = z.infer<typeof queueUploadHeadersSchema>;
