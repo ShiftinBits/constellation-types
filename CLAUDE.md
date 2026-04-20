@@ -16,7 +16,7 @@ There is no test suite in this project. Validation happens via `type-check` and 
 
 - **tsup** bundles from two entry points: `src/index.ts` (full export) and `src/mcp-api.ts` (MCP-only subset)
 - Outputs CJS (`.js`), ESM (`.mjs`), and declarations (`.d.ts`) to `dist/`
-- `dist/` is committed to git (pre-commit hook runs build + `git add dist/`) so GitHub installs include pre-built files
+- `dist/` is gitignored (published to GitHub Packages via CI, not committed)
 - Post-build auto-runs `npm link` for local development (not in CI)
 
 ## Publishing
@@ -83,5 +83,5 @@ Category barrels (`executors/index.ts`, `indexing/index.ts`) use explicit named 
 - **Node >=24.0.0, npm >=11.0.0** (enforced via `engine-strict` in workspace `.npmrc`)
 - **TypeScript ~5.9.3**, strict mode with `noImplicitAny` and `strictNullChecks`
 - **Zod ^3.24** is the only runtime dependency
-- **Husky pre-commit** hook runs build and stages `dist/` — commits always include built output
+- **Husky** is configured but has no active hooks (pre-commit build hook removed after GitHub Packages migration)
 - All file paths in schemas use POSIX format (forward slashes)
