@@ -1,6 +1,6 @@
 {
-	"name": "@shiftinbits/constellation-types",
-	"version": "1.0.0",
+	"name": "@constellationdev/types",
+	"version": "0.0.1",
 	"description": "Shared Zod schemas and TypeScript types for Constellation MCP tools",
 	"main": "dist/index.js",
 	"module": "dist/index.mjs",
@@ -15,7 +15,7 @@
 	"files": ["dist"],
 	"scripts": {
 		"build": "tsup",
-		"postbuild": "node -e \"if(!process.env.CI) try { require('child_process').execSync('npm link', {stdio:'inherit'}) } catch(e) { console.error('Failed to create local NPM link for @shiftinbits/constellation-types', e.message) }\"",
+		"postbuild": "node -e \"if(!process.env.CI) try { require('child_process').execSync('npm link', {stdio:'inherit'}) } catch(e) { console.error('Failed to create local NPM link for @constellationdev/types', e.message) }\"",
 		"type-check": "tsc --noEmit",
 		"clean": "rm -rf dist",
 		"prepare": "node -e \"try{require('husky').default()}catch(e){}\""
@@ -38,9 +38,6 @@
 		"url": "https://github.com/ShiftinBits/constellation-types/issues"
 	},
 	"homepage": "https://github.com/ShiftinBits/constellation-types#readme",
-	"publishConfig": {
-		"registry": "https://npm.pkg.github.com"
-	},
 	"dependencies": {
 		"zod": "^3.24.1"
 	},
