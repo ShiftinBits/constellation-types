@@ -5,7 +5,7 @@
 ## Commands
 
 ```bash
-npm run build        # Build via tsup (CJS + ESM + .d.ts). Auto-runs npm link locally (skipped in CI)
+npm run build        # Build via tsup (CJS + ESM + .d.ts)
 npm run type-check   # tsc --noEmit (no output, just validates)
 npm run clean        # Removes dist/
 ```
@@ -16,17 +16,16 @@ There is no test suite in this project. Validation happens via `type-check` and 
 
 - **tsup** bundles from two entry points: `src/index.ts` (full export) and `src/mcp-api.ts` (MCP-only subset)
 - Outputs CJS (`.js`), ESM (`.mjs`), and declarations (`.d.ts`) to `dist/`
-- `dist/` is gitignored (published to GitHub Packages via CI, not committed)
-- Post-build auto-runs `npm link` for local development (not in CI)
+- `dist/` is gitignored (published to npmjs via CI, not committed)
 
 ## Publishing
 
-Published to **GitHub Packages** as a private npm package on each GitHub release.
+Published to **npmjs** as a public npm package on each GitHub release.
 
 - **Workflow**: `.github/workflows/publish.yml` triggers on `release: published`
 - **Version**: Driven by the release tag (e.g., tag `v1.2.0` publishes version `1.2.0`)
-- **Auth**: Uses built-in `GITHUB_TOKEN` (no additional secrets)
-- **Scope mapping**: The `@shiftinbits` npm scope is mapped to GitHub Packages via `.npmrc` in this repo and all consumer repos
+- **Auth**: npm trusted publishing (OIDC, no stored tokens)
+
 
 Consumers reference the package via semver (e.g., `"@constellationdev/types": "^1.0.0"`). Version bumps in consumers are manual.
 
@@ -75,12 +74,12 @@ Category barrels (`executors/index.ts`, `indexing/index.ts`) use explicit named 
 2. Export both schema and type from the file
 3. Add explicit exports to the category's `index.ts` barrel
 4. If MCP-relevant, also export from `src/mcp-api.ts`
-5. Run `npm run build` — this rebuilds and auto-links locally
+5. Run `npm run build`, publish new version, update consumers
 
 ## Constraints
 
 - **Node >=24.0.0, npm >=11.0.0** (enforced via `engine-strict` in workspace `.npmrc`)
 - **TypeScript ~5.9.3**, strict mode with `noImplicitAny` and `strictNullChecks`
 - **Zod ^3.24** is the only runtime dependency
-- **Husky** is configured but has no active hooks (pre-commit build hook removed after GitHub Packages migration)
+- **Husky** is configured but has no active hooks (pre-commit build hook removed)
 - All file paths in schemas use POSIX format (forward slashes)
