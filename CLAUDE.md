@@ -1,6 +1,6 @@
 ## What This Is
 
-`@constellationdev/types` — the single source of truth for shared Zod schemas and TypeScript types across the Constellation system (Core, CLI, MCP). Every data contract between services is defined here as a Zod schema with co-located inferred TypeScript types.
+`@shiftinbits/constellation-types` — the single source of truth for shared Zod schemas and TypeScript types across the Constellation system (Core, CLI, MCP). Every data contract between services is defined here as a Zod schema with co-located inferred TypeScript types.
 
 ## Commands
 
@@ -27,15 +27,15 @@ Published to **GitHub Packages** as a private npm package on each GitHub release
 - **Workflow**: `.github/workflows/publish.yml` triggers on `release: published`
 - **Version**: Driven by the release tag (e.g., tag `v1.2.0` publishes version `1.2.0`)
 - **Auth**: Uses built-in `GITHUB_TOKEN` (no additional secrets)
-- **Scope mapping**: The `@constellationdev` npm scope is mapped to GitHub Packages via `.npmrc` in this repo and all consumer repos
+- **Scope mapping**: The `@shiftinbits` npm scope is mapped to GitHub Packages via `.npmrc` in this repo and all consumer repos
 
-Consumers reference the package via semver (e.g., `"@constellationdev/types": "^1.0.0"`). Version bumps in consumers are manual.
+Consumers reference the package via semver (e.g., `"@shiftinbits/constellation-types": "^1.0.0"`). Version bumps in consumers are manual.
 
 ## Architecture
 
 ### Two Build Entry Points
 
-- **`src/index.ts`** — Full package export (mapped in `package.json` `exports`). Includes everything: common schemas, API response, all executor schemas, and all indexing schemas. Used by Core and CLI via `import { ... } from '@constellationdev/types'`.
+- **`src/index.ts`** — Full package export (mapped in `package.json` `exports`). Includes everything: common schemas, API response, all executor schemas, and all indexing schemas. Used by Core and CLI via `import { ... } from '@shiftinbits/constellation-types'`.
 - **`src/mcp-api.ts`** — MCP-consumer subset. Excludes CLI-to-Core indexing types (`SerializedAST`, `ImportResolution`, etc.) that AI assistants don't need. Built by tsup to `dist/mcp-api.*` but **not** a package subpath export — consumed directly by MCP resource generation at `constellation://types/api`, not importable by package consumers.
 
 ### Schema Categories
