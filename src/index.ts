@@ -75,6 +75,9 @@ export * from './executors';
 // All indexing schemas (CLI <-> Core)
 export * from './indexing';
 
+// Index-status schemas (CLI <-> Core phase metrics + poll response)
+export * from './index-status';
+
 // Enrichment schemas (CLI <-> Core LSP enrichment data)
 export * from './enrichment';
 
