@@ -85,6 +85,13 @@ export {
 
 export * from './executors';
 
-// NOTE: Indexing types (SerializedAST, ImportResolution, IndexingResponse, etc.)
-// are intentionally NOT exported here. They are CLI-to-Core types that MCP
-// consumers (AI assistants) do not need and should not see.
+// NOTE: The following CLI-to-Core module categories are intentionally NOT
+// exported from this MCP-facing entry point. They define data contracts
+// between the CLI, the Core server, and operator-facing tools — MCP
+// consumers (AI assistants) have no need for these shapes:
+//   - indexing      SerializedAST, ImportResolution, IndexingResponse, ...
+//   - index-status  IndexStatusResponse, PhaseMetrics, throughputPerSec, ...
+//   - enrichment    enrichment lifecycle + upload shapes
+//   - mcp-app       project listing + graph-visualization schemas
+//   - error-reports CLI error telemetry
+// Additions to those modules should extend `src/index.ts`, not this file.
