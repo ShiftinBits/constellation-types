@@ -21,7 +21,13 @@ export type ClassificationMapEntry = z.infer<typeof classificationMapEntrySchema
 export const classificationMapSchema = z
 	.object({
 		filePath: z.string().min(1),
-		entries: z.array(classificationMapEntrySchema),
+		/**
+		 * Per-line/column classification entries. Capped at 100,000 — generous
+		 * enough for the largest real source files but bounded so a malformed
+		 * or malicious payload cannot exhaust validator time and heap on the
+		 * request thread.
+		 */
+		entries: z.array(classificationMapEntrySchema).max(100_000),
 	})
 	.strict();
 
