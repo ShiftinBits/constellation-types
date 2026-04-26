@@ -135,12 +135,21 @@ export const fileEnrichmentSchema = z
 		language: z.string().min(1),
 
 		/**
-		 * Enriched symbols found in this file. Capped at 2,000 — defends the
-		 * request thread against pathological/malicious payloads that would
-		 * otherwise trigger millions of nested Zod validations before the
-		 * 202 response. Tune against production p99 if real files exceed it.
+		 * Enriched symbols found in this file. Capped at 10,000 — defends
+		 * the request thread against pathological/malicious payloads that
+		 * would otherwise trigger millions of nested Zod validations before
+		 * the 202 response.
+		 *
+		 * 10,000 is sized to NOT reject real generated code. Reference
+		 * points: TypeScript's own `lib.dom.d.ts` has ~5,000+ symbols; a
+		 * Prisma client, OpenAPI codegen output, large gRPC stubs, or
+		 * dense `.d.ts` files for libraries like Three.js / Material UI /
+		 * the AWS SDK regularly produce 2,000–10,000 symbols per file.
+		 * Per-symbol cost is itself bounded by inner caps (refs ≤ 100,
+		 * calls ≤ 200×2, documentation ≤ 16 KiB), so per-line worst-case
+		 * validation work stays bounded.
 		 */
-		symbols: z.array(symbolEnrichmentSchema).max(2_000),
+		symbols: z.array(symbolEnrichmentSchema).max(10_000),
 	})
 	.strict();
 
