@@ -64,8 +64,12 @@ export const typeInfoSchema = z
 		/** Return type for function/method symbols */
 		returnType: z.string().optional(),
 
-		/** Extracted documentation comment */
-		documentation: z.string().optional(),
+		/**
+		 * Extracted documentation comment. Capped at 16 KiB — Hover text is
+		 * rarely useful beyond this and unbounded values stall the request
+		 * thread on synchronous Zod validation.
+		 */
+		documentation: z.string().max(16_384).optional(),
 	})
 	.strict();
 
@@ -130,8 +134,13 @@ export const fileEnrichmentSchema = z
 		/** Programming language identifier (e.g., 'typescript', 'python') */
 		language: z.string().min(1),
 
-		/** Enriched symbols found in this file */
-		symbols: z.array(symbolEnrichmentSchema),
+		/**
+		 * Enriched symbols found in this file. Capped at 2,000 — defends the
+		 * request thread against pathological/malicious payloads that would
+		 * otherwise trigger millions of nested Zod validations before the
+		 * 202 response. Tune against production p99 if real files exceed it.
+		 */
+		symbols: z.array(symbolEnrichmentSchema).max(2_000),
 	})
 	.strict();
 
