@@ -86,3 +86,6 @@ export * from './mcp-app';
 
 // Error reporting schemas (CLI error reports)
 export * from './error-reports';
+
+// Tours (FE/BE shared step + tour ids for first-sign-in walkthrough)
+export * from './tours';
