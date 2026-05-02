@@ -22,6 +22,7 @@ export const ORG_ADMIN_STEP_IDS = [
 	'project-form',
 	'create-key-nav',
 	'create-key',
+	'create-key-form',
 	'cli-instructions',
 ] as const;
 
