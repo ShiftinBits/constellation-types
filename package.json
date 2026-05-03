@@ -1,6 +1,6 @@
 {
 	"name": "@constellationdev/types",
-	"version": "1.1.2",
+	"version": "1.2.0",
 	"description": "Shared Zod schemas and TypeScript types for Constellation MCP tools",
 	"main": "dist/index.js",
 	"module": "dist/index.mjs",
