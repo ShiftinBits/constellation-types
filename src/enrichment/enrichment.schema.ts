@@ -117,6 +117,40 @@ export const symbolEnrichmentSchema = z
 				outgoingCalls: z.array(callReferenceSchema).max(200),
 			})
 			.optional(),
+
+		/**
+		 * Locations of types/methods that implement (or are implemented by)
+		 * this symbol, sourced from `textDocument/implementation`.
+		 *
+		 * Direction is symmetric and language-server-defined: when fired
+		 * on a concrete method, gopls returns the interface methods it
+		 * satisfies; when fired on an interface method, it returns the
+		 * concrete implementations. The same applies to TypeScript
+		 * interfaces / classes via tsserver. Core resolves the target
+		 * symbol at each location and emits an `IMPLEMENTS` edge.
+		 *
+		 * Capped at 200 — interface implementers can run into the
+		 * hundreds in large polyglot codebases, but the per-symbol
+		 * pathological case (e.g. Go's `error` interface) is bounded
+		 * by what the LSP server itself returns. Wire format follows
+		 * the file-level COORDINATE CONVENTIONS above: 1-based line,
+		 * 0-based column. Core normalizes `line` to 0-based at
+		 * ingress, mirroring the `references` path.
+		 *
+		 * Three-state contract:
+		 *  - `undefined` — LSP request not fired (kind not in the
+		 *    matrix) or fulfilled with implementors but the array was
+		 *    suppressed because the symbol carried no other data
+		 *    (avoids emitting a hollow record purely to run a no-op
+		 *    delete). Core skips the symbol entirely.
+		 *  - `[]` — fired and returned no implementors, paired with
+		 *    other LSP data so the symbol is being emitted anyway.
+		 *    Core scoped-deletes any stale LSP-sourced `IMPLEMENTS`
+		 *    edges (interface lost its last implementor).
+		 *  - non-empty — implementor locations, written as
+		 *    `IMPLEMENTS` edges by Core.
+		 */
+		implementations: z.array(referenceLocationSchema).max(200).optional(),
 	})
 	.strict();
 
