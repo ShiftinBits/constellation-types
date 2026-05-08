@@ -132,9 +132,17 @@ export const symbolEnrichmentSchema = z
 		 * Capped at 200 — interface implementers can run into the
 		 * hundreds in large polyglot codebases, but the per-symbol
 		 * pathological case (e.g. Go's `error` interface) is bounded by
-		 * what the LSP server itself returns. Wire format is LSP-native
-		 * (1-based line, 0-based column); Core normalizes to 0-based at
-		 * ingress alongside `references`.
+		 * what the LSP server itself returns. Wire format follows the
+		 * project-wide enrichment convention: 1-based line, 0-based
+		 * column (the CLI normalizes from raw LSP 0-based positions
+		 * before sending). Core converts `line` back to 0-based at
+		 * ingress so it aligns with Symbol-node row storage, mirroring
+		 * the `references` path.
+		 *
+		 * An empty array is meaningful: it tells Core to scoped-delete
+		 * any stale LSP-sourced `IMPLEMENTS` edges from a prior run
+		 * (interface lost its last implementor). The field is omitted
+		 * only when the LSP request was not fired or rejected.
 		 */
 		implementations: z.array(referenceLocationSchema).max(200).optional(),
 	})
