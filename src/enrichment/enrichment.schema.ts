@@ -117,6 +117,26 @@ export const symbolEnrichmentSchema = z
 				outgoingCalls: z.array(callReferenceSchema).max(200),
 			})
 			.optional(),
+
+		/**
+		 * Locations of types/methods that implement (or are implemented by)
+		 * this symbol, sourced from `textDocument/implementation`.
+		 *
+		 * Direction is symmetric and language-server-defined: when fired
+		 * on a concrete method, gopls returns the interface methods it
+		 * satisfies; when fired on an interface method, it returns the
+		 * concrete implementations. The same applies to TypeScript
+		 * interfaces / classes via tsserver. Core resolves the target
+		 * symbol at each location and emits an `IMPLEMENTS` edge.
+		 *
+		 * Capped at 200 — interface implementers can run into the
+		 * hundreds in large polyglot codebases, but the per-symbol
+		 * pathological case (e.g. Go's `error` interface) is bounded by
+		 * what the LSP server itself returns. Wire format is LSP-native
+		 * (1-based line, 0-based column); Core normalizes to 0-based at
+		 * ingress alongside `references`.
+		 */
+		implementations: z.array(referenceLocationSchema).max(200).optional(),
 	})
 	.strict();
 
