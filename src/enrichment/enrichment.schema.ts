@@ -131,18 +131,24 @@ export const symbolEnrichmentSchema = z
 		 *
 		 * Capped at 200 — interface implementers can run into the
 		 * hundreds in large polyglot codebases, but the per-symbol
-		 * pathological case (e.g. Go's `error` interface) is bounded by
-		 * what the LSP server itself returns. Wire format follows the
-		 * project-wide enrichment convention: 1-based line, 0-based
-		 * column (the CLI normalizes from raw LSP 0-based positions
-		 * before sending). Core converts `line` back to 0-based at
-		 * ingress so it aligns with Symbol-node row storage, mirroring
-		 * the `references` path.
+		 * pathological case (e.g. Go's `error` interface) is bounded
+		 * by what the LSP server itself returns. Wire format follows
+		 * the file-level COORDINATE CONVENTIONS above: 1-based line,
+		 * 0-based column. Core normalizes `line` to 0-based at
+		 * ingress, mirroring the `references` path.
 		 *
-		 * An empty array is meaningful: it tells Core to scoped-delete
-		 * any stale LSP-sourced `IMPLEMENTS` edges from a prior run
-		 * (interface lost its last implementor). The field is omitted
-		 * only when the LSP request was not fired or rejected.
+		 * Three-state contract:
+		 *  - `undefined` — LSP request not fired (kind not in the
+		 *    matrix) or fulfilled with implementors but the array was
+		 *    suppressed because the symbol carried no other data
+		 *    (avoids emitting a hollow record purely to run a no-op
+		 *    delete). Core skips the symbol entirely.
+		 *  - `[]` — fired and returned no implementors, paired with
+		 *    other LSP data so the symbol is being emitted anyway.
+		 *    Core scoped-deletes any stale LSP-sourced `IMPLEMENTS`
+		 *    edges (interface lost its last implementor).
+		 *  - non-empty — implementor locations, written as
+		 *    `IMPLEMENTS` edges by Core.
 		 */
 		implementations: z.array(referenceLocationSchema).max(200).optional(),
 	})
