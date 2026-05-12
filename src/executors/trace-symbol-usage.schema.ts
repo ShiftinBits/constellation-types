@@ -177,12 +177,35 @@ export type TracePageInfo = z.infer<typeof tracePageInfoSchema>;
  * `totalUsages`, `usagesByType`, and `filesAffected` are computed from the
  * deduped pre-pagination row set, not from the page — consumers can trust
  * them to describe the full result regardless of `limit`/`offset`.
+ *
+ * # Counter semantics
+ *
+ * `totalUsages` is a count of UNIQUE call sites (deduped: parallel CALLS +
+ * REFERENCES edges at the same `(filePath, line)` collapse to one site).
+ *
+ * `usagesByType` uses **presence** semantics — a site contributes `1` to
+ * EVERY relationship type that appeared at it. The same call site is
+ * reflected under both `CALLS` and `REFERENCES` when both edges are
+ * present (the common case for function invocations), and `INHERITS` +
+ * `REFERENCES` for a class used as both supertype and generic parameter
+ * on the same line.
+ *
+ * As a consequence, `Object.values(usagesByType).sum()` is **NOT** a
+ * partition of `totalUsages` — it can exceed `totalUsages` by the number
+ * of sites with edges of multiple types. Don't compute "percentage of
+ * usages that are calls" as `usagesByType.CALLS / totalUsages * 100`;
+ * the result may exceed 100%.
  */
 export const traceSummarySchema = z.object({
-	/** Total deduped usage rows across the entire result set. */
+	/** Total unique deduped call sites across the entire result set. */
 	totalUsages: z.number().int().nonnegative(),
 
-	/** Counts per winning relationship type across the full result set. */
+	/**
+	 * Per-relationship-type presence counts across the full result set.
+	 * Each unique call site contributes `1` to every type that appeared
+	 * at it. Sum across types can exceed `totalUsages`; see the schema's
+	 * "Counter semantics" docblock for details.
+	 */
 	usagesByType: z.record(z.string(), z.number().int().nonnegative()),
 
 	/** Number of distinct files containing at least one usage. */
