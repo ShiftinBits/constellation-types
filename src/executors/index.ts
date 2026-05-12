@@ -76,11 +76,15 @@ export {
 	tracedSymbolSchema,
 	directUsageSchema,
 	transitiveUsageSchema,
+	tracePageInfoSchema,
+	traceSummarySchema,
 	traceSymbolUsageResultSchema,
 	type TraceSymbolUsageParams,
 	type TracedSymbol,
 	type DirectUsage,
 	type TransitiveUsage,
+	type TracePageInfo,
+	type TraceSummary,
 	type TraceSymbolUsageResult,
 } from './trace-symbol-usage.schema';
 
