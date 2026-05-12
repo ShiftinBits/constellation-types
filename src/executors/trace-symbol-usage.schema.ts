@@ -146,17 +146,72 @@ export const transitiveUsageSchema = z.object({
 export type TransitiveUsage = z.infer<typeof transitiveUsageSchema>;
 
 /**
+ * Pagination state for a single page of `directUsages`.
+ *
+ * `directUsages` is capped at `limit` (default 50). When `hasMore` is true,
+ * call again with `offset += limit` to fetch the next page. Results are
+ * ordered by (filePath, line), so alphabetically-earlier files fill the
+ * page first — this is the reason later files can appear "missing" on a
+ * partial page.
+ */
+export const tracePageInfoSchema = z.object({
+	/** Maximum rows requested for this page (echoes the input `limit`). */
+	limit: z.number().int().positive(),
+
+	/** Offset of this page into the full result set (echoes input `offset`). */
+	offset: z.number().int().nonnegative(),
+
+	/** Number of rows actually returned in `directUsages` for this page. */
+	returned: z.number().int().nonnegative(),
+
+	/** True when more rows are available beyond this page. */
+	hasMore: z.boolean(),
+});
+
+export type TracePageInfo = z.infer<typeof tracePageInfoSchema>;
+
+/**
+ * Population-level summary of the full (unpaginated) result set, plus
+ * `pageInfo` describing the slice surfaced in `directUsages`.
+ *
+ * `totalUsages`, `usagesByType`, and `filesAffected` are computed from the
+ * deduped pre-pagination row set, not from the page — consumers can trust
+ * them to describe the full result regardless of `limit`/`offset`.
+ */
+export const traceSummarySchema = z.object({
+	/** Total deduped usage rows across the entire result set. */
+	totalUsages: z.number().int().nonnegative(),
+
+	/** Counts per winning relationship type across the full result set. */
+	usagesByType: z.record(z.string(), z.number().int().nonnegative()),
+
+	/** Number of distinct files containing at least one usage. */
+	filesAffected: z.number().int().nonnegative(),
+
+	/** Count of transitive usages when `includeTransitive=true`, else 0. */
+	transitiveImpact: z.number().int().nonnegative(),
+
+	/** Pagination state for the `directUsages` slice. */
+	pageInfo: tracePageInfoSchema,
+});
+
+export type TraceSummary = z.infer<typeof traceSummarySchema>;
+
+/**
  * Trace symbol usage result schema
  */
 export const traceSymbolUsageResultSchema = z.object({
 	/** Symbol being traced */
 	symbol: tracedSymbolSchema,
 
-	/** Direct usages of the symbol */
+	/** Direct usages of the symbol (paginated — see `summary.pageInfo`) */
 	directUsages: z.array(directUsageSchema),
 
 	/** Transitive usages (if includeTransitive=true) */
 	transitiveUsages: z.array(transitiveUsageSchema).optional(),
+
+	/** Population-level totals + pagination state */
+	summary: traceSummarySchema,
 });
 
 export type TraceSymbolUsageResult = z.infer<
