@@ -2,7 +2,20 @@
  * Get Call Graph Tool Schemas
  *
  * Zod schemas for the get_call_graph MCP tool.
- * Understands the call chain for a function (callers and callees).
+ * Understands the call chain for a function (incoming and outgoing calls).
+ *
+ * Direction enum: `'incoming' | 'outgoing' | 'both'`.
+ *   - `'incoming'`  → functions that call this symbol
+ *   - `'outgoing'`  → functions this symbol calls
+ *   - `'both'`      → both directions (default)
+ *
+ * Deprecated aliases `'callers'` and `'callees'` are still accepted for one
+ * release and mapped via Zod `preprocess` to `'incoming'` and `'outgoing'`
+ * respectively. The server logs a one-line deprecation warning when these
+ * are seen. These aliases will be removed in a future release.
+ *
+ * Note: the response shape continues to use `callers` and `callees` array
+ * fields — only the input `direction` enum is renamed.
  */
 
 import { z } from 'zod';
@@ -11,6 +24,22 @@ import {
 	complexityMetricsSchema,
 	languageMetadataSchema,
 } from '../common.schema';
+
+/**
+ * Canonical direction values for `getCallGraph`.
+ *
+ * `incoming` and `outgoing` align with the rest of the graph traversal
+ * vocabulary. `callers`/`callees` are still accepted via `preprocess` for
+ * backward compatibility for one release.
+ */
+export const callGraphDirectionSchema = z.preprocess(
+	(val) => {
+		if (val === 'callers') return 'incoming';
+		if (val === 'callees') return 'outgoing';
+		return val;
+	},
+	z.enum(['incoming', 'outgoing', 'both']),
+);
 
 /**
  * Input parameters schema for getting call graph
@@ -25,8 +54,13 @@ export const getCallGraphParamsSchema = z.object({
 	/** File path where function is defined */
 	filePath: z.string().optional(),
 
-	/** Direction of call graph to retrieve (default: 'both') */
-	direction: z.enum(['callers', 'callees', 'both']).default('both'),
+	/**
+	 * Direction of call graph to retrieve (default: 'both').
+	 * Accepts `'incoming' | 'outgoing' | 'both'`. Deprecated aliases
+	 * `'callers'` (→ `'incoming'`) and `'callees'` (→ `'outgoing'`) still
+	 * work for one release and emit a server-side deprecation warning.
+	 */
+	direction: callGraphDirectionSchema.default('both'),
 
 	/** Maximum depth to traverse */
 	depth: z.number().int().positive().max(10).default(3),
