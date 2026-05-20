@@ -90,6 +90,7 @@ export {
 
 // Get Call Graph
 export {
+	callGraphDirectionSchema,
 	getCallGraphParamsSchema,
 	callGraphRootSchema,
 	callerNodeSchema,

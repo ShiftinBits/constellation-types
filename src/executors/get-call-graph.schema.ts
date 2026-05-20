@@ -198,10 +198,10 @@ export const getCallGraphResultSchema = z.object({
 	/** Root symbol */
 	root: callGraphRootSchema,
 
-	/** Functions that call this symbol (if direction includes 'callers') */
+	/** Functions that call this symbol (populated when direction is 'incoming' or 'both'). */
 	callers: z.array(callerNodeSchema).optional(),
 
-	/** Functions this symbol calls (if direction includes 'callees') */
+	/** Functions this symbol calls (populated when direction is 'outgoing' or 'both'). */
 	callees: z.array(calleeNodeSchema).optional(),
 
 	/** Graph representation (if includeGraph=true) */
