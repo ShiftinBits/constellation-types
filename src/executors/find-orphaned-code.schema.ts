@@ -104,11 +104,27 @@ export const findOrphanedCodeSummarySchema = z.object({
 	/** Total orphaned symbols on the active branch (pre-pagination) */
 	totalOrphanedSymbols: z.number().int().nonnegative(),
 
-	/** Total orphaned files returned (file results are capped server-side) */
+	/**
+	 * Total orphaned files on the active branch. May exceed the length of
+	 * `orphanedFiles` because the file query is server-capped (see
+	 * `filesTruncated`).
+	 */
 	totalOrphanedFiles: z.number().int().nonnegative(),
 
-	/** Convenience sum: totalOrphanedSymbols + totalOrphanedFiles */
+	/**
+	 * Universe-scoped sum: `totalOrphanedSymbols + totalOrphanedFiles`. Reflects
+	 * the full branch, not just this response's page. Subtract
+	 * `orphanedSymbols.length` and `orphanedFiles.length` from these totals to
+	 * find what's still un-returned.
+	 */
 	potentialDeletions: z.number().int().nonnegative(),
+
+	/**
+	 * `true` when `orphanedFiles` was capped server-side and additional
+	 * orphaned files exist beyond what's returned. `false` (or omitted on
+	 * older Core releases) means the array is exhaustive.
+	 */
+	filesTruncated: z.boolean().optional(),
 });
 
 export type FindOrphanedCodeSummary = z.infer<
