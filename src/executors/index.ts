@@ -121,10 +121,12 @@ export {
 	findOrphanedCodeParamsSchema,
 	orphanedSymbolSchema,
 	orphanedFileSchema,
+	findOrphanedCodeSummarySchema,
 	findOrphanedCodeResultSchema,
 	type FindOrphanedCodeParams,
 	type OrphanedSymbol,
 	type OrphanedFile,
+	type FindOrphanedCodeSummary,
 	type FindOrphanedCodeResult,
 } from './find-orphaned-code.schema';
 
