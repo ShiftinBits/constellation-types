@@ -6,7 +6,10 @@
  */
 
 import { z } from 'zod';
-import { languageMetadataSchema } from '../common.schema';
+import {
+	languageMetadataSchema,
+	paginationMetadataSchema,
+} from '../common.schema';
 
 /**
  * Input parameters schema for finding orphaned code
@@ -95,14 +98,41 @@ export const orphanedFileSchema = z.object({
 export type OrphanedFile = z.infer<typeof orphanedFileSchema>;
 
 /**
- * Find orphaned code result schema
+ * Summary block describing the totals behind a find_orphaned_code response.
+ */
+export const findOrphanedCodeSummarySchema = z.object({
+	/** Total orphaned symbols on the active branch (pre-pagination) */
+	totalOrphanedSymbols: z.number().int().nonnegative(),
+
+	/** Total orphaned files returned (file results are capped server-side) */
+	totalOrphanedFiles: z.number().int().nonnegative(),
+
+	/** Convenience sum: totalOrphanedSymbols + totalOrphanedFiles */
+	potentialDeletions: z.number().int().nonnegative(),
+});
+
+export type FindOrphanedCodeSummary = z.infer<
+	typeof findOrphanedCodeSummarySchema
+>;
+
+/**
+ * Find orphaned code result schema.
+ *
+ * Pagination applies to `orphanedSymbols` (controlled by `limit`/`offset`).
+ * `orphanedFiles` is capped server-side and is not user-paginated.
  */
 export const findOrphanedCodeResultSchema = z.object({
-	/** Orphaned symbols */
+	/** Orphaned symbols (paginated by `limit`/`offset`) */
 	orphanedSymbols: z.array(orphanedSymbolSchema),
 
-	/** Orphaned files */
+	/** Orphaned files (server-capped, not paginated) */
 	orphanedFiles: z.array(orphanedFileSchema),
+
+	/** Totals for the active branch */
+	summary: findOrphanedCodeSummarySchema.optional(),
+
+	/** Pagination metadata for `orphanedSymbols` */
+	pagination: paginationMetadataSchema.optional(),
 });
 
 export type FindOrphanedCodeResult = z.infer<
