@@ -11,11 +11,18 @@
  *
  * Deprecated aliases `'callers'` and `'callees'` are still accepted for one
  * release and mapped via Zod `preprocess` to `'incoming'` and `'outgoing'`
- * respectively. The server logs a one-line deprecation warning when these
- * are seen. These aliases will be removed in a future release.
+ * respectively. These aliases will be removed in a future release. The
+ * reference Constellation Core server additionally emits a deprecation
+ * warning when it sees a legacy value; see the executor in
+ * `constellation-core` for that behavior.
  *
  * Note: the response shape continues to use `callers` and `callees` array
  * fields — only the input `direction` enum is renamed.
+ *
+ * Caveat: because the enum is wrapped in `z.preprocess`, the schema's
+ * INPUT type (`z.input<...>`) widens to `unknown` — TypeScript will not
+ * catch `direction: 'callers'` at compile time. Runtime validation is the
+ * source of truth.
  */
 
 import { z } from 'zod';
@@ -31,15 +38,23 @@ import {
  * `incoming` and `outgoing` align with the rest of the graph traversal
  * vocabulary. `callers`/`callees` are still accepted via `preprocess` for
  * backward compatibility for one release.
+ *
+ * The `.describe(...)` payload is intentionally programmatic-friendly so
+ * tools that render schema metadata (MCP resources, doc generators) can
+ * surface the deprecation note at runtime via `schema._def.description`.
  */
-export const callGraphDirectionSchema = z.preprocess(
-	(val) => {
-		if (val === 'callers') return 'incoming';
-		if (val === 'callees') return 'outgoing';
-		return val;
-	},
-	z.enum(['incoming', 'outgoing', 'both']),
-);
+export const callGraphDirectionSchema = z
+	.preprocess(
+		(val) => {
+			if (val === 'callers') return 'incoming';
+			if (val === 'callees') return 'outgoing';
+			return val;
+		},
+		z.enum(['incoming', 'outgoing', 'both']),
+	)
+	.describe(
+		"Direction of traversal for getCallGraph. Use 'incoming' | 'outgoing' | 'both'. Legacy aliases 'callers' (→ 'incoming') and 'callees' (→ 'outgoing') are deprecated and will be removed in a future release.",
+	);
 
 /**
  * Input parameters schema for getting call graph
@@ -58,7 +73,8 @@ export const getCallGraphParamsSchema = z.object({
 	 * Direction of call graph to retrieve (default: 'both').
 	 * Accepts `'incoming' | 'outgoing' | 'both'`. Deprecated aliases
 	 * `'callers'` (→ `'incoming'`) and `'callees'` (→ `'outgoing'`) still
-	 * work for one release and emit a server-side deprecation warning.
+	 * work for one release. See `callGraphDirectionSchema` for the
+	 * runtime-discoverable description.
 	 */
 	direction: callGraphDirectionSchema.default('both'),
 
