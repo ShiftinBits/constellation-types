@@ -131,7 +131,11 @@ export const findOrphanedCodeResultSchema = z.object({
 	/** Totals for the active branch */
 	summary: findOrphanedCodeSummarySchema.optional(),
 
-	/** Pagination metadata for `orphanedSymbols` */
+	/**
+	 * Pagination metadata for `orphanedSymbols` only. `pagination.total`
+	 * counts orphaned symbols on the branch (not files); use
+	 * `summary.totalOrphanedFiles` for the file count.
+	 */
 	pagination: paginationMetadataSchema.optional(),
 });
 
