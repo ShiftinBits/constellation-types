@@ -88,8 +88,8 @@ export const orphanedFileSchema = z.object({
 	/** Reason for being orphaned */
 	reason: z.string(),
 
-	/** Last updated timestamp */
-	lastUpdated: z.string(),
+	/** Last updated timestamp. Optional: the orphaned-files cypher does not currently project this. */
+	lastUpdated: z.string().optional(),
 
 	/** Confidence (0-1) */
 	confidence: z.number().min(0).max(1),
