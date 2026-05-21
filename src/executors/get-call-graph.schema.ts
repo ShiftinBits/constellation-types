@@ -2,7 +2,27 @@
  * Get Call Graph Tool Schemas
  *
  * Zod schemas for the get_call_graph MCP tool.
- * Understands the call chain for a function (callers and callees).
+ * Understands the call chain for a function (incoming and outgoing calls).
+ *
+ * Direction enum: `'incoming' | 'outgoing' | 'both'`.
+ *   - `'incoming'`  → functions that call this symbol
+ *   - `'outgoing'`  → functions this symbol calls
+ *   - `'both'`      → both directions (default)
+ *
+ * Deprecated aliases `'callers'` and `'callees'` are still accepted for one
+ * release and mapped via Zod `preprocess` to `'incoming'` and `'outgoing'`
+ * respectively. These aliases will be removed in a future release. The
+ * reference Constellation Core server additionally emits a deprecation
+ * warning when it sees a legacy value; see the executor in
+ * `constellation-core` for that behavior.
+ *
+ * Note: the response shape continues to use `callers` and `callees` array
+ * fields — only the input `direction` enum is renamed.
+ *
+ * Caveat: because the enum is wrapped in `z.preprocess`, the schema's
+ * INPUT type (`z.input<...>`) widens to `unknown` — TypeScript will not
+ * catch `direction: 'callers'` at compile time. Runtime validation is the
+ * source of truth.
  */
 
 import { z } from 'zod';
@@ -11,6 +31,30 @@ import {
 	complexityMetricsSchema,
 	languageMetadataSchema,
 } from '../common.schema';
+
+/**
+ * Canonical direction values for `getCallGraph`.
+ *
+ * `incoming` and `outgoing` align with the rest of the graph traversal
+ * vocabulary. `callers`/`callees` are still accepted via `preprocess` for
+ * backward compatibility for one release.
+ *
+ * The `.describe(...)` payload is intentionally programmatic-friendly so
+ * tools that render schema metadata (MCP resources, doc generators) can
+ * surface the deprecation note at runtime via `schema._def.description`.
+ */
+export const callGraphDirectionSchema = z
+	.preprocess(
+		(val) => {
+			if (val === 'callers') return 'incoming';
+			if (val === 'callees') return 'outgoing';
+			return val;
+		},
+		z.enum(['incoming', 'outgoing', 'both']),
+	)
+	.describe(
+		"Direction of traversal for getCallGraph. Use 'incoming' | 'outgoing' | 'both'. Legacy aliases 'callers' (→ 'incoming') and 'callees' (→ 'outgoing') are deprecated and will be removed in a future release.",
+	);
 
 /**
  * Input parameters schema for getting call graph
@@ -25,8 +69,14 @@ export const getCallGraphParamsSchema = z.object({
 	/** File path where function is defined */
 	filePath: z.string().optional(),
 
-	/** Direction of call graph to retrieve (default: 'both') */
-	direction: z.enum(['callers', 'callees', 'both']).default('both'),
+	/**
+	 * Direction of call graph to retrieve (default: 'both').
+	 * Accepts `'incoming' | 'outgoing' | 'both'`. Deprecated aliases
+	 * `'callers'` (→ `'incoming'`) and `'callees'` (→ `'outgoing'`) still
+	 * work for one release. See `callGraphDirectionSchema` for the
+	 * runtime-discoverable description.
+	 */
+	direction: callGraphDirectionSchema.default('both'),
 
 	/** Maximum depth to traverse */
 	depth: z.number().int().positive().max(10).default(3),
@@ -164,10 +214,10 @@ export const getCallGraphResultSchema = z.object({
 	/** Root symbol */
 	root: callGraphRootSchema,
 
-	/** Functions that call this symbol (if direction includes 'callers') */
+	/** Functions that call this symbol (populated when direction is 'incoming' or 'both'). */
 	callers: z.array(callerNodeSchema).optional(),
 
-	/** Functions this symbol calls (if direction includes 'callees') */
+	/** Functions this symbol calls (populated when direction is 'outgoing' or 'both'). */
 	callees: z.array(calleeNodeSchema).optional(),
 
 	/** Graph representation (if includeGraph=true) */
