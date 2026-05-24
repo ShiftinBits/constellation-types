@@ -87,8 +87,5 @@ export * from './mcp-app';
 // Error reporting schemas (CLI error reports)
 export * from './error-reports';
 
-// Cleanup job schemas (intel-api -> reaper-service SQS contract)
-export * from './cleanup';
-
 // Tours (FE/BE shared step + tour ids for first-sign-in walkthrough)
 export * from './tours';
