@@ -163,6 +163,15 @@ export const symbolKindCategorySchema = z.enum([
 	'decorator',
 	'trait',
 	'struct',
+	'record',
+	'delegate',
+	'event',
+	'indexer',
+	'operator',
+	'destructor',
+	'local_function',
+	'attribute',
+	'generic_type_parameter',
 	'macro',
 	'unknown',
 ]);
@@ -378,7 +387,7 @@ export const TEST_PATTERNS: Record<string, RegExp> = {
 	rust: /(tests?\.rs|.*_test\.rs)$/,
 	ruby: /_spec\.rb$|_test\.rb$/,
 	php: /Test\.php$/,
-	csharp: /Test\.cs$|Tests\.cs$/,
+	'c-sharp': /Test\.cs$|Tests\.cs$/,
 	swift: /Test\.swift$|Tests\.swift$/,
 	scala: /Test\.scala$|Spec\.scala$/,
 	elixir: /_test\.exs$/,
@@ -403,7 +412,7 @@ export const ENTRY_POINT_PATTERNS: Record<string, RegExp[]> = {
 	rust: [/\/main\.rs$/],
 	ruby: [/\/main\.rb$/, /\/application\.rb$/],
 	php: [/\/index\.php$/, /\/app\.php$/],
-	csharp: [/Program\.cs$/, /Main\.cs$/],
+	'c-sharp': [/Program\.cs$/, /Main\.cs$/],
 };
 
 /**
