@@ -33,8 +33,8 @@ export const impactAnalysisParamsSchema = z.object({
 	/** Include transitive dependents (symbols that transitively depend on this symbol) @default true */
 	includeTransitiveDependents: z.boolean().default(true),
 
-	/** Maximum depth for transitive analysis (1-5) @default 3 */
-	depth: z.number().int().min(1).max(5).default(3),
+	/** Maximum depth for transitive analysis (1-5) @default 2 */
+	depth: z.number().int().min(1).max(5).default(2),
 
 	/** Exclude test files from impact analysis @default true */
 	excludeTests: z.boolean().default(true),
