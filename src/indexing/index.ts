@@ -67,10 +67,13 @@ export {
 	lockResponseDuplicateSchema,
 	lockResponseSupersededSchema,
 	lockResponseQueuedSchema,
+	lockResponseQuotaExceededSchema,
 	lockResponseSchema,
 	queueUploadHeadersSchema,
+	LOCK_ESTIMATED_SYMBOL_COUNT_HEADER,
 	type IndexAttemptStatus,
 	type LockResponseStatus,
 	type LockResponse,
+	type LockResponseQuotaExceeded,
 	type QueueUploadHeaders,
 } from './index-attempt.schema';
