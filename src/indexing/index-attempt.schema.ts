@@ -102,8 +102,10 @@ export const lockResponseQueuedSchema = z.object({
  * the limit is raised or symbols are removed.
  *
  * - current: the number of symbols currently indexed for this project.
- * - limit: the configured maximum (permissive int; callers should treat any
- *   value ≤ 0 as "unlimited" if that semantic is introduced in future).
+ * - limit: the configured maximum as returned by the quota resolver. The only
+ *   "unlimited" sentinel is `-1`; callers must treat `-1` (and only `-1`) as
+ *   unlimited. `0` is a real limit meaning no symbols are permitted, not a
+ *   pass-through.
  */
 export const lockResponseQuotaExceededSchema = z.object({
 	status: z.literal('quota_exceeded'),
