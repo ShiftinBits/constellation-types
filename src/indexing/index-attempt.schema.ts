@@ -32,6 +32,7 @@ export const lockResponseStatusSchema = z.enum([
 	'duplicate',
 	'superseded',
 	'queued',
+	'quota_exceeded',
 ]);
 
 export type LockResponseStatus = z.infer<typeof lockResponseStatusSchema>;
@@ -97,6 +98,23 @@ export const lockResponseQueuedSchema = z.object({
 });
 
 /**
+ * The project has reached its symbol quota; indexing is not permitted until
+ * the limit is raised or symbols are removed.
+ *
+ * - current: the number of symbols currently indexed for this project.
+ * - limit: the configured maximum (permissive int; callers should treat any
+ *   value ≤ 0 as "unlimited" if that semantic is introduced in future).
+ */
+export const lockResponseQuotaExceededSchema = z.object({
+	status: z.literal('quota_exceeded'),
+	current: z.number().int().nonnegative(),
+	limit: z.number().int(),
+	...lockResponseBranchFields,
+});
+
+export type LockResponseQuotaExceeded = z.infer<typeof lockResponseQuotaExceededSchema>;
+
+/**
  * Discriminated union of all lock response variants.
  */
 export const lockResponseSchema = z.discriminatedUnion('status', [
@@ -105,9 +123,19 @@ export const lockResponseSchema = z.discriminatedUnion('status', [
 	lockResponseDuplicateSchema,
 	lockResponseSupersededSchema,
 	lockResponseQueuedSchema,
+	lockResponseQuotaExceededSchema,
 ]);
 
 export type LockResponse = z.infer<typeof lockResponseSchema>;
+
+/**
+ * HTTP header name used by the CLI when claiming an indexing lock to
+ * communicate its pre-scan estimated symbol count. Core reads this value
+ * to enforce per-project symbol quotas before accepting the lock.
+ *
+ * Value is a decimal integer string (e.g. "4200").
+ */
+export const LOCK_ESTIMATED_SYMBOL_COUNT_HEADER = 'x-estimated-symbol-count' as const;
 
 /**
  * Required headers for queue-based AST upload requests.
