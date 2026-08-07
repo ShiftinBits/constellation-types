@@ -143,38 +143,58 @@ export type LanguageMetadata = z.infer<typeof languageMetadataSchema>;
 // =============================================================================
 
 /**
- * Language-agnostic symbol kind categories
- * Use strings instead of enums for maximum extensibility
+ * Language-agnostic symbol kind categories.
+ *
+ * The value list is the union of every kind Core's extractors write to the
+ * graph (`SymbolKind` in constellation-core
+ * `libs/indexer/src/extractors/types/intelligence.ts` — keep in sync) plus
+ * legacy category values retained for wire compatibility.
+ *
+ * The legacy alias `decorator` is accepted via `preprocess` and mapped to the
+ * canonical stored value `decorator_def` (same pattern as
+ * `callGraphDirectionSchema`'s deprecated direction aliases).
  */
-export const symbolKindCategorySchema = z.enum([
-	'function',
-	'class',
-	'interface',
-	'type',
-	'variable',
-	'constant',
-	'enum',
-	'module',
-	'namespace',
-	'method',
-	'property',
-	'parameter',
-	'constructor',
-	'decorator',
-	'trait',
-	'struct',
-	'record',
-	'delegate',
-	'event',
-	'indexer',
-	'operator',
-	'destructor',
-	'local_function',
-	'attribute',
-	'generic_type_parameter',
-	'macro',
-	'unknown',
-]);
+export const symbolKindCategorySchema = z.preprocess(
+	(v) => (v === 'decorator' ? 'decorator_def' : v),
+	z.enum([
+		'function',
+		'class',
+		'interface',
+		'type',
+		'type_alias',
+		'variable',
+		'constant',
+		'enum',
+		'enum_member',
+		'module',
+		'namespace',
+		'method',
+		'property',
+		'parameter',
+		'constructor',
+		'decorator_def',
+		'trait',
+		'mixin',
+		'struct',
+		'union',
+		'object',
+		'annotation',
+		'package',
+		'protocol',
+		'generator',
+		'record',
+		'delegate',
+		'event',
+		'indexer',
+		'operator',
+		'destructor',
+		'local_function',
+		'attribute',
+		'generic_type_parameter',
+		'macro',
+		'unknown',
+	]),
+);
 
 export type SymbolKindCategory = z.infer<typeof symbolKindCategorySchema>;
 

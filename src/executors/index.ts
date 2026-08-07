@@ -72,6 +72,7 @@ export {
 
 // Trace Symbol Usage
 export {
+	traceRelationshipTypeSchema,
 	traceSymbolUsageParamsSchema,
 	tracedSymbolSchema,
 	directUsageSchema,
@@ -79,6 +80,7 @@ export {
 	tracePageInfoSchema,
 	traceSummarySchema,
 	traceSymbolUsageResultSchema,
+	type TraceRelationshipType,
 	type TraceSymbolUsageParams,
 	type TracedSymbol,
 	type DirectUsage,

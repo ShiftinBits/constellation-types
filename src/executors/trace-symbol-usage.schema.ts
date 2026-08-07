@@ -9,7 +9,26 @@ import { z } from 'zod';
 import {
 	complexityMetricsSchema,
 	languageMetadataSchema,
+	symbolKindCategorySchema,
 } from '../common.schema';
+
+/**
+ * Relationship types traced by `trace_symbol_usage`. Matches the fixed set
+ * of edge types the underlying graph traversal joins on — the
+ * `[r:REFERENCES|CALLS|IMPORTS|INHERITS]` MATCH clauses in constellation-core
+ * `libs/graph-engine/src/services/graph-query.service.ts` (traceSymbolUsage).
+ * If Core widens that traversal (e.g. IMPLEMENTS / DEPENDS_ON, which
+ * find-orphaned-code already counts), extend this enum in the same release
+ * and bump consumers.
+ */
+export const traceRelationshipTypeSchema = z.enum([
+	'REFERENCES',
+	'CALLS',
+	'IMPORTS',
+	'INHERITS',
+]);
+
+export type TraceRelationshipType = z.infer<typeof traceRelationshipTypeSchema>;
 
 /**
  * Input parameters schema for tracing symbol usage
@@ -24,11 +43,11 @@ export const traceSymbolUsageParamsSchema = z.object({
 	/** File path where symbol is defined */
 	filePath: z.string().optional(),
 
-	/** Filter by specific usage types */
-	filterByUsageType: z.array(z.string()).optional(),
+	/** Filter by the kind of the referencing symbol (e.g. 'function', 'class', 'method') */
+	filterByUsageType: z.array(symbolKindCategorySchema).optional(),
 
-	/** Filter by relationship type (CALLS, REFERENCES, IMPORTS, etc.) */
-	filterByRelationshipType: z.array(z.string()).optional(),
+	/** Filter by relationship type (CALLS, REFERENCES, IMPORTS, INHERITS) */
+	filterByRelationshipType: z.array(traceRelationshipTypeSchema).optional(),
 
 	/** Include indirect (transitive) usage */
 	includeTransitive: z.boolean().optional(),

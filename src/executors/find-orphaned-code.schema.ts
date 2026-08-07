@@ -9,6 +9,7 @@ import { z } from 'zod';
 import {
 	languageMetadataSchema,
 	paginationMetadataSchema,
+	symbolKindCategorySchema,
 } from '../common.schema';
 
 /**
@@ -18,8 +19,8 @@ export const findOrphanedCodeParamsSchema = z.object({
 	/** File pattern to search */
 	filePattern: z.string().optional(),
 
-	/** Filter by symbol kinds */
-	filterByKind: z.array(z.string()).optional(),
+	/** Filter by symbol kind (language-agnostic category, e.g. 'function', 'class', 'method') */
+	filterByKind: z.array(symbolKindCategorySchema).optional(),
 
 	/** Only check exported symbols */
 	exportedOnly: z.boolean().optional(),
