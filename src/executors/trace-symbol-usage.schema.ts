@@ -14,8 +14,12 @@ import {
 
 /**
  * Relationship types traced by `trace_symbol_usage`. Matches the fixed set
- * of edge types the underlying graph traversal joins on: `REFERENCES`,
- * `CALLS`, `IMPORTS`, `INHERITS`.
+ * of edge types the underlying graph traversal joins on — the
+ * `[r:REFERENCES|CALLS|IMPORTS|INHERITS]` MATCH clauses in constellation-core
+ * `libs/graph-engine/src/services/graph-query.service.ts` (traceSymbolUsage).
+ * If Core widens that traversal (e.g. IMPLEMENTS / DEPENDS_ON, which
+ * find-orphaned-code already counts), extend this enum in the same release
+ * and bump consumers.
  */
 export const traceRelationshipTypeSchema = z.enum([
 	'REFERENCES',
