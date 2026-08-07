@@ -11,6 +11,7 @@ import {
 	languageMetadataSchema,
 	fileLocationSchema,
 	complexityMetricsSchema,
+	symbolKindCategorySchema,
 } from '../common.schema';
 
 /**
@@ -21,8 +22,8 @@ export const searchSymbolsParamsSchema = z
 		/** Name or pattern to search for (max: 200 chars). Can be empty when filterByKind or other filters are provided. */
 		query: z.string().max(200),
 
-		/** Filter by symbol type (use strings for language-agnostic extensibility) */
-		filterByKind: z.array(z.string()).optional(),
+		/** Filter by symbol kind (language-agnostic category, e.g. 'function', 'class', 'method') */
+		filterByKind: z.array(symbolKindCategorySchema).optional(),
 
 		/** Filter by access modifier (public, private, protected) */
 		filterByVisibility: z.array(z.string()).optional(),
