@@ -31,6 +31,9 @@ export const projectStateSchema = z.object({
 
 	/** List of programming languages detected in the project */
 	languages: z.array(z.string()),
+
+	/** Whether the next upload for this project/branch must be a full index */
+	requiresFullIndex: z.boolean(),
 });
 
 export type ProjectState = z.infer<typeof projectStateSchema>;
