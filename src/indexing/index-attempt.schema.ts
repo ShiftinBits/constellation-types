@@ -144,6 +144,10 @@ export const LOCK_ESTIMATED_SYMBOL_COUNT_HEADER = 'x-estimated-symbol-count' as 
  *
  * x-constellation-dirty is OPTIONAL — when "true", the server applies the
  * default-branch override to the queued payload's effective branch.
+ *
+ * x-previous-commit is OPTIONAL — the commit hash the incremental upload is
+ * based on. Core uses it to validate the base commit still matches the
+ * project's last-indexed commit before applying the diff.
  */
 export const queueUploadHeadersSchema = z.object({
 	'x-attempt-id': z.string().uuid(),
@@ -153,6 +157,7 @@ export const queueUploadHeadersSchema = z.object({
 	'x-constellation-dirty': z
 		.union([z.literal('true'), z.literal('false')])
 		.optional(),
+	'x-previous-commit': z.string().length(40).optional(),
 });
 
 export type QueueUploadHeaders = z.infer<typeof queueUploadHeadersSchema>;

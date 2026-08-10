@@ -19,6 +19,13 @@ export {
 } from './serialized-ast.schema';
 
 export {
+	astUploadRenameSchema,
+	astUploadPayloadSchema,
+	type AstUploadRename,
+	type AstUploadPayload,
+} from './ast-upload-payload.schema';
+
+export {
 	fileFailureSchema,
 	relationshipFailureSchema,
 	relationshipSummarySchema,
