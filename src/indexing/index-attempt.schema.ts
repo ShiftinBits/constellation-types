@@ -157,7 +157,7 @@ export const queueUploadHeadersSchema = z.object({
 	'x-constellation-dirty': z
 		.union([z.literal('true'), z.literal('false')])
 		.optional(),
-	'x-previous-commit': z.string().optional(),
+	'x-previous-commit': z.string().length(40).optional(),
 });
 
 export type QueueUploadHeaders = z.infer<typeof queueUploadHeadersSchema>;

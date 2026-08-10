@@ -33,7 +33,7 @@ export const projectStateSchema = z.object({
 	languages: z.array(z.string()),
 
 	/** Whether the next upload for this project/branch must be a full index */
-	requiresFullIndex: z.boolean(),
+	requiresFullIndex: z.boolean().optional(),
 });
 
 export type ProjectState = z.infer<typeof projectStateSchema>;
