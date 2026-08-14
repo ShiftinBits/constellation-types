@@ -41,6 +41,38 @@ export type GetSymbolDetailsParams = z.infer<
 >;
 
 /**
+ * Member of a class/interface symbol (e.g. a method or property) schema
+ */
+export const symbolMemberSchema = z.object({
+	/** Member name */
+	name: z.string(),
+
+	/** Member kind (e.g. method, property, field) */
+	kind: z.string(),
+
+	/** Full signature (for callable members) */
+	signature: z.string().optional(),
+
+	/** Access modifier */
+	visibility: z.string().optional(),
+});
+
+export type SymbolMember = z.infer<typeof symbolMemberSchema>;
+
+/**
+ * Parent type references (extends/implements) for class/interface symbols schema
+ */
+export const symbolParentSchema = z.object({
+	/** Names of extended classes/interfaces */
+	extends: z.array(z.string()).optional(),
+
+	/** Names of implemented interfaces */
+	implements: z.array(z.string()).optional(),
+});
+
+export type SymbolParent = z.infer<typeof symbolParentSchema>;
+
+/**
  * Detailed symbol information schema
  */
 export const symbolDetailsSchema = fileLocationSchema.extend({
@@ -56,10 +88,10 @@ export const symbolDetailsSchema = fileLocationSchema.extend({
 	/** Type of symbol (language-agnostic string) */
 	kind: z.string(),
 
-	/** Full signature (for functions/methods) */
+	/** Full signature (for functions/methods). Language-dependent availability. */
 	signature: z.string().optional(),
 
-	/** Documentation/docstring */
+	/** Documentation/docstring. Language-dependent availability. */
 	documentation: z.string().optional(),
 
 	/** Access modifier */
@@ -68,10 +100,10 @@ export const symbolDetailsSchema = fileLocationSchema.extend({
 	/** Symbol modifiers (static, abstract, async, etc.) */
 	modifiers: z.array(z.string()).optional(),
 
-	/** Canonical, resolved type information (language-agnostic). For raw per-language type data, see languageMetadata.typeInfo. */
+	/** Canonical, resolved type information (language-agnostic). For raw per-language type data, see languageMetadata.typeInfo. Language-dependent availability. */
 	typeInfo: z.any().optional(),
 
-	/** Canonical decorators/annotations (resolved). For raw per-language decorator data, see languageMetadata.decorators. */
+	/** Canonical decorators/annotations (resolved). For raw per-language decorator data, see languageMetadata.decorators. Language-dependent availability. */
 	decorators: z.array(z.string()).optional(),
 
 	/** Whether the symbol is exported */
@@ -85,6 +117,12 @@ export const symbolDetailsSchema = fileLocationSchema.extend({
 
 	/** Language-specific metadata */
 	languageMetadata: languageMetadataSchema.optional(),
+
+	/** Members (methods, properties) for class/interface symbols. Language-dependent availability. */
+	members: z.array(symbolMemberSchema).optional(),
+
+	/** Extended/implemented parent types for class/interface symbols. Language-dependent availability. */
+	parent: symbolParentSchema.optional(),
 });
 
 export type SymbolDetails = z.infer<typeof symbolDetailsSchema>;

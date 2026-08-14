@@ -17,12 +17,16 @@ export {
 // Get Symbol Details
 export {
 	getSymbolDetailsParamsSchema,
+	symbolMemberSchema,
+	symbolParentSchema,
 	symbolDetailsSchema,
 	symbolUsageReferenceSchema,
 	symbolRelationshipsSchema,
 	impactScoreSchema,
 	symbolDetailsResultSchema,
 	type GetSymbolDetailsParams,
+	type SymbolMember,
+	type SymbolParent,
 	type SymbolDetails,
 	type SymbolUsageReference,
 	type SymbolRelationships,
