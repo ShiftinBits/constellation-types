@@ -68,10 +68,10 @@ export const symbolDetailsSchema = fileLocationSchema.extend({
 	/** Symbol modifiers (static, abstract, async, etc.) */
 	modifiers: z.array(z.string()).optional(),
 
-	/** Type information */
+	/** Canonical, resolved type information (language-agnostic). For raw per-language type data, see languageMetadata.typeInfo. */
 	typeInfo: z.any().optional(),
 
-	/** Decorators/annotations */
+	/** Canonical decorators/annotations (resolved). For raw per-language decorator data, see languageMetadata.decorators. */
 	decorators: z.array(z.string()).optional(),
 
 	/** Whether the symbol is exported */
