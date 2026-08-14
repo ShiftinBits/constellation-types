@@ -126,10 +126,10 @@ export const languageMetadataSchema = z.object({
 	/** Language-specific visibility rules */
 	visibility: z.string().optional(), // Interpreted per language
 
-	/** Decorators, annotations, attributes */
+	/** Raw decorators, annotations, attributes as reported by the language extractor (unresolved). For the canonical/resolved value, see symbolDetailsSchema.decorators. */
 	decorators: z.array(z.string()).optional(),
 
-	/** Language-specific type information (stored as JSON) */
+	/** Raw language-specific type information (stored as JSON, unresolved). For the canonical/resolved value, see symbolDetailsSchema.typeInfo. */
 	typeInfo: z.any().optional(),
 
 	/** Additional language-specific metadata */
