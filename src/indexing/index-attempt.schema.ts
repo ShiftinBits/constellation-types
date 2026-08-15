@@ -175,8 +175,8 @@ export type QueueUploadHeaders = z.infer<typeof queueUploadHeadersSchema>;
  *   integer, e.g. "3").
  */
 export const chunkedAstUploadHeadersSchema = queueUploadHeadersSchema.extend({
-	'x-chunk-index': z.string().regex(/^\d+$/),
-	'x-chunk-total': z.string().regex(/^\d+$/),
+	'x-chunk-index': z.string().regex(/^[1-9]\d*$/),
+	'x-chunk-total': z.string().regex(/^[1-9]\d*$/),
 });
 
 export type ChunkedAstUploadHeaders = z.infer<typeof chunkedAstUploadHeadersSchema>;
