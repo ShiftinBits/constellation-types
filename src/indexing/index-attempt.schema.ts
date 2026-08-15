@@ -161,3 +161,22 @@ export const queueUploadHeadersSchema = z.object({
 });
 
 export type QueueUploadHeaders = z.infer<typeof queueUploadHeadersSchema>;
+
+/**
+ * Headers for the full-index NDJSON upload path, extending
+ * {@link queueUploadHeadersSchema} with chunk-tracking fields.
+ *
+ * x-chunk-index and x-chunk-total are present only when the CLI splits a
+ * full-index upload into multiple sub-cap parts under one x-attempt-id:
+ *
+ * - x-chunk-index: 1-based index of this chunk within the upload
+ *   (string-encoded integer, e.g. "1").
+ * - x-chunk-total: total number of chunks in the upload (string-encoded
+ *   integer, e.g. "3").
+ */
+export const chunkedAstUploadHeadersSchema = queueUploadHeadersSchema.extend({
+	'x-chunk-index': z.string().regex(/^\d+$/),
+	'x-chunk-total': z.string().regex(/^\d+$/),
+});
+
+export type ChunkedAstUploadHeaders = z.infer<typeof chunkedAstUploadHeadersSchema>;

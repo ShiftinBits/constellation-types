@@ -77,10 +77,12 @@ export {
 	lockResponseQuotaExceededSchema,
 	lockResponseSchema,
 	queueUploadHeadersSchema,
+	chunkedAstUploadHeadersSchema,
 	LOCK_ESTIMATED_SYMBOL_COUNT_HEADER,
 	type IndexAttemptStatus,
 	type LockResponseStatus,
 	type LockResponse,
 	type LockResponseQuotaExceeded,
 	type QueueUploadHeaders,
+	type ChunkedAstUploadHeaders,
 } from './index-attempt.schema';
