@@ -83,3 +83,7 @@ Category barrels (`executors/index.ts`, `indexing/index.ts`) use explicit named 
 - **Zod ^3.24** is the only runtime dependency
 - **Husky** is configured but has no active hooks (pre-commit build hook removed)
 - All file paths in schemas use POSIX format (forward slashes)
+
+## Worktrees
+
+Create git worktrees only under this repo's `.claude/worktrees/<branch-slug>` (already gitignored), e.g. `git worktree add .claude/worktrees/feat-x -b feat/x origin/main`. Never create them outside the repo (e.g. sibling `../constellation-<name>-<branch>` folders) or in a `.worktrees/` directory.
