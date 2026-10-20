@@ -34,7 +34,7 @@ Consumers reference the package via semver (e.g., `"@constellationdev/types": "^
 ### Two Build Entry Points
 
 - **`src/index.ts`** — Full package export (mapped in `package.json` `exports`). Includes everything: common schemas, API response, all executor schemas, and all indexing schemas. Used by Core and CLI via `import { ... } from '@constellationdev/types'`.
-- **`src/mcp-api.ts`** — MCP-consumer subset. Excludes CLI-to-Core indexing types (`SerializedAST`, `ImportResolution`, etc.) that AI assistants don't need. Built by tsup to `dist/mcp-api.*` but **not** a package subpath export — consumed directly by MCP resource generation at `constellation://types/api`, not importable by package consumers.
+- **`src/mcp-api.ts`** — MCP-consumer subset. Excludes CLI-to-Core indexing types (`SerializedAST`, `ImportResolution`, etc.) that AI assistants don't need. Built by tsup to `dist/mcp-api.*` but **not** a package subpath export, so package consumers can't import it. Nothing reads it today: `constellation://types/api` serves constellation-mcp's own method summaries.
 
 ### Schema Categories
 
