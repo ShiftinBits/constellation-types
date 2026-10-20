@@ -31,10 +31,9 @@ Consumers reference the package via semver (e.g., `"@constellationdev/types": "^
 
 ## Architecture
 
-### Top-Level Barrels
+### Top-Level Barrel
 
 - **`src/index.ts`** — Full package export (mapped in `package.json` `exports`). Includes everything: common schemas, API response, all executor schemas, and all indexing schemas. Used by Core and CLI via `import { ... } from '@constellationdev/types'`.
-- **`src/mcp-api.ts`** — MCP-consumer subset. Excludes CLI-to-Core indexing types (`SerializedAST`, `ImportResolution`, etc.) that AI assistants don't need. Not a build entry and not published; it is only type-checked with the rest of `src/`. (constellation-mcp used to copy its declarations for `constellation://types/api`; it now serves its own method summaries.)
 
 ### Schema Categories
 
@@ -66,15 +65,14 @@ export const fooSchema = z.object({ ... });
 export type Foo = z.infer<typeof fooSchema>;
 ```
 
-Category barrels (`executors/index.ts`, `indexing/index.ts`) use explicit named exports per schema file. Top-level barrels (`src/index.ts`, `src/mcp-api.ts`) use `export *` from category barrels.
+Category barrels (`executors/index.ts`, `indexing/index.ts`) use explicit named exports per schema file. The top-level barrel (`src/index.ts`) uses `export *` from category barrels.
 
 ## Adding New Types
 
 1. Create schema file in `src/executors/` or `src/indexing/`
 2. Export both schema and type from the file
 3. Add explicit exports to the category's `index.ts` barrel
-4. If MCP-relevant, also export from `src/mcp-api.ts`
-5. Run `npm run build`, publish new version, update consumers
+4. Run `npm run build`, publish new version, update consumers
 
 ## Constraints
 
