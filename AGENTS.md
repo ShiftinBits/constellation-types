@@ -14,7 +14,7 @@ There is no test suite in this project. Validation happens via `type-check` and 
 
 ## Build System
 
-- **tsup** bundles from two entry points: `src/index.ts` (full export) and `src/mcp-api.ts` (MCP-only subset)
+- **tsup** bundles from one entry point: `src/index.ts` (full export)
 - Outputs CJS (`.js`), ESM (`.mjs`), and declarations (`.d.ts`) to `dist/`
 - `dist/` is gitignored (published to npmjs via CI, not committed)
 
@@ -31,10 +31,10 @@ Consumers reference the package via semver (e.g., `"@constellationdev/types": "^
 
 ## Architecture
 
-### Two Build Entry Points
+### Top-Level Barrels
 
 - **`src/index.ts`** — Full package export (mapped in `package.json` `exports`). Includes everything: common schemas, API response, all executor schemas, and all indexing schemas. Used by Core and CLI via `import { ... } from '@constellationdev/types'`.
-- **`src/mcp-api.ts`** — MCP-consumer subset. Excludes CLI-to-Core indexing types (`SerializedAST`, `ImportResolution`, etc.) that AI assistants don't need. Built by tsup to `dist/mcp-api.*` but **not** a package subpath export, so package consumers can't import it. Nothing reads it today: `constellation://types/api` serves constellation-mcp's own method summaries.
+- **`src/mcp-api.ts`** — MCP-consumer subset. Excludes CLI-to-Core indexing types (`SerializedAST`, `ImportResolution`, etc.) that AI assistants don't need. Not a build entry and not published; it is only type-checked with the rest of `src/`. (constellation-mcp used to copy its declarations for `constellation://types/api`; it now serves its own method summaries.)
 
 ### Schema Categories
 

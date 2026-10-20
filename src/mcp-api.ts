@@ -5,7 +5,8 @@
  * It excludes CLI-to-Core indexing types (SerializedAST, ImportResolution, etc.)
  * that are not used by the MCP code_intel tool.
  *
- * This file is used to generate the MCP Resource served at constellation://types/api
+ * It is not a build entry and is not published; it is type-checked with the
+ * rest of src/. Consumers import from the package root.
  *
  * @packageDocumentation
  */
