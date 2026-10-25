@@ -42,8 +42,14 @@ export const importResolutionSchema = z.object({
 export type ImportResolution = z.infer<typeof importResolutionSchema>;
 
 /**
- * Map of line numbers to import resolutions.
+ * Map of import positions to import resolutions.
  * CLI has access to tsconfig/jsconfig and can properly resolve path aliases.
+ *
+ * The key is `"<row>:<column>"` (both 0-based) of the import source node (the
+ * module specifier node). Older clients send the legacy `"<row>"` form.
+ * Consumers look up the exact `"<row>:<column>"` key first, then the legacy
+ * `"<row>"` key, and ignore a resolution whose `source` differs from the
+ * import being resolved.
  */
 export const importResolutionMetadataSchema = z.record(
 	z.string(),
