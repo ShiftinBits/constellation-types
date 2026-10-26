@@ -54,6 +54,12 @@ export const indexStatusCurrentSchema = z
 		completedAt: dateLike.nullable().optional(),
 		enrichment: indexStatusEnrichmentSchema.optional(),
 		phaseMetrics: phaseMetricsArraySchema.optional(),
+		/** Files whose Pass 1 extraction or storage failed. */
+		failedFileCount: z.number().int().nonnegative().optional(),
+		/** Pass 3 per-file failures plus dropped edge chunks. */
+		pass3FileErrors: z.number().int().nonnegative().optional(),
+		/** Non-fatal step failures (Pass 1.5, unresolved-reference write conflicts, Pass 2b orphan sweeps). */
+		swallowedStepErrors: z.number().int().nonnegative().optional(),
 	})
 	.passthrough();
 
@@ -69,6 +75,12 @@ export const indexStatusStaleSchema = z
 		requestedCommit: z.string().optional(),
 		enrichment: indexStatusEnrichmentSchema.optional(),
 		phaseMetrics: phaseMetricsArraySchema.optional(),
+		/** Files whose Pass 1 extraction or storage failed. */
+		failedFileCount: z.number().int().nonnegative().optional(),
+		/** Pass 3 per-file failures plus dropped edge chunks. */
+		pass3FileErrors: z.number().int().nonnegative().optional(),
+		/** Non-fatal step failures (Pass 1.5, unresolved-reference write conflicts, Pass 2b orphan sweeps). */
+		swallowedStepErrors: z.number().int().nonnegative().optional(),
 	})
 	.passthrough();
 
@@ -83,6 +95,12 @@ export const indexStatusFailedSchema = z
 		requestedCommit: z.string().optional(),
 		enrichment: indexStatusEnrichmentSchema.optional(),
 		phaseMetrics: phaseMetricsArraySchema.optional(),
+		/** Files whose Pass 1 extraction or storage failed. */
+		failedFileCount: z.number().int().nonnegative().optional(),
+		/** Pass 3 per-file failures plus dropped edge chunks. */
+		pass3FileErrors: z.number().int().nonnegative().optional(),
+		/** Non-fatal step failures (Pass 1.5, unresolved-reference write conflicts, Pass 2b orphan sweeps). */
+		swallowedStepErrors: z.number().int().nonnegative().optional(),
 	})
 	.passthrough();
 
