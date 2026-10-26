@@ -33,6 +33,9 @@ const dateLike = z.union([z.string().datetime({ offset: true }), z.date()]);
 
 /**
  * Server still running the three-pass pipeline for the latest attempt.
+ * The partial-failure counts (`failedFileCount`, `pass3FileErrors`,
+ * `swallowedStepErrors`) are not part of this shape: they are reported only
+ * once the attempt has ended, on the `current`, `stale` and `failed` shapes.
  */
 export const indexStatusProcessingSchema = z
 	.object({
@@ -42,6 +45,14 @@ export const indexStatusProcessingSchema = z
 		phaseMetrics: phaseMetricsArraySchema.optional(),
 	})
 	.passthrough();
+
+/**
+ * Partial-failure counts (`failedFileCount`, `pass3FileErrors`,
+ * `swallowedStepErrors`) on the `current`, `stale` and `failed` shapes: an
+ * absent field means "not reported" (for example an older server), never zero.
+ * Consumers must not treat absence as a clean run; only an explicit `0`
+ * means no failures of that kind. Test with `=== 0` or `> 0`, not truthiness.
+ */
 
 /**
  * Latest attempt completed and matches the commit the CLI asked about
