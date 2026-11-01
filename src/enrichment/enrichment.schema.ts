@@ -180,18 +180,36 @@ export type SymbolEnrichment = z.infer<typeof symbolEnrichmentSchema>;
  * project. Core replaces the structural `CALLS_UNRESOLVED` or name-guessed
  * `CALLS` edge at that site with a `CALLS` edge to the resolved target.
  *
+ * SITE ANCHOR
+ * -----------
+ * The site position is the start of the callee's anchor identifier: the
+ * last identifier of the callee expression, which is the token the
+ * definition request is fired on.
+ *  - Bare call `foo()`: `foo`.
+ *  - Member, qualified, or selector call (`obj.svc.method()`, Go
+ *    `pkg.Func()`, Python `mod.fn()`): the final member name (`method`,
+ *    `Func`, `fn`), never the receiver or qualifier.
+ *  - Chained call `a.b().c()`: one record per call, each anchored on its
+ *    own final member name (`b`, then `c`).
+ *
+ * `name` is the exact source text of that anchor identifier, which is the
+ * same text the structural call record carries as its callee name. In a
+ * call expression that spans lines, the anchor `line` is the line of the
+ * anchor identifier, which can differ from the line the call expression
+ * starts on.
+ *
  * Both the site `line` and `target.line` are 1-based on the wire (see the
  * file-level COORDINATE CONVENTIONS); columns are 0-based.
  */
 export const callSiteDefinitionSchema = z
 	.object({
-		/** 1-based line of the callee identifier at the call site (LSP convention) */
+		/** 1-based line of the anchor identifier at the call site (LSP convention) */
 		line: z.number().int().positive(),
 
-		/** 0-based column of the callee identifier at the call site */
+		/** 0-based column of the first character of the anchor identifier */
 		column: z.number().int().nonnegative(),
 
-		/** Callee identifier text as written at the call site */
+		/** Exact source text of the anchor identifier (e.g. `method` in `obj.svc.method()`) */
 		name: z.string().min(1),
 
 		/**
@@ -241,7 +259,21 @@ export const fileEnrichmentSchema = z
 		 * staying above the call-site count of real generated code. Each
 		 * record is itself small and fixed-size.
 		 *
-		 * Absent means the CLI sent no call-site facts for this file.
+		 * Three-state contract:
+		 *  - `undefined`: no `textDocument/definition` requests were fired
+		 *    for this file, or they did not all complete. Core leaves every
+		 *    call edge originating in this file as it is, including
+		 *    LSP-sourced `CALLS` edges from an earlier run. The CLI MUST
+		 *    omit the array rather than send a partial one.
+		 *  - `[]`: requests were fired on every targeted call site in the
+		 *    file and none resolved to a definition inside the project.
+		 *    Core scoped-deletes the stale LSP-sourced `CALLS` edges
+		 *    originating in this file and keeps the structural edges.
+		 *  - non-empty: the complete set of resolved sites in the file.
+		 *    Core replaces the structural edge at each listed site and
+		 *    scoped-deletes LSP-sourced `CALLS` edges originating in this
+		 *    file whose site is not listed. Sites that resolved outside
+		 *    the project or not at all are omitted.
 		 */
 		callSites: z.array(callSiteDefinitionSchema).max(10_000).optional(),
 	})
