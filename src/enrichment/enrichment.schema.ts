@@ -2,14 +2,20 @@
  * Enrichment Schemas
  *
  * Zod schemas for LSP enrichment data sent from CLI to Core.
- * Defines the contract for type info, references, and call hierarchy
- * gathered via LSP during indexing.
+ * Defines the contract for the two facts Core consumes from LSP during
+ * indexing: call-site definitions (`textDocument/definition` fired at
+ * targeted call sites, carried per file in `callSites`) and Go struct
+ * implementations (`textDocument/implementation` fired on concrete Go
+ * structs, carried per symbol in `implementations`).
  *
  * COORDINATE CONVENTIONS
  * ----------------------
  * LSP native format is used on the wire: `line` is 1-based, `column` is
- * 0-based. The Core enrichment processor normalizes `line` to 0-based at
- * ingress so that every internal consumer (classificationMap lookup keys,
+ * 0-based. This applies to every location on the wire, including both the
+ * call-site position and the definition target of a call-site record (site
+ * `line` and `target.line` are both 1-based). The Core enrichment
+ * processor normalizes `line` to 0-based at ingress so that every
+ * internal consumer (classificationMap lookup keys,
  * Symbol node `line` storage, extractor-written :REFERENCES edge `line`)
  * speaks tree-sitter's 0-based row convention. Producers MUST send values
  * in LSP's convention; consumers reading graph properties downstream MUST
@@ -93,10 +99,20 @@ export const symbolEnrichmentSchema = z
 		/** Symbol kind (e.g., function, class, variable, interface) */
 		kind: z.string().min(1),
 
-		/** Resolved type information from LSP hover */
+		/**
+		 * Resolved type information from LSP hover.
+		 *
+		 * @deprecated Core ignores this field. It stays optional so payloads
+		 * from older CLIs still validate.
+		 */
 		typeInfo: typeInfoSchema.optional(),
 
-		/** Reference locations where this symbol is used */
+		/**
+		 * Reference locations where this symbol is used.
+		 *
+		 * @deprecated Core ignores this field. It stays optional so payloads
+		 * from older CLIs still validate.
+		 */
 		references: z
 			.object({
 				/** Total number of references found */
@@ -107,7 +123,13 @@ export const symbolEnrichmentSchema = z
 			})
 			.optional(),
 
-		/** Incoming and outgoing call hierarchy */
+		/**
+		 * Incoming and outgoing call hierarchy.
+		 *
+		 * @deprecated Core ignores this field; call edges come from the
+		 * file-level `callSites` records instead. It stays optional so
+		 * payloads from older CLIs still validate.
+		 */
 		callHierarchy: z
 			.object({
 				/** Functions/methods that call this symbol (capped at 200) */
@@ -119,42 +141,69 @@ export const symbolEnrichmentSchema = z
 			.optional(),
 
 		/**
-		 * Locations of types/methods that implement (or are implemented by)
-		 * this symbol, sourced from `textDocument/implementation`.
+		 * Locations of the interfaces this symbol satisfies, sourced from
+		 * `textDocument/implementation`.
 		 *
-		 * Direction is symmetric and language-server-defined: when fired
-		 * on a concrete method, gopls returns the interface methods it
-		 * satisfies; when fired on an interface method, it returns the
-		 * concrete implementations. The same applies to TypeScript
-		 * interfaces / classes via tsserver. Core resolves the target
-		 * symbol at each location and emits an `IMPLEMENTS` edge.
+		 * The CLI fires the request only on concrete Go structs, so every
+		 * location is an interface the struct implements. For each location
+		 * Core resolves the target as the interface-kind symbol containing
+		 * that position and writes `symbol IMPLEMENTS interface`.
 		 *
-		 * Capped at 200 — interface implementers can run into the
-		 * hundreds in large polyglot codebases, but the per-symbol
-		 * pathological case (e.g. Go's `error` interface) is bounded
-		 * by what the LSP server itself returns. Wire format follows
-		 * the file-level COORDINATE CONVENTIONS above: 1-based line,
-		 * 0-based column. Core normalizes `line` to 0-based at
-		 * ingress, mirroring the `references` path.
+		 * Capped at 200: the per-symbol pathological case (a struct
+		 * satisfying many interfaces in a large codebase) is bounded by
+		 * what the language server itself returns. Wire format follows the
+		 * file-level COORDINATE CONVENTIONS above: 1-based line, 0-based
+		 * column. Core normalizes `line` to 0-based at ingress.
 		 *
 		 * Three-state contract:
-		 *  - `undefined` — LSP request not fired (kind not in the
-		 *    matrix) or fulfilled with implementors but the array was
-		 *    suppressed because the symbol carried no other data
-		 *    (avoids emitting a hollow record purely to run a no-op
-		 *    delete). Core skips the symbol entirely.
-		 *  - `[]` — fired and returned no implementors, paired with
-		 *    other LSP data so the symbol is being emitted anyway.
-		 *    Core scoped-deletes any stale LSP-sourced `IMPLEMENTS`
-		 *    edges (interface lost its last implementor).
-		 *  - non-empty — implementor locations, written as
-		 *    `IMPLEMENTS` edges by Core.
+		 *  - `undefined`: LSP request not fired (symbol is not a concrete
+		 *    Go struct) or fulfilled but the array was suppressed because
+		 *    the symbol carried no other data (avoids emitting a hollow
+		 *    record purely to run a no-op delete). Core skips the symbol
+		 *    entirely.
+		 *  - `[]`: fired and returned no interfaces, paired with other LSP
+		 *    data so the symbol is being emitted anyway. Core
+		 *    scoped-deletes any stale LSP-sourced `IMPLEMENTS` edges (the
+		 *    struct no longer satisfies any interface).
+		 *  - non-empty: interface locations, written as `IMPLEMENTS` edges
+		 *    by Core.
 		 */
 		implementations: z.array(referenceLocationSchema).max(200).optional(),
 	})
 	.strict();
 
 export type SymbolEnrichment = z.infer<typeof symbolEnrichmentSchema>;
+
+/**
+ * One record per targeted call site whose callee the language server
+ * resolved, via `textDocument/definition`, to a definition inside the
+ * project. Core replaces the structural `CALLS_UNRESOLVED` or name-guessed
+ * `CALLS` edge at that site with a `CALLS` edge to the resolved target.
+ *
+ * Both the site `line` and `target.line` are 1-based on the wire (see the
+ * file-level COORDINATE CONVENTIONS); columns are 0-based.
+ */
+export const callSiteDefinitionSchema = z
+	.object({
+		/** 1-based line of the callee identifier at the call site (LSP convention) */
+		line: z.number().int().positive(),
+
+		/** 0-based column of the callee identifier at the call site */
+		column: z.number().int().nonnegative(),
+
+		/** Callee identifier text as written at the call site */
+		name: z.string().min(1),
+
+		/**
+		 * Definition location returned by `textDocument/definition`: POSIX
+		 * relative path of the target file, 1-based line and 0-based column
+		 * of the target's name.
+		 */
+		target: referenceLocationSchema,
+	})
+	.strict();
+
+export type CallSiteDefinition = z.infer<typeof callSiteDefinitionSchema>;
 
 /**
  * File-level enrichment data containing all enriched symbols for a single file.
@@ -184,6 +233,17 @@ export const fileEnrichmentSchema = z
 		 * validation work stays bounded.
 		 */
 		symbols: z.array(symbolEnrichmentSchema).max(10_000),
+
+		/**
+		 * Resolved call-site definitions in this file. Capped at 10,000 for
+		 * the same reason as `symbols`: it bounds synchronous Zod validation
+		 * work on the request thread against pathological payloads while
+		 * staying above the call-site count of real generated code. Each
+		 * record is itself small and fixed-size.
+		 *
+		 * Absent means the CLI sent no call-site facts for this file.
+		 */
+		callSites: z.array(callSiteDefinitionSchema).max(10_000).optional(),
 	})
 	.strict();
 
