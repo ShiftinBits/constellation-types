@@ -82,8 +82,10 @@ export const typeInfoSchema = z
 export type TypeInfo = z.infer<typeof typeInfoSchema>;
 
 /**
- * Per-symbol LSP enrichment data aggregating type info, references,
- * and call hierarchy for a single symbol.
+ * Per-symbol LSP enrichment data for a single symbol. The field Core
+ * consumes is `implementations`; `typeInfo`, `references`, and
+ * `callHierarchy` are deprecated and kept optional only so payloads from
+ * older CLIs still validate.
  */
 export const symbolEnrichmentSchema = z
 	.object({
@@ -155,16 +157,20 @@ export const symbolEnrichmentSchema = z
 		 * file-level COORDINATE CONVENTIONS above: 1-based line, 0-based
 		 * column. Core normalizes `line` to 0-based at ingress.
 		 *
+		 * Core consumes `implementations` only on concrete Go struct
+		 * symbols and ignores the field for any other symbol kind. Older
+		 * CLIs sent it for interfaces, methods, and classes in other
+		 * languages with symmetric direction; Core discards those.
+		 *
 		 * Three-state contract:
 		 *  - `undefined`: LSP request not fired (symbol is not a concrete
-		 *    Go struct) or fulfilled but the array was suppressed because
-		 *    the symbol carried no other data (avoids emitting a hollow
-		 *    record purely to run a no-op delete). Core skips the symbol
-		 *    entirely.
-		 *  - `[]`: fired and returned no interfaces, paired with other LSP
-		 *    data so the symbol is being emitted anyway. Core
-		 *    scoped-deletes any stale LSP-sourced `IMPLEMENTS` edges (the
-		 *    struct no longer satisfies any interface).
+		 *    Go struct) or did not complete. Core leaves existing
+		 *    `IMPLEMENTS` edges as they are.
+		 *  - `[]`: the request fired on a concrete Go struct and returned
+		 *    no interfaces. The CLI MUST send `[]` in this case, even if
+		 *    the symbol carries no other data, so Core scoped-deletes any
+		 *    stale LSP-sourced `IMPLEMENTS` edges (the struct no longer
+		 *    satisfies any interface).
 		 *  - non-empty: interface locations, written as `IMPLEMENTS` edges
 		 *    by Core.
 		 */
@@ -246,9 +252,10 @@ export const fileEnrichmentSchema = z
 		 * Prisma client, OpenAPI codegen output, large gRPC stubs, or
 		 * dense `.d.ts` files for libraries like Three.js / Material UI /
 		 * the AWS SDK regularly produce 2,000–10,000 symbols per file.
-		 * Per-symbol cost is itself bounded by inner caps (refs ≤ 100,
-		 * calls ≤ 200×2, documentation ≤ 16 KiB), so per-line worst-case
-		 * validation work stays bounded.
+		 * Per-symbol cost is itself bounded by inner caps (implementations
+		 * ≤ 200, and for older payloads still carrying the deprecated
+		 * fields: refs ≤ 100, calls ≤ 200×2, documentation ≤ 16 KiB), so
+		 * per-line worst-case validation work stays bounded.
 		 */
 		symbols: z.array(symbolEnrichmentSchema).max(10_000),
 
@@ -256,8 +263,18 @@ export const fileEnrichmentSchema = z
 		 * Resolved call-site definitions in this file. Capped at 10,000 for
 		 * the same reason as `symbols`: it bounds synchronous Zod validation
 		 * work on the request thread against pathological payloads while
-		 * staying above the call-site count of real generated code. Each
-		 * record is itself small and fixed-size.
+		 * staying above the call-site count of real generated code. Record
+		 * size is not bounded by this cap: `name` and `target.filePath` are
+		 * unbounded strings.
+		 *
+		 * The CLI MUST omit `callSites` (the `undefined` state) for a file
+		 * with more than 10,000 resolved sites rather than send an
+		 * over-cap array. An over-cap array fails validation and Core
+		 * rejects the entire request, not just that file.
+		 *
+		 * Rollout: this schema is `.strict()`, so Core must accept this
+		 * field before any CLI sends it; otherwise Core rejects the whole
+		 * request.
 		 *
 		 * Three-state contract:
 		 *  - `undefined`: no `textDocument/definition` requests were fired
@@ -268,12 +285,15 @@ export const fileEnrichmentSchema = z
 		 *  - `[]`: requests were fired on every targeted call site in the
 		 *    file and none resolved to a definition inside the project.
 		 *    Core scoped-deletes the stale LSP-sourced `CALLS` edges
-		 *    originating in this file and keeps the structural edges.
+		 *    originating in this file and restores the structural edge at
+		 *    each of those sites (the `CALLS_UNRESOLVED` or name-guessed
+		 *    `CALLS` edge the structural pass recorded).
 		 *  - non-empty: the complete set of resolved sites in the file.
 		 *    Core replaces the structural edge at each listed site and
 		 *    scoped-deletes LSP-sourced `CALLS` edges originating in this
-		 *    file whose site is not listed. Sites that resolved outside
-		 *    the project or not at all are omitted.
+		 *    file whose site is not listed, restoring the structural edge
+		 *    at each such site. Sites that resolved outside the project or
+		 *    not at all are omitted.
 		 */
 		callSites: z.array(callSiteDefinitionSchema).max(10_000).optional(),
 	})
