@@ -13,6 +13,8 @@ export {
 	type TypeInfo,
 	symbolEnrichmentSchema,
 	type SymbolEnrichment,
+	callSiteDefinitionSchema,
+	type CallSiteDefinition,
 	fileEnrichmentSchema,
 	type FileEnrichment,
 	enrichmentMetadataSchema,
