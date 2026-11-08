@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `edgeResolvedBySchema` / `EdgeResolvedBy` (`lsp`, `receiver-type`, `interface-dispatch`,
+  `import`, `lexical-scope`, `same-file`, `directory`, `exported-anywhere`, `name`) and
+  `edgeSourceSchema` / `EdgeSource` (`extractor`, `lsp`): edge provenance. Optional
+  `resolvedBy` on call-graph caller and callee nodes, and optional `resolvedBy` / `source` on
+  trace-symbol-usage direct usages and impact-analysis impacted symbols. All are optional, so
+  responses from Core versions or graphs that predate resolution tiers still validate.
 - `callSiteDefinitionSchema` / `CallSiteDefinition`: one record per call site whose callee
   the language server resolved to a definition inside the project. `fileEnrichmentSchema`
   gains an optional `callSites` array (max 10,000) with a three-state contract: omitted
@@ -48,3 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Symbol kind value `'decorator'` — use `'decorator_def'` (the value Core stores in the
   graph). The alias is still accepted via Zod `preprocess` and mapped to `decorator_def`;
   it will be removed in a future release.
+
+### Fixed
+- Enrichment coordinate docs no longer claim Core normalizes `line` to 0-based at ingress.
+  Core keeps wire lines as-is; graph `line` properties are 1-based too.

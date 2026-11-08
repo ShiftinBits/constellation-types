@@ -210,6 +210,45 @@ export const riskLevelSchema = z.enum(['low', 'medium', 'high', 'critical']);
 export type RiskLevel = z.infer<typeof riskLevelSchema>;
 
 // =============================================================================
+// Edge Provenance
+// =============================================================================
+
+/**
+ * How Core resolved the target of a CALLS or REFERENCES edge, from strongest
+ * to weakest evidence. Lets agents discount name-based guesses.
+ *  - `lsp`: a language server resolved the call site (`textDocument/definition`).
+ *  - `receiver-type`: the callee was found on the receiver's resolved type.
+ *  - `interface-dispatch`: an interface method call fanned out to an implementer.
+ *  - `import`: the target was reached through a resolved import.
+ *  - `lexical-scope`: the reference matched a symbol in its lexical scope.
+ *  - `same-file`: the only candidate with that name is in the same file.
+ *  - `directory`: matched by name among symbols in the same directory.
+ *  - `exported-anywhere`: matched by name among exported symbols in any file.
+ *  - `name`: matched by simple name with no other evidence.
+ */
+export const edgeResolvedBySchema = z.enum([
+	'lsp',
+	'receiver-type',
+	'interface-dispatch',
+	'import',
+	'lexical-scope',
+	'same-file',
+	'directory',
+	'exported-anywhere',
+	'name',
+]);
+
+export type EdgeResolvedBy = z.infer<typeof edgeResolvedBySchema>;
+
+/**
+ * Which producer wrote an IMPLEMENTS or INHERITS edge: the structural
+ * extractor, or LSP enrichment.
+ */
+export const edgeSourceSchema = z.enum(['extractor', 'lsp']);
+
+export type EdgeSource = z.infer<typeof edgeSourceSchema>;
+
+// =============================================================================
 // Complexity Metrics
 // =============================================================================
 
