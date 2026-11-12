@@ -214,8 +214,9 @@ export type RiskLevel = z.infer<typeof riskLevelSchema>;
 // =============================================================================
 
 /**
- * How Core resolved the target of a CALLS or REFERENCES edge, from strongest
- * to weakest evidence. Lets agents discount name-based guesses.
+ * Known values for how Core resolved the target of a CALLS or REFERENCES
+ * edge, listed from strongest to weakest evidence. Lets agents discount
+ * name-based guesses.
  *  - `lsp`: a language server resolved the call site (`textDocument/definition`).
  *  - `receiver-type`: the callee was found on the receiver's resolved type.
  *  - `interface-dispatch`: an interface method call fanned out to an implementer.
@@ -225,6 +226,11 @@ export type RiskLevel = z.infer<typeof riskLevelSchema>;
  *  - `directory`: matched by name among symbols in the same directory.
  *  - `exported-anywhere`: matched by name among exported symbols in any file.
  *  - `name`: matched by simple name with no other evidence.
+ *
+ * Producers use this enum. Response fields carry a plain string (see
+ * `edgeProvenanceSchema`) so that a tier added in a newer Core does not make
+ * older consumers reject the whole response; treat unknown values as
+ * weaker than every known one.
  */
 export const edgeResolvedBySchema = z.enum([
 	'lsp',
@@ -241,12 +247,45 @@ export const edgeResolvedBySchema = z.enum([
 export type EdgeResolvedBy = z.infer<typeof edgeResolvedBySchema>;
 
 /**
- * Which producer wrote an IMPLEMENTS or INHERITS edge: the structural
- * extractor, or LSP enrichment.
+ * Known values for which producer wrote an edge: the structural extractor
+ * or LSP enrichment. Applies to every edge type that records a producer
+ * (CALLS, REFERENCES, IMPLEMENTS, INHERITS, EXTENDS). Response fields carry
+ * a plain string for the same forward-compatibility reason as
+ * `edgeResolvedBySchema`.
  */
 export const edgeSourceSchema = z.enum(['extractor', 'lsp']);
 
 export type EdgeSource = z.infer<typeof edgeSourceSchema>;
+
+/**
+ * Provenance of the edge that put a symbol into a result.
+ *
+ * REPORTING RULE: the values describe the edge from the symbol's parent in
+ * the result (the last hop of the path that reached it: for a depth-1 entry
+ * the edge to or from the queried symbol, for a deeper entry the edge from
+ * the entry one level up). When several parallel edges qualify (several
+ * call sites, or a CALLS and a REFERENCES edge merged into one row), the
+ * strongest `resolvedBy` in `edgeResolvedBySchema` order is reported, with
+ * the `source` of that same edge.
+ *
+ * Both fields are optional: they are absent on graphs indexed before
+ * provenance was recorded, and on edge types that do not carry them.
+ */
+export const edgeProvenanceSchema = z.object({
+	/**
+	 * How Core resolved the edge (CALLS and REFERENCES). One of the values
+	 * of `edgeResolvedBySchema`; unknown values are possible from newer Core.
+	 */
+	resolvedBy: z.string().optional(),
+
+	/**
+	 * Which producer wrote the edge. One of the values of `edgeSourceSchema`;
+	 * unknown values are possible from newer Core.
+	 */
+	source: z.string().optional(),
+});
+
+export type EdgeProvenance = z.infer<typeof edgeProvenanceSchema>;
 
 // =============================================================================
 // Complexity Metrics

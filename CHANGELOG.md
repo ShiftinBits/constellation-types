@@ -8,12 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- `edgeResolvedBySchema` / `EdgeResolvedBy` (`lsp`, `receiver-type`, `interface-dispatch`,
-  `import`, `lexical-scope`, `same-file`, `directory`, `exported-anywhere`, `name`) and
-  `edgeSourceSchema` / `EdgeSource` (`extractor`, `lsp`): edge provenance. Optional
-  `resolvedBy` on call-graph caller and callee nodes, and optional `resolvedBy` / `source` on
-  trace-symbol-usage direct usages and impact-analysis impacted symbols. All are optional, so
-  responses from Core versions or graphs that predate resolution tiers still validate.
+- Edge provenance: `edgeResolvedBySchema` / `EdgeResolvedBy` (`lsp`, `receiver-type`,
+  `interface-dispatch`, `import`, `lexical-scope`, `same-file`, `directory`,
+  `exported-anywhere`, `name`, strongest to weakest) and `edgeSourceSchema` / `EdgeSource`
+  (`extractor`, `lsp`) list the known values. `edgeProvenanceSchema` / `EdgeProvenance` adds
+  optional `resolvedBy` and `source` strings to call-graph caller and callee nodes,
+  trace-symbol-usage direct usages and impact-analysis impacted symbols. They report the edge
+  from the entry's parent in the result, the strongest tier when several edges qualify. The
+  fields are plain strings, so a tier added by a newer Core does not fail older consumers'
+  validation, and optional, so responses that predate provenance still validate.
 - `callSiteDefinitionSchema` / `CallSiteDefinition`: one record per call site whose callee
   the language server resolved to a definition inside the project. `fileEnrichmentSchema`
   gains an optional `callSites` array (max 10,000) with a three-state contract: omitted
@@ -57,4 +60,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Enrichment coordinate docs no longer claim Core normalizes `line` to 0-based at ingress.
-  Core keeps wire lines as-is; graph `line` properties are 1-based too.
+  Core keeps wire lines as-is; Symbol nodes and CALLS, REFERENCES and IMPLEMENTS edges store
+  1-based lines too (IMPORTS edges keep a 0-based row).

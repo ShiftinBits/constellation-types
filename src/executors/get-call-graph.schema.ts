@@ -30,7 +30,7 @@ import {
 	graphRepresentationSchema,
 	complexityMetricsSchema,
 	languageMetadataSchema,
-	edgeResolvedBySchema,
+	edgeProvenanceSchema,
 } from '../common.schema';
 
 /**
@@ -159,11 +159,8 @@ export const callerNodeSchema = z.object({
 	/** Depth from root */
 	depth: z.number().int().nonnegative(),
 
-	/**
-	 * How Core resolved the CALLS edge that reached this node. Absent on
-	 * graphs indexed before resolution tiers were recorded.
-	 */
-	resolvedBy: edgeResolvedBySchema.optional(),
+	/** Provenance of the CALLS edge that reached this node (see `edgeProvenanceSchema` for the reporting rule) */
+	...edgeProvenanceSchema.shape,
 
 	/** Cyclomatic complexity metrics (present on function/method symbols) */
 	complexity: complexityMetricsSchema.optional(),
@@ -205,11 +202,8 @@ export const calleeNodeSchema = z.object({
 	/** Depth from root */
 	depth: z.number().int().nonnegative(),
 
-	/**
-	 * How Core resolved the CALLS edge that reached this node. Absent on
-	 * graphs indexed before resolution tiers were recorded.
-	 */
-	resolvedBy: edgeResolvedBySchema.optional(),
+	/** Provenance of the CALLS edge that reached this node (see `edgeProvenanceSchema` for the reporting rule) */
+	...edgeProvenanceSchema.shape,
 
 	/** Cyclomatic complexity metrics (present on function/method symbols) */
 	complexity: complexityMetricsSchema.optional(),

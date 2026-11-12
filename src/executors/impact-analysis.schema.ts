@@ -9,8 +9,7 @@ import {
 	fileLocationSchema,
 	languageMetadataSchema,
 	riskLevelSchema,
-	edgeResolvedBySchema,
-	edgeSourceSchema,
+	edgeProvenanceSchema,
 } from '../common.schema';
 
 /**
@@ -72,18 +71,8 @@ export const impactedSymbolSchema = fileLocationSchema.extend({
 	/** Type of relationship (CALLS, REFERENCES, DEPENDS_ON, etc.) */
 	relationshipType: z.string(),
 
-	/**
-	 * How Core resolved the edge, for CALLS and REFERENCES usages. Absent on
-	 * other relationship types and on graphs indexed before resolution
-	 * tiers were recorded.
-	 */
-	resolvedBy: edgeResolvedBySchema.optional(),
-
-	/**
-	 * Which producer wrote the edge, for IMPLEMENTS and INHERITS. Absent on
-	 * other relationship types.
-	 */
-	source: edgeSourceSchema.optional(),
+	/** Provenance of the edge behind this dependent (see `edgeProvenanceSchema` for the reporting rule) */
+	...edgeProvenanceSchema.shape,
 
 	/** Depth in the dependency chain (1 = direct, 2+ = transitive) */
 	depth: z.number().int().positive(),

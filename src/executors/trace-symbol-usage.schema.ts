@@ -10,8 +10,7 @@ import {
 	complexityMetricsSchema,
 	languageMetadataSchema,
 	symbolKindCategorySchema,
-	edgeResolvedBySchema,
-	edgeSourceSchema,
+	edgeProvenanceSchema,
 } from '../common.schema';
 
 /**
@@ -118,18 +117,8 @@ export const directUsageSchema = z.object({
 	/** Relationship type (CALLS, REFERENCES, IMPORTS, etc.) */
 	relationshipType: z.string(),
 
-	/**
-	 * How Core resolved the edge, for CALLS and REFERENCES usages. Absent on
-	 * other relationship types and on graphs indexed before resolution
-	 * tiers were recorded.
-	 */
-	resolvedBy: edgeResolvedBySchema.optional(),
-
-	/**
-	 * Which producer wrote the edge, for IMPLEMENTS and INHERITS. Absent on
-	 * other relationship types.
-	 */
-	source: edgeSourceSchema.optional(),
+	/** Provenance of the edge behind this usage (see `edgeProvenanceSchema` for the reporting rule) */
+	...edgeProvenanceSchema.shape,
 
 	/** Line number where usage occurs */
 	line: z.number().int().positive().optional(),
