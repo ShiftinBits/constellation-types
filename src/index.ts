@@ -29,6 +29,14 @@ export {
 	riskLevelSchema,
 	type RiskLevel,
 
+	// Edge Provenance
+	edgeResolvedBySchema,
+	edgeSourceSchema,
+	edgeProvenanceSchema,
+	type EdgeResolvedBy,
+	type EdgeSource,
+	type EdgeProvenance,
+
 	// Complexity Metrics
 	complexityRiskSchema,
 	complexityMetricsSchema,
