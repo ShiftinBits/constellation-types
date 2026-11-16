@@ -13,13 +13,10 @@
  * LSP native format is used on the wire: `line` is 1-based, `column` is
  * 0-based. This applies to every location on the wire, including both the
  * call-site position and the definition target of a call-site record (site
- * `line` and `target.line` are both 1-based). The Core enrichment
- * processor normalizes `line` to 0-based at ingress so that every
- * internal consumer (classificationMap lookup keys,
- * Symbol node `line` storage, extractor-written :REFERENCES edge `line`)
- * speaks tree-sitter's 0-based row convention. Producers MUST send values
- * in LSP's convention; consumers reading graph properties downstream MUST
- * expect 0-based rows.
+ * `line` and `target.line` are both 1-based). Core keeps these values
+ * as-is: graph `line` properties (Symbol nodes and CALLS, REFERENCES and
+ * IMPLEMENTS edges) are 1-based too, so wire lines compare to graph lines
+ * directly. Producers MUST send values in LSP's convention.
  */
 
 import { z } from 'zod';
@@ -27,9 +24,8 @@ import { z } from 'zod';
 /**
  * A reference location pointing to where a symbol is used.
  *
- * Wire format is LSP-native: 1-based line, 0-based column. Core normalizes
- * `line` to 0-based before classificationMap lookup and MERGE, so the
- * edge stored on the graph carries a 0-based row.
+ * Wire format is LSP-native: 1-based line, 0-based column, the same
+ * bases the graph stores.
  */
 export const referenceLocationSchema = z
 	.object({
@@ -155,7 +151,7 @@ export const symbolEnrichmentSchema = z
 		 * satisfying many interfaces in a large codebase) is bounded by
 		 * what the language server itself returns. Wire format follows the
 		 * file-level COORDINATE CONVENTIONS above: 1-based line, 0-based
-		 * column. Core normalizes `line` to 0-based at ingress.
+		 * column.
 		 *
 		 * Core consumes `implementations` only on concrete Go struct
 		 * symbols and ignores the field for any other symbol kind. Older

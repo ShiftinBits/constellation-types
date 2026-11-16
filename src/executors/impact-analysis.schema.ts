@@ -9,6 +9,7 @@ import {
 	fileLocationSchema,
 	languageMetadataSchema,
 	riskLevelSchema,
+	edgeProvenanceSchema,
 } from '../common.schema';
 
 /**
@@ -69,6 +70,9 @@ export const impactedSymbolSchema = fileLocationSchema.extend({
 
 	/** Type of relationship (CALLS, REFERENCES, DEPENDS_ON, etc.) */
 	relationshipType: z.string(),
+
+	/** Provenance of the edge behind this dependent (see `edgeProvenanceSchema` for the reporting rule) */
+	...edgeProvenanceSchema.shape,
 
 	/** Depth in the dependency chain (1 = direct, 2+ = transitive) */
 	depth: z.number().int().positive(),

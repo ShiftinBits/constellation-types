@@ -10,6 +10,7 @@ import {
 	complexityMetricsSchema,
 	languageMetadataSchema,
 	symbolKindCategorySchema,
+	edgeProvenanceSchema,
 } from '../common.schema';
 
 /**
@@ -115,6 +116,9 @@ export const directUsageSchema = z.object({
 
 	/** Relationship type (CALLS, REFERENCES, IMPORTS, etc.) */
 	relationshipType: z.string(),
+
+	/** Provenance of the edge behind this usage (see `edgeProvenanceSchema` for the reporting rule) */
+	...edgeProvenanceSchema.shape,
 
 	/** Line number where usage occurs */
 	line: z.number().int().positive().optional(),
